@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, MapPin, Clock, Linkedin, Facebook } from "lucide-react";
+import { Mail, MapPin, Clock, Linkedin, Facebook, Github } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -163,6 +163,14 @@ export default function Contact() {
               <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
                 <h3 className="text-xl font-bold mb-4 text-white">Social Links</h3>
                 <div className="flex space-x-4">
+                  <a 
+                    href="https://github.com/malekfouda2" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gray-800 p-3 rounded-lg text-white hover:bg-gray-700 transition-colors"
+                  >
+                    <Github className="w-5 h-5" />
+                  </a>
                   <a 
                     href="https://www.facebook.com/mikofouda" 
                     target="_blank"
