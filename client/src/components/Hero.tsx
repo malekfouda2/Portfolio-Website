@@ -48,8 +48,8 @@ export default function Hero() {
               <br />
               <span className="gradient-text animate-glitch">Malek Fouda</span>
             </h1>
-            <div className="text-xl md:text-2xl text-gray-300 mb-8 font-mono min-h-[2rem]">
-              <span className="typing-demo">
+            <div className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 font-mono min-h-[2rem] px-4">
+              <span className="typing-demo break-words">
                 {typedText}
                 <span className="animate-pulse">|</span>
               </span>

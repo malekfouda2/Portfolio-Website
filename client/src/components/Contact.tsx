@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, MapPin, Clock, Github, Linkedin, Twitter, Instagram } from "lucide-react";
+import { Mail, MapPin, Clock, Linkedin, Facebook } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -147,7 +147,7 @@ export default function Contact() {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
                     <Mail className="text-green-400 w-5 h-5" />
-                    <span className="text-gray-300">malek.fouda@example.com</span>
+                    <span className="text-gray-300">malekfouda2000@gmail.com</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <MapPin className="text-blue-400 w-5 h-5" />
@@ -164,36 +164,20 @@ export default function Contact() {
                 <h3 className="text-xl font-bold mb-4 text-white">Social Links</h3>
                 <div className="flex space-x-4">
                   <a 
-                    href="https://github.com/malekfouda" 
+                    href="https://www.facebook.com/mikofouda" 
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-800 p-3 rounded-lg text-white hover:bg-gray-700 transition-colors"
                   >
-                    <Github className="w-5 h-5" />
+                    <Facebook className="w-5 h-5" />
                   </a>
                   <a 
-                    href="https://linkedin.com/in/malekfouda" 
+                    href="https://www.linkedin.com/in/malek-fouda-18a229244?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" 
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-gray-800 p-3 rounded-lg text-white hover:bg-gray-700 transition-colors"
                   >
                     <Linkedin className="w-5 h-5" />
-                  </a>
-                  <a 
-                    href="https://twitter.com/malekfouda" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gray-800 p-3 rounded-lg text-white hover:bg-gray-700 transition-colors"
-                  >
-                    <Twitter className="w-5 h-5" />
-                  </a>
-                  <a 
-                    href="https://instagram.com/malekfouda" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gray-800 p-3 rounded-lg text-white hover:bg-gray-700 transition-colors"
-                  >
-                    <Instagram className="w-5 h-5" />
                   </a>
                 </div>
               </div>

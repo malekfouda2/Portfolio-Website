@@ -8,6 +8,14 @@ This is a modern, full-stack personal portfolio website built with React, TypeSc
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### July 14, 2025
+- Fixed hero section mobile responsiveness for typing text
+- Updated contact email to malekfouda2000@gmail.com
+- Updated social links to Facebook and LinkedIn with user's specific URLs
+- Improved mobile text wrapping with CSS media queries
+
 ## System Architecture
 
 ### Frontend Architecture
