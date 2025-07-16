@@ -1,7 +1,15 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContactSchema } from "@shared/schema";
+import { 
+  insertContactSchema, 
+  insertHeroContentSchema,
+  insertAboutContentSchema,
+  insertProjectSchema,
+  insertSkillSchema,
+  insertPartnershipSchema,
+  insertContactInfoSchema
+} from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -27,16 +35,211 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all contacts (for admin purposes)
-  app.get("/api/contacts", async (req, res) => {
+  // Dashboard API Routes
+  
+  // Contacts management
+  app.get("/api/admin/contacts", async (req, res) => {
     try {
       const contacts = await storage.getContacts();
       res.json(contacts);
     } catch (error) {
-      res.status(500).json({ 
-        success: false, 
-        message: "Failed to fetch contacts" 
-      });
+      res.status(500).json({ error: "Failed to fetch contacts" });
+    }
+  });
+
+  // Hero content
+  app.get("/api/admin/hero", async (req, res) => {
+    try {
+      const hero = await storage.getHeroContent();
+      res.json(hero);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch hero content" });
+    }
+  });
+
+  app.put("/api/admin/hero", async (req, res) => {
+    try {
+      const hero = insertHeroContentSchema.parse(req.body);
+      const result = await storage.updateHeroContent(hero);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid hero content data" });
+    }
+  });
+
+  // About content
+  app.get("/api/admin/about", async (req, res) => {
+    try {
+      const about = await storage.getAboutContent();
+      res.json(about);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch about content" });
+    }
+  });
+
+  app.put("/api/admin/about", async (req, res) => {
+    try {
+      const about = insertAboutContentSchema.parse(req.body);
+      const result = await storage.updateAboutContent(about);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid about content data" });
+    }
+  });
+
+  // Projects
+  app.get("/api/admin/projects", async (req, res) => {
+    try {
+      const projects = await storage.getProjects();
+      res.json(projects);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch projects" });
+    }
+  });
+
+  app.get("/api/admin/projects/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const project = await storage.getProject(id);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      res.json(project);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch project" });
+    }
+  });
+
+  app.post("/api/admin/projects", async (req, res) => {
+    try {
+      const project = insertProjectSchema.parse(req.body);
+      const result = await storage.createProject(project);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid project data" });
+    }
+  });
+
+  app.put("/api/admin/projects/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const project = insertProjectSchema.parse(req.body);
+      const result = await storage.updateProject(id, project);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid project data" });
+    }
+  });
+
+  app.delete("/api/admin/projects/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteProject(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete project" });
+    }
+  });
+
+  // Skills
+  app.get("/api/admin/skills", async (req, res) => {
+    try {
+      const skills = await storage.getSkills();
+      res.json(skills);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch skills" });
+    }
+  });
+
+  app.post("/api/admin/skills", async (req, res) => {
+    try {
+      const skill = insertSkillSchema.parse(req.body);
+      const result = await storage.createSkill(skill);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid skill data" });
+    }
+  });
+
+  app.put("/api/admin/skills/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const skill = insertSkillSchema.parse(req.body);
+      const result = await storage.updateSkill(id, skill);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid skill data" });
+    }
+  });
+
+  app.delete("/api/admin/skills/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteSkill(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete skill" });
+    }
+  });
+
+  // Partnerships
+  app.get("/api/admin/partnerships", async (req, res) => {
+    try {
+      const partnerships = await storage.getPartnerships();
+      res.json(partnerships);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch partnerships" });
+    }
+  });
+
+  app.post("/api/admin/partnerships", async (req, res) => {
+    try {
+      const partnership = insertPartnershipSchema.parse(req.body);
+      const result = await storage.createPartnership(partnership);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid partnership data" });
+    }
+  });
+
+  app.put("/api/admin/partnerships/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const partnership = insertPartnershipSchema.parse(req.body);
+      const result = await storage.updatePartnership(id, partnership);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid partnership data" });
+    }
+  });
+
+  app.delete("/api/admin/partnerships/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deletePartnership(id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete partnership" });
+    }
+  });
+
+  // Contact Info
+  app.get("/api/admin/contact-info", async (req, res) => {
+    try {
+      const info = await storage.getContactInfo();
+      res.json(info);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch contact info" });
+    }
+  });
+
+  app.put("/api/admin/contact-info", async (req, res) => {
+    try {
+      const info = insertContactInfoSchema.parse(req.body);
+      const result = await storage.updateContactInfo(info);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid contact info data" });
     }
   });
 
