@@ -29,6 +29,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { HeroContent, Contact, Project } from "@shared/schema";
+import { ImageUpload } from "@/components/ImageUpload";
 
 // Auth check hook
 function useAuth() {
@@ -420,12 +421,10 @@ function ProjectsManager() {
               />
             </div>
             <div>
-              <Label htmlFor="image">Image URL</Label>
-              <Input
-                id="image"
+              <ImageUpload
+                label="Project Image"
                 value={formData.image || ""}
-                onChange={(e) => handleInputChange("image", e.target.value)}
-                placeholder="https://example.com/image.jpg"
+                onChange={(url) => handleInputChange("image", url)}
               />
             </div>
             <div>

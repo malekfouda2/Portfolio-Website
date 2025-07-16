@@ -57,9 +57,6 @@ export default function Navigation() {
               <button onClick={() => scrollToSection('contact')} className="nav-link text-gray-300 hover:text-white font-medium">
                 Contact
               </button>
-              <a href="/dashboard" className="nav-link text-gray-300 hover:text-white font-medium">
-                Dashboard
-              </a>
             </div>
             
             <button 
@@ -90,9 +87,6 @@ export default function Navigation() {
               <button onClick={() => scrollToSection('contact')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
                 Contact
               </button>
-              <a href="/dashboard" className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
-                Dashboard
-              </a>
             </div>
           </div>
         </div>
