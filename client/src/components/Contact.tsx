@@ -70,122 +70,129 @@ export default function Contact() {
           
           <div className="grid md:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <div className="terminal-window">
-              <div className="terminal-header">
-                <div className="terminal-dot dot-red"></div>
-                <div className="terminal-dot dot-yellow"></div>
-                <div className="terminal-dot dot-green"></div>
-                <span className="text-gray-400 font-mono text-sm ml-4">contact-form.js</span>
-              </div>
-              <div className="p-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      <span className="text-green-400">const</span> name = 
-                    </label>
-                    <input 
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors"
-                      placeholder="Your Name"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      <span className="text-green-400">const</span> email = 
-                    </label>
-                    <input 
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors"
-                      placeholder="your@email.com"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      <span className="text-green-400">const</span> message = 
-                    </label>
-                    <textarea 
-                      rows={4}
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors"
-                      placeholder="Tell me about your project..."
-                      required
-                    />
-                  </div>
-                  
-                  <button 
-                    type="submit"
-                    disabled={contactMutation.isPending}
-                    className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-black px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {contactMutation.isPending ? "Sending..." : "Send Message"}
-                  </button>
-                </form>
-              </div>
+            <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8">
+              <h3 className="text-2xl font-bold text-white mb-6">Let's Discuss Your Project</h3>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Your Name
+                  </label>
+                  <input 
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors"
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Email Address
+                  </label>
+                  <input 
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors"
+                    placeholder="john@example.com"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Project Details
+                  </label>
+                  <textarea 
+                    rows={4}
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors"
+                    placeholder="Tell me about your project requirements, timeline, and budget..."
+                    required
+                  />
+                </div>
+                
+                <button 
+                  type="submit"
+                  disabled={contactMutation.isPending}
+                  className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-black px-6 py-4 rounded-xl font-semibold text-lg hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {contactMutation.isPending ? "Sending..." : "Send Message"}
+                </button>
+              </form>
             </div>
             
             {/* Contact Info */}
             <div className="space-y-8">
-              <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
-                <h3 className="text-xl font-bold mb-4 text-white">Let's Connect</h3>
-                <p className="text-gray-300 mb-6">
-                  I'm always open to discussing new opportunities, collaborations, 
-                  or just having a chat about technology and development.
+              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8">
+                <h3 className="text-2xl font-bold text-white mb-6">Get In Touch</h3>
+                <p className="text-gray-300 mb-8 text-lg">
+                  Ready to bring your project to life? I'm here to help you create something amazing.
                 </p>
                 
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <Mail className="text-green-400 w-5 h-5" />
-                    <span className="text-gray-300">malekfouda2000@gmail.com</span>
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-green-400/20 rounded-full flex items-center justify-center">
+                      <Mail className="text-green-400 w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-400">Email</div>
+                      <div className="text-white font-medium">malekfouda2000@gmail.com</div>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="text-blue-400 w-5 h-5" />
-                    <span className="text-gray-300">Available Worldwide</span>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-blue-400/20 rounded-full flex items-center justify-center">
+                      <MapPin className="text-blue-400 w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-400">Location</div>
+                      <div className="text-white font-medium">Available Worldwide</div>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <Clock className="text-purple-400 w-5 h-5" />
-                    <span className="text-gray-300">Usually responds within 24 hours</span>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-purple-400/20 rounded-full flex items-center justify-center">
+                      <Clock className="text-purple-400 w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-400">Response Time</div>
+                      <div className="text-white font-medium">Within 24 hours</div>
+                    </div>
                   </div>
                 </div>
               </div>
               
-              <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
-                <h3 className="text-xl font-bold mb-4 text-white">Social Links</h3>
+              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8">
+                <h3 className="text-2xl font-bold text-white mb-6">Follow Me</h3>
                 <div className="flex space-x-4">
                   <a 
                     href="https://github.com/malekfouda2" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gray-800 p-3 rounded-lg text-white hover:bg-gray-700 transition-colors"
+                    className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-green-400 hover:text-black transition-all duration-300"
                   >
-                    <Github className="w-5 h-5" />
+                    <Github className="w-6 h-6" />
                   </a>
                   <a 
                     href="https://www.facebook.com/mikofouda" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gray-800 p-3 rounded-lg text-white hover:bg-gray-700 transition-colors"
+                    className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-blue-400 hover:text-black transition-all duration-300"
                   >
-                    <Facebook className="w-5 h-5" />
+                    <Facebook className="w-6 h-6" />
                   </a>
                   <a 
                     href="https://www.linkedin.com/in/malek-fouda-18a229244?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gray-800 p-3 rounded-lg text-white hover:bg-gray-700 transition-colors"
+                    className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-blue-600 hover:text-white transition-all duration-300"
                   >
-                    <Linkedin className="w-5 h-5" />
+                    <Linkedin className="w-6 h-6" />
                   </a>
                 </div>
               </div>

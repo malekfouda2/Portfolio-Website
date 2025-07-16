@@ -11,13 +11,12 @@ export default function Footer() {
       <div className="container mx-auto px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center">
-            <div className="text-2xl font-bold font-mono mb-4">
-              <span className="text-white">{'<'}</span>
-              <span className="gradient-text">MF</span>
-              <span className="text-white">{'/>'}</span>
+            <div className="text-2xl font-bold mb-4">
+              <span className="text-white">Malek</span>
+              <span className="gradient-text"> Fouda</span>
             </div>
             <p className="text-gray-400 mb-6">
-              Building the future, one line of code at a time.
+              Transforming ideas into digital solutions that drive business success.
             </p>
             <div className="flex justify-center flex-wrap gap-6 mb-8">
               <button 
@@ -36,7 +35,7 @@ export default function Footer() {
                 onClick={() => scrollToSection('projects')}
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                Projects
+                Portfolio
               </button>
               <button 
                 onClick={() => scrollToSection('skills')}
