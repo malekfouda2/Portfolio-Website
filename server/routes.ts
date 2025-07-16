@@ -11,8 +11,12 @@ import {
   insertContactInfoSchema
 } from "@shared/schema";
 import { z } from "zod";
+import { requireAuth, login } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Authentication
+  app.post("/api/auth/login", login);
+
   // Contact form submission
   app.post("/api/contact", async (req, res) => {
     try {
@@ -35,10 +39,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Dashboard API Routes
+  // Dashboard API Routes (Protected)
   
   // Contacts management
-  app.get("/api/admin/contacts", async (req, res) => {
+  app.get("/api/admin/contacts", requireAuth, async (req, res) => {
     try {
       const contacts = await storage.getContacts();
       res.json(contacts);
@@ -48,7 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Hero content
-  app.get("/api/admin/hero", async (req, res) => {
+  app.get("/api/admin/hero", requireAuth, async (req, res) => {
     try {
       const hero = await storage.getHeroContent();
       res.json(hero);
@@ -57,7 +61,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/hero", async (req, res) => {
+  app.put("/api/admin/hero", requireAuth, async (req, res) => {
     try {
       const hero = insertHeroContentSchema.parse(req.body);
       const result = await storage.updateHeroContent(hero);
@@ -68,7 +72,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // About content
-  app.get("/api/admin/about", async (req, res) => {
+  app.get("/api/admin/about", requireAuth, async (req, res) => {
     try {
       const about = await storage.getAboutContent();
       res.json(about);
@@ -77,7 +81,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/about", async (req, res) => {
+  app.put("/api/admin/about", requireAuth, async (req, res) => {
     try {
       const about = insertAboutContentSchema.parse(req.body);
       const result = await storage.updateAboutContent(about);
@@ -88,7 +92,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Projects
-  app.get("/api/admin/projects", async (req, res) => {
+  app.get("/api/admin/projects", requireAuth, async (req, res) => {
     try {
       const projects = await storage.getProjects();
       res.json(projects);
@@ -97,7 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/projects/:id", async (req, res) => {
+  app.get("/api/admin/projects/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const project = await storage.getProject(id);
@@ -110,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/projects", async (req, res) => {
+  app.post("/api/admin/projects", requireAuth, async (req, res) => {
     try {
       const project = insertProjectSchema.parse(req.body);
       const result = await storage.createProject(project);
@@ -120,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/projects/:id", async (req, res) => {
+  app.put("/api/admin/projects/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const project = insertProjectSchema.parse(req.body);
@@ -131,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/admin/projects/:id", async (req, res) => {
+  app.delete("/api/admin/projects/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteProject(id);
@@ -142,7 +146,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Skills
-  app.get("/api/admin/skills", async (req, res) => {
+  app.get("/api/admin/skills", requireAuth, async (req, res) => {
     try {
       const skills = await storage.getSkills();
       res.json(skills);
@@ -151,7 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/skills", async (req, res) => {
+  app.post("/api/admin/skills", requireAuth, async (req, res) => {
     try {
       const skill = insertSkillSchema.parse(req.body);
       const result = await storage.createSkill(skill);
@@ -161,7 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/skills/:id", async (req, res) => {
+  app.put("/api/admin/skills/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const skill = insertSkillSchema.parse(req.body);
@@ -172,7 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/admin/skills/:id", async (req, res) => {
+  app.delete("/api/admin/skills/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deleteSkill(id);
@@ -183,7 +187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Partnerships
-  app.get("/api/admin/partnerships", async (req, res) => {
+  app.get("/api/admin/partnerships", requireAuth, async (req, res) => {
     try {
       const partnerships = await storage.getPartnerships();
       res.json(partnerships);
@@ -192,7 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/partnerships", async (req, res) => {
+  app.post("/api/admin/partnerships", requireAuth, async (req, res) => {
     try {
       const partnership = insertPartnershipSchema.parse(req.body);
       const result = await storage.createPartnership(partnership);
@@ -202,7 +206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/partnerships/:id", async (req, res) => {
+  app.put("/api/admin/partnerships/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const partnership = insertPartnershipSchema.parse(req.body);
@@ -213,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/admin/partnerships/:id", async (req, res) => {
+  app.delete("/api/admin/partnerships/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.deletePartnership(id);
@@ -224,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Contact Info
-  app.get("/api/admin/contact-info", async (req, res) => {
+  app.get("/api/admin/contact-info", requireAuth, async (req, res) => {
     try {
       const info = await storage.getContactInfo();
       res.json(info);
@@ -233,7 +237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/admin/contact-info", async (req, res) => {
+  app.put("/api/admin/contact-info", requireAuth, async (req, res) => {
     try {
       const info = insertContactInfoSchema.parse(req.body);
       const result = await storage.updateContactInfo(info);

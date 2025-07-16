@@ -1,120 +1,176 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, MapPin, Calendar, Edit, Trash2, Plus, Save, X } from "lucide-react";
-import { format } from "date-fns";
+import { 
+  Home, 
+  Users, 
+  FolderOpen, 
+  MessageSquare, 
+  Settings,
+  Mail,
+  Phone,
+  Calendar,
+  Eye,
+  Edit,
+  Trash2,
+  Plus,
+  Save,
+  X,
+  LogOut
+} from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import type { HeroContent, Contact, Project } from "@shared/schema";
 
-// Hero Content Management
+// Auth check hook
+function useAuth() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      setLocation("/login");
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, [setLocation]);
+
+  const logout = () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user");
+    setLocation("/login");
+  };
+
+  return { isAuthenticated, logout };
+}
+
 function HeroContentManager() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    title: "",
-    typingTexts: [] as string[],
-    description: "",
-    yearsExperience: 0,
-    projectsDelivered: 0,
-    clientSatisfaction: 0,
-  });
+  const [formData, setFormData] = useState<Partial<HeroContent>>({});
 
-  const { data: heroContent, isLoading, refetch } = useQuery({
+  const { data: heroContent, isLoading } = useQuery({
     queryKey: ["/api/admin/hero"],
+    onSuccess: (data) => {
+      if (data) {
+        setFormData(data);
+      }
+    },
   });
 
-  const handleEdit = () => {
-    if (heroContent) {
-      setFormData({
-        name: heroContent.name || "",
-        title: heroContent.title || "",
-        typingTexts: heroContent.typingTexts || [],
-        description: heroContent.description || "",
-        yearsExperience: heroContent.yearsExperience || 0,
-        projectsDelivered: heroContent.projectsDelivered || 0,
-        clientSatisfaction: heroContent.clientSatisfaction || 0,
+  const updateMutation = useMutation({
+    mutationFn: async (data: Partial<HeroContent>) => {
+      const response = await apiRequest("PUT", "/api/admin/hero", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Hero content updated successfully",
       });
-    }
-    setIsEditing(true);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/hero"] });
+      setIsEditing(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update hero content",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateMutation.mutate(formData);
   };
 
-  const handleSave = async () => {
-    try {
-      const response = await fetch("/api/admin/hero", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      
-      if (response.ok) {
-        refetch();
-        setIsEditing(false);
-      }
-    } catch (error) {
-      console.error("Failed to save hero content:", error);
-    }
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  if (isLoading) return <div>Loading hero content...</div>;
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          Hero Section
-          {!isEditing && (
-            <Button onClick={handleEdit} variant="outline" size="sm">
-              <Edit className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
-          )}
-        </CardTitle>
-        <CardDescription>
-          Manage the hero section content and statistics
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Hero Section</CardTitle>
+        <Button
+          variant={isEditing ? "outline" : "default"}
+          onClick={() => setIsEditing(!isEditing)}
+        >
+          {isEditing ? <X className="h-4 w-4" /> : <Edit className="h-4 w-4" />}
+          {isEditing ? "Cancel" : "Edit"}
+        </Button>
       </CardHeader>
       <CardContent>
-        {isEditing ? (
+        {!isEditing ? (
           <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium">Name</Label>
+              <p className="text-sm text-muted-foreground">{heroContent?.name || "Not set"}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Title</Label>
+              <p className="text-sm text-muted-foreground">{heroContent?.title || "Not set"}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Description</Label>
+              <p className="text-sm text-muted-foreground">{heroContent?.description || "Not set"}</p>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label className="text-sm font-medium">Years Experience</Label>
+                <p className="text-sm text-muted-foreground">{heroContent?.yearsExperience || 0}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Projects Delivered</Label>
+                <p className="text-sm text-muted-foreground">{heroContent?.projectsDelivered || 0}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium">Client Satisfaction</Label>
+                <p className="text-sm text-muted-foreground">{heroContent?.clientSatisfaction || 0}%</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                value={formData.name || ""}
+                onChange={(e) => handleInputChange("name", e.target.value)}
+                placeholder="Your name"
               />
             </div>
             <div>
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="typingTexts">Typing Texts (comma-separated)</Label>
-              <Input
-                id="typingTexts"
-                value={formData.typingTexts.join(", ")}
-                onChange={(e) => setFormData({ 
-                  ...formData, 
-                  typingTexts: e.target.value.split(",").map(t => t.trim())
-                })}
+                value={formData.title || ""}
+                onChange={(e) => handleInputChange("title", e.target.value)}
+                placeholder="Your professional title"
               />
             </div>
             <div>
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                value={formData.description || ""}
+                onChange={(e) => handleInputChange("description", e.target.value)}
+                placeholder="Brief description about yourself"
+                rows={3}
               />
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -123,8 +179,8 @@ function HeroContentManager() {
                 <Input
                   id="yearsExperience"
                   type="number"
-                  value={formData.yearsExperience}
-                  onChange={(e) => setFormData({ ...formData, yearsExperience: parseInt(e.target.value) })}
+                  value={formData.yearsExperience || ""}
+                  onChange={(e) => handleInputChange("yearsExperience", parseInt(e.target.value))}
                 />
               </div>
               <div>
@@ -132,71 +188,41 @@ function HeroContentManager() {
                 <Input
                   id="projectsDelivered"
                   type="number"
-                  value={formData.projectsDelivered}
-                  onChange={(e) => setFormData({ ...formData, projectsDelivered: parseInt(e.target.value) })}
+                  value={formData.projectsDelivered || ""}
+                  onChange={(e) => handleInputChange("projectsDelivered", parseInt(e.target.value))}
                 />
               </div>
               <div>
-                <Label htmlFor="clientSatisfaction">Client Satisfaction %</Label>
+                <Label htmlFor="clientSatisfaction">Client Satisfaction (%)</Label>
                 <Input
                   id="clientSatisfaction"
                   type="number"
-                  value={formData.clientSatisfaction}
-                  onChange={(e) => setFormData({ ...formData, clientSatisfaction: parseInt(e.target.value) })}
+                  value={formData.clientSatisfaction || ""}
+                  onChange={(e) => handleInputChange("clientSatisfaction", parseInt(e.target.value))}
                 />
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button onClick={handleSave}>
-                <Save className="h-4 w-4 mr-2" />
-                Save
-              </Button>
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
-                <X className="h-4 w-4 mr-2" />
-                Cancel
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-lg">{heroContent?.name || "No name set"}</h3>
-              <p className="text-muted-foreground">{heroContent?.title || "No title set"}</p>
+              <Label htmlFor="typingTexts">Typing Animation Texts (one per line)</Label>
+              <Textarea
+                id="typingTexts"
+                value={Array.isArray(formData.typingTexts) ? formData.typingTexts.join("\n") : ""}
+                onChange={(e) => handleInputChange("typingTexts", e.target.value.split("\n").filter(Boolean))}
+                placeholder="Building scalable web applications&#10;Creating elegant user interfaces&#10;Solving complex technical challenges"
+                rows={4}
+              />
             </div>
-            <div>
-              <h4 className="font-medium mb-2">Typing Texts:</h4>
-              <div className="flex flex-wrap gap-1">
-                {heroContent?.typingTexts?.map((text: string, index: number) => (
-                  <Badge key={index} variant="secondary">{text}</Badge>
-                )) || <span className="text-muted-foreground">No typing texts set</span>}
-              </div>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">Description:</h4>
-              <p className="text-sm text-muted-foreground">{heroContent?.description || "No description set"}</p>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{heroContent?.yearsExperience || 0}+</div>
-                <div className="text-sm text-muted-foreground">Years Experience</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{heroContent?.projectsDelivered || 0}+</div>
-                <div className="text-sm text-muted-foreground">Projects Delivered</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{heroContent?.clientSatisfaction || 0}%</div>
-                <div className="text-sm text-muted-foreground">Client Satisfaction</div>
-              </div>
-            </div>
-          </div>
+            <Button type="submit" disabled={updateMutation.isPending}>
+              <Save className="h-4 w-4 mr-2" />
+              {updateMutation.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </form>
         )}
       </CardContent>
     </Card>
   );
 }
 
-// Contacts Management
 function ContactsManager() {
   const { data: contacts, isLoading } = useQuery({
     queryKey: ["/api/admin/contacts"],
@@ -208,191 +234,401 @@ function ContactsManager() {
     <Card>
       <CardHeader>
         <CardTitle>Contact Form Submissions</CardTitle>
-        <CardDescription>
-          Messages received through the contact form
-        </CardDescription>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[400px]">
-          {contacts?.length ? (
-            <div className="space-y-4">
-              {contacts.map((contact: any) => (
-                <div key={contact.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-blue-600" />
-                      <span className="font-medium">{contact.name}</span>
-                      <Badge variant="outline">{contact.email}</Badge>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+        {!contacts?.length ? (
+          <p className="text-muted-foreground">No contact submissions yet.</p>
+        ) : (
+          <div className="space-y-4">
+            {contacts.map((contact: Contact) => (
+              <div key={contact.id} className="border rounded-lg p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-medium">{contact.name}</h4>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      {contact.email}
+                    </p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {format(new Date(contact.createdAt), "MMM d, yyyy")}
-                    </div>
+                      {new Date(contact.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground">{contact.message}</p>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              No contact form submissions yet
-            </div>
-          )}
-        </ScrollArea>
+                <div className="mt-2">
+                  <p className="text-sm">{contact.message}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 }
 
-// Projects Management
 function ProjectsManager() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState<number | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [formData, setFormData] = useState<Partial<Project>>({});
+
   const { data: projects, isLoading } = useQuery({
     queryKey: ["/api/admin/projects"],
   });
+
+  const createMutation = useMutation({
+    mutationFn: async (data: Partial<Project>) => {
+      const response = await apiRequest("POST", "/api/admin/projects", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Project created successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/projects"] });
+      setIsCreating(false);
+      setFormData({});
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create project",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<Project> }) => {
+      const response = await apiRequest("PUT", `/api/admin/projects/${id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Project updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/projects"] });
+      setIsEditing(null);
+      setFormData({});
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update project",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/projects/${id}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Project deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/projects"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete project",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isCreating) {
+      createMutation.mutate(formData);
+    } else if (isEditing) {
+      updateMutation.mutate({ id: isEditing, data: formData });
+    }
+  };
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const startEdit = (project: Project) => {
+    setIsEditing(project.id);
+    setFormData(project);
+  };
+
+  const cancelEdit = () => {
+    setIsEditing(null);
+    setIsCreating(false);
+    setFormData({});
+  };
 
   if (isLoading) return <div>Loading projects...</div>;
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          Projects
-          <Button variant="outline" size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Project
-          </Button>
-        </CardTitle>
-        <CardDescription>
-          Manage your portfolio projects
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Projects</CardTitle>
+        <Button onClick={() => setIsCreating(true)} disabled={isCreating}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Project
+        </Button>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[400px]">
-          {projects?.length ? (
-            <div className="space-y-4">
-              {projects.map((project: any) => (
-                <div key={project.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <h3 className="font-semibold">{project.title}</h3>
-                      <Badge variant={project.type === "live" ? "default" : "secondary"}>
-                        {project.type}
-                      </Badge>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-2">{project.description}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {project.technologies?.map((tech: string, index: number) => (
-                      <Badge key={index} variant="outline">{tech}</Badge>
+        {(isCreating || isEditing) && (
+          <form onSubmit={handleSubmit} className="space-y-4 mb-6 p-4 border rounded-lg">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">
+                {isCreating ? "Create New Project" : "Edit Project"}
+              </h3>
+              <Button type="button" variant="outline" onClick={cancelEdit}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={formData.title || ""}
+                onChange={(e) => handleInputChange("title", e.target.value)}
+                placeholder="Project title"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description || ""}
+                onChange={(e) => handleInputChange("description", e.target.value)}
+                placeholder="Project description"
+                rows={3}
+              />
+            </div>
+            <div>
+              <Label htmlFor="technologies">Technologies (comma-separated)</Label>
+              <Input
+                id="technologies"
+                value={Array.isArray(formData.technologies) ? formData.technologies.join(", ") : ""}
+                onChange={(e) => handleInputChange("technologies", e.target.value.split(",").map(t => t.trim()))}
+                placeholder="React, Node.js, PostgreSQL"
+              />
+            </div>
+            <div>
+              <Label htmlFor="image">Image URL</Label>
+              <Input
+                id="image"
+                value={formData.image || ""}
+                onChange={(e) => handleInputChange("image", e.target.value)}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+            <div>
+              <Label htmlFor="type">Type</Label>
+              <select 
+                id="type" 
+                value={formData.type || "portfolio"}
+                onChange={(e) => handleInputChange("type", e.target.value)}
+                className="w-full p-2 border rounded"
+              >
+                <option value="portfolio">Portfolio</option>
+                <option value="live">Live</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="url">URL (if live)</Label>
+              <Input
+                id="url"
+                value={formData.url || ""}
+                onChange={(e) => handleInputChange("url", e.target.value)}
+                placeholder="https://example.com"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+                <Save className="h-4 w-4 mr-2" />
+                {createMutation.isPending || updateMutation.isPending ? "Saving..." : "Save Project"}
+              </Button>
+            </div>
+          </form>
+        )}
+
+        <div className="space-y-4">
+          {projects?.map((project: Project) => (
+            <div key={project.id} className="border rounded-lg p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h4 className="font-medium">{project.title}</h4>
+                  <p className="text-sm text-muted-foreground">{project.description}</p>
+                  <div className="flex gap-1 mt-2">
+                    {project.technologies?.map((tech, index) => (
+                      <Badge key={index} variant="secondary">{tech}</Badge>
                     ))}
                   </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge variant={project.type === "live" ? "default" : "outline"}>
+                      {project.type}
+                    </Badge>
+                    {project.url && (
+                      <a 
+                        href={project.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline text-sm"
+                      >
+                        View Project
+                      </a>
+                    )}
+                  </div>
                 </div>
-              ))}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => startEdit(project)}
+                    disabled={isEditing !== null || isCreating}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => deleteMutation.mutate(project.id)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              No projects added yet
-            </div>
-          )}
-        </ScrollArea>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
 }
 
 export default function Dashboard() {
+  const { isAuthenticated, logout } = useAuth();
+
+  if (!isAuthenticated) {
+    return <div>Redirecting to login...</div>;
+  }
+
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Portfolio Dashboard</h1>
-        <p className="text-muted-foreground">
-          Manage all aspects of your portfolio website
-        </p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <p className="text-sm text-gray-600">Manage your portfolio content</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-600">Welcome back, Malek</span>
+              <Button variant="outline" onClick={logout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="hero">Hero</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="skills">Skills</TabsTrigger>
-          <TabsTrigger value="partnerships">Partnerships</TabsTrigger>
-          <TabsTrigger value="contacts">Contacts</TabsTrigger>
-        </TabsList>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">
+              <Home className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="hero">
+              <Users className="h-4 w-4 mr-2" />
+              Hero Section
+            </TabsTrigger>
+            <TabsTrigger value="projects">
+              <FolderOpen className="h-4 w-4 mr-2" />
+              Projects
+            </TabsTrigger>
+            <TabsTrigger value="contacts">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Contacts
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
+                  <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">0</div>
+                  <p className="text-xs text-muted-foreground">Portfolio projects</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Contact Submissions</CardTitle>
+                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">0</div>
+                  <p className="text-xs text-muted-foreground">New messages</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Years Experience</CardTitle>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">3+</div>
+                  <p className="text-xs text-muted-foreground">Professional experience</p>
+                </CardContent>
+              </Card>
+            </div>
+
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-                <Badge variant="secondary">Active</Badge>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">12</div>
-                <p className="text-xs text-muted-foreground">+2 from last month</p>
+              <CardContent className="flex gap-4">
+                <Button variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Project
+                </Button>
+                <Button variant="outline">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Update Hero Section
+                </Button>
+                <Button variant="outline">
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Website
+                </Button>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Contact Messages</CardTitle>
-                <Mail className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">24</div>
-                <p className="text-xs text-muted-foreground">+8 this week</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Skills Listed</CardTitle>
-                <Badge variant="outline">Tech Stack</Badge>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">18</div>
-                <p className="text-xs text-muted-foreground">Across 6 categories</p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="hero">
-          <HeroContentManager />
-        </TabsContent>
+          <TabsContent value="hero">
+            <HeroContentManager />
+          </TabsContent>
 
-        <TabsContent value="projects">
-          <ProjectsManager />
-        </TabsContent>
+          <TabsContent value="projects">
+            <ProjectsManager />
+          </TabsContent>
 
-        <TabsContent value="skills">
-          <Card>
-            <CardHeader>
-              <CardTitle>Skills Management</CardTitle>
-              <CardDescription>Coming soon...</CardDescription>
-            </CardHeader>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="partnerships">
-          <Card>
-            <CardHeader>
-              <CardTitle>Partnerships Management</CardTitle>
-              <CardDescription>Coming soon...</CardDescription>
-            </CardHeader>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="contacts">
-          <ContactsManager />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="contacts">
+            <ContactsManager />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
