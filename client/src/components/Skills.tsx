@@ -106,45 +106,7 @@ export default function Skills() {
             ))}
           </div>
           
-          {/* Shopify Partner Section */}
-          <div className="mt-16 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between">
-              <div className="text-center sm:text-left mb-4 sm:mb-0">
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Shopify Partner</h3>
-                <p className="text-gray-300 text-sm sm:text-base">
-                  Certified Shopify developer specializing in custom e-commerce solutions
-                </p>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">S</span>
-                </div>
-                <div className="text-green-400 font-semibold">
-                  Official Partner
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* WordPress Section */}
-          <div className="mt-8 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between">
-              <div className="text-center sm:text-left mb-4 sm:mb-0">
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">WordPress Expert</h3>
-                <p className="text-gray-300 text-sm sm:text-base">
-                  Custom WordPress development, themes, and plugin creation
-                </p>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">W</span>
-                </div>
-                <div className="text-blue-400 font-semibold">
-                  Specialist
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Additional Skills Grid */}
           <div className="mt-16 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">

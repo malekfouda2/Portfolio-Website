@@ -45,6 +45,9 @@ export default function Navigation() {
               <button onClick={() => scrollToSection('about')} className="nav-link text-gray-300 hover:text-white font-medium">
                 About
               </button>
+              <button onClick={() => scrollToSection('partnerships')} className="nav-link text-gray-300 hover:text-white font-medium">
+                Partnerships
+              </button>
               <button onClick={() => scrollToSection('projects')} className="nav-link text-gray-300 hover:text-white font-medium">
                 Portfolio
               </button>
@@ -71,6 +74,9 @@ export default function Navigation() {
               </button>
               <button onClick={() => scrollToSection('about')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
                 About
+              </button>
+              <button onClick={() => scrollToSection('partnerships')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
+                Partnerships
               </button>
               <button onClick={() => scrollToSection('projects')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
                 Portfolio
