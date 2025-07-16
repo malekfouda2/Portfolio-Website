@@ -77,31 +77,31 @@ export async function seedDatabase() {
     // Seed skills
     const skills = [
       // Frontend
-      { category: "Frontend", name: "React", icon: "⚛️", color: "text-blue-500", sortOrder: 1, isVisible: true },
-      { category: "Frontend", name: "TypeScript", icon: "🔷", color: "text-blue-600", sortOrder: 2, isVisible: true },
-      { category: "Frontend", name: "Next.js", icon: "▲", color: "text-gray-800", sortOrder: 3, isVisible: true },
-      { category: "Frontend", name: "Tailwind CSS", icon: "🎨", color: "text-cyan-500", sortOrder: 4, isVisible: true },
+      { category: "Frontend", name: "React", icon: "SiReact", color: "text-blue-500", sortOrder: 1, isVisible: true },
+      { category: "Frontend", name: "TypeScript", icon: "SiTypescript", color: "text-blue-600", sortOrder: 2, isVisible: true },
+      { category: "Frontend", name: "Next.js", icon: "SiNextdotjs", color: "text-gray-800", sortOrder: 3, isVisible: true },
+      { category: "Frontend", name: "Tailwind CSS", icon: "SiTailwindcss", color: "text-cyan-500", sortOrder: 4, isVisible: true },
       
       // Backend
-      { category: "Backend", name: "Node.js", icon: "🟢", color: "text-green-500", sortOrder: 1, isVisible: true },
-      { category: "Backend", name: "Express.js", icon: "🚀", color: "text-gray-600", sortOrder: 2, isVisible: true },
-      { category: "Backend", name: "PHP", icon: "🐘", color: "text-purple-600", sortOrder: 3, isVisible: true },
-      { category: "Backend", name: "Laravel", icon: "🔴", color: "text-red-500", sortOrder: 4, isVisible: true },
+      { category: "Backend", name: "Node.js", icon: "SiNodedotjs", color: "text-green-500", sortOrder: 1, isVisible: true },
+      { category: "Backend", name: "Express.js", icon: "SiExpress", color: "text-gray-600", sortOrder: 2, isVisible: true },
+      { category: "Backend", name: "PHP", icon: "SiPhp", color: "text-purple-600", sortOrder: 3, isVisible: true },
+      { category: "Backend", name: "Laravel", icon: "SiLaravel", color: "text-red-500", sortOrder: 4, isVisible: true },
       
       // Database
-      { category: "Database", name: "PostgreSQL", icon: "🐘", color: "text-blue-700", sortOrder: 1, isVisible: true },
-      { category: "Database", name: "MySQL", icon: "🐬", color: "text-orange-500", sortOrder: 2, isVisible: true },
-      { category: "Database", name: "MongoDB", icon: "🍃", color: "text-green-600", sortOrder: 3, isVisible: true },
+      { category: "Database", name: "PostgreSQL", icon: "SiPostgresql", color: "text-blue-700", sortOrder: 1, isVisible: true },
+      { category: "Database", name: "MySQL", icon: "SiMysql", color: "text-orange-500", sortOrder: 2, isVisible: true },
+      { category: "Database", name: "MongoDB", icon: "SiMongodb", color: "text-green-600", sortOrder: 3, isVisible: true },
       
       // Cloud & DevOps
-      { category: "Cloud", name: "AWS", icon: "☁️", color: "text-orange-400", sortOrder: 1, isVisible: true },
-      { category: "Cloud", name: "Docker", icon: "🐳", color: "text-blue-500", sortOrder: 2, isVisible: true },
-      { category: "Cloud", name: "Vercel", icon: "▲", color: "text-gray-800", sortOrder: 3, isVisible: true },
+      { category: "Cloud", name: "AWS", icon: "SiAmazonwebservices", color: "text-orange-400", sortOrder: 1, isVisible: true },
+      { category: "Cloud", name: "Docker", icon: "SiDocker", color: "text-blue-500", sortOrder: 2, isVisible: true },
+      { category: "Cloud", name: "Vercel", icon: "SiVercel", color: "text-gray-800", sortOrder: 3, isVisible: true },
       
       // Tools
-      { category: "Tools", name: "Git", icon: "🔀", color: "text-orange-600", sortOrder: 1, isVisible: true },
-      { category: "Tools", name: "VS Code", icon: "💻", color: "text-blue-600", sortOrder: 2, isVisible: true },
-      { category: "Tools", name: "Figma", icon: "🎨", color: "text-purple-500", sortOrder: 3, isVisible: true }
+      { category: "Tools", name: "Git", icon: "SiGit", color: "text-orange-600", sortOrder: 1, isVisible: true },
+      { category: "Tools", name: "VS Code", icon: "SiVisualstudiocode", color: "text-blue-600", sortOrder: 2, isVisible: true },
+      { category: "Tools", name: "Figma", icon: "SiFigma", color: "text-purple-500", sortOrder: 3, isVisible: true }
     ];
 
     for (const skill of skills) {
