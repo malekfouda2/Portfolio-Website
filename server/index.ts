@@ -11,6 +11,17 @@ app.use(express.urlencoded({ extended: false }));
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
+// Serve favicon files with proper content types
+app.get('/favicon.svg', (req, res) => {
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.sendFile(path.join(process.cwd(), 'public', 'favicon.svg'));
+});
+
+app.get('/favicon.ico', (req, res) => {
+  res.setHeader('Content-Type', 'image/x-icon');
+  res.sendFile(path.join(process.cwd(), 'public', 'favicon.svg'));
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
