@@ -10,18 +10,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### July 14, 2025
-- Fixed hero section mobile responsiveness for typing text
-- Updated contact email to malekfouda2000@gmail.com
-- Updated social links to Facebook and LinkedIn with user's specific URLs
-- Improved mobile text wrapping with CSS media queries
-- Redesigned entire layout from coding-themed to clean, elegant business-focused design
-- Removed terminal windows and coding interface elements
-- Updated navigation to use "Portfolio" instead of "Projects"
-- Redesigned hero section with professional statistics and cleaner typography
-- Updated about section with business-focused messaging
-- Redesigned contact form with professional styling and clearer labels
-- Updated all components to use modern backdrop blur effects and rounded corners
+### July 16, 2025
+- Fixed comprehensive mobile responsiveness across all sections
+- Added smooth slide-down animation to mobile navigation menu
+- Enhanced tech stack with PHP, MySQL, Laravel, .NET, and MySQL Server
+- Added dedicated Shopify Partner section with logo and credentials
+- Added WordPress Expert section highlighting custom development capabilities
+- Improved mobile typography and spacing throughout the site
+- Updated skills grid with additional technologies including Shopify and WordPress
+- Enhanced contact form and info sections for better mobile display
+- Applied consistent responsive design patterns across all components
 
 ## System Architecture
 

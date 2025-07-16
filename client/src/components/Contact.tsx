@@ -68,11 +68,11 @@ export default function Contact() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
             {/* Contact Form */}
-            <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-white mb-6">Let's Discuss Your Project</h3>
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Let's Discuss Your Project</h3>
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Your Name
@@ -82,7 +82,7 @@ export default function Contact() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors"
+                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors text-sm sm:text-base"
                     placeholder="John Doe"
                     required
                   />
@@ -97,7 +97,7 @@ export default function Contact() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors"
+                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors text-sm sm:text-base"
                     placeholder="john@example.com"
                     required
                   />
@@ -112,7 +112,7 @@ export default function Contact() {
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors"
+                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors text-sm sm:text-base"
                     placeholder="Tell me about your project requirements, timeline, and budget..."
                     required
                   />
@@ -121,7 +121,7 @@ export default function Contact() {
                 <button 
                   type="submit"
                   disabled={contactMutation.isPending}
-                  className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-black px-6 py-4 rounded-xl font-semibold text-lg hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-black px-6 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {contactMutation.isPending ? "Sending..." : "Send Message"}
                 </button>
@@ -129,70 +129,70 @@ export default function Contact() {
             </div>
             
             {/* Contact Info */}
-            <div className="space-y-8">
-              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8">
-                <h3 className="text-2xl font-bold text-white mb-6">Get In Touch</h3>
-                <p className="text-gray-300 mb-8 text-lg">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Get In Touch</h3>
+                <p className="text-gray-300 mb-6 sm:mb-8 text-base sm:text-lg">
                   Ready to bring your project to life? I'm here to help you create something amazing.
                 </p>
                 
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-green-400/20 rounded-full flex items-center justify-center">
-                      <Mail className="text-green-400 w-6 h-6" />
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-400/20 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Mail className="text-green-400 w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
                     <div>
-                      <div className="text-sm text-gray-400">Email</div>
-                      <div className="text-white font-medium">malekfouda2000@gmail.com</div>
+                      <div className="text-xs sm:text-sm text-gray-400">Email</div>
+                      <div className="text-white font-medium text-sm sm:text-base break-all">malekfouda2000@gmail.com</div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-blue-400/20 rounded-full flex items-center justify-center">
-                      <MapPin className="text-blue-400 w-6 h-6" />
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-400/20 rounded-full flex items-center justify-center flex-shrink-0">
+                      <MapPin className="text-blue-400 w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
                     <div>
-                      <div className="text-sm text-gray-400">Location</div>
-                      <div className="text-white font-medium">Available Worldwide</div>
+                      <div className="text-xs sm:text-sm text-gray-400">Location</div>
+                      <div className="text-white font-medium text-sm sm:text-base">Available Worldwide</div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-purple-400/20 rounded-full flex items-center justify-center">
-                      <Clock className="text-purple-400 w-6 h-6" />
+                  <div className="flex items-center space-x-3 sm:space-x-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-400/20 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Clock className="text-purple-400 w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
                     <div>
-                      <div className="text-sm text-gray-400">Response Time</div>
-                      <div className="text-white font-medium">Within 24 hours</div>
+                      <div className="text-xs sm:text-sm text-gray-400">Response Time</div>
+                      <div className="text-white font-medium text-sm sm:text-base">Within 24 hours</div>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8">
-                <h3 className="text-2xl font-bold text-white mb-6">Follow Me</h3>
+              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Follow Me</h3>
                 <div className="flex space-x-4">
                   <a 
                     href="https://github.com/malekfouda2" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-green-400 hover:text-black transition-all duration-300"
+                    className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-green-400 hover:text-black transition-all duration-300"
                   >
-                    <Github className="w-6 h-6" />
+                    <Github className="w-5 h-5 sm:w-6 sm:h-6" />
                   </a>
                   <a 
                     href="https://www.facebook.com/mikofouda" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-blue-400 hover:text-black transition-all duration-300"
+                    className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-blue-400 hover:text-black transition-all duration-300"
                   >
-                    <Facebook className="w-6 h-6" />
+                    <Facebook className="w-5 h-5 sm:w-6 sm:h-6" />
                   </a>
                   <a 
                     href="https://www.linkedin.com/in/malek-fouda-18a229244?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" 
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-blue-600 hover:text-white transition-all duration-300"
+                    className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-blue-600 hover:text-white transition-all duration-300"
                   >
-                    <Linkedin className="w-6 h-6" />
+                    <Linkedin className="w-5 h-5 sm:w-6 sm:h-6" />
                   </a>
                 </div>
               </div>

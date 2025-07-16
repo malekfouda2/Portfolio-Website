@@ -33,7 +33,7 @@ export default function Navigation() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800/50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="text-2xl font-bold">
+            <div className="text-xl sm:text-2xl font-bold">
               <span className="text-white">Malek</span>
               <span className="gradient-text"> Fouda</span>
             </div>
@@ -64,25 +64,25 @@ export default function Navigation() {
             </button>
           </div>
           
-          {isMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 space-y-4">
-              <button onClick={() => scrollToSection('home')} className="block text-gray-300 hover:text-white font-medium">
+          <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="mt-4 pb-4 space-y-4">
+              <button onClick={() => scrollToSection('home')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
                 Home
               </button>
-              <button onClick={() => scrollToSection('about')} className="block text-gray-300 hover:text-white font-medium">
+              <button onClick={() => scrollToSection('about')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
                 About
               </button>
-              <button onClick={() => scrollToSection('projects')} className="block text-gray-300 hover:text-white font-medium">
+              <button onClick={() => scrollToSection('projects')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
                 Portfolio
               </button>
-              <button onClick={() => scrollToSection('skills')} className="block text-gray-300 hover:text-white font-medium">
+              <button onClick={() => scrollToSection('skills')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
                 Skills
               </button>
-              <button onClick={() => scrollToSection('contact')} className="block text-gray-300 hover:text-white font-medium">
+              <button onClick={() => scrollToSection('contact')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
                 Contact
               </button>
             </div>
-          )}
+          </div>
         </div>
       </nav>
     </>

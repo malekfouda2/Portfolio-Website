@@ -29,9 +29,9 @@ const skillCategories = [
     skills: [
       { name: "Node.js", icon: "🟢" },
       { name: "Python", icon: "🐍" },
-      { name: "Express.js", icon: "🚀" },
-      { name: "Django", icon: "🎯" },
-      { name: "FastAPI", icon: "⚡" }
+      { name: "PHP", icon: "🟣" },
+      { name: "Laravel", icon: "🔶" },
+      { name: ".NET", icon: "🟦" }
     ]
   },
   {
@@ -39,15 +39,15 @@ const skillCategories = [
     color: "text-purple-400",
     icon: <Database className="w-6 h-6" />,
     skills: [
+      { name: "MySQL", icon: "🐬" },
+      { name: "MySQL Server", icon: "🗄️" },
       { name: "MongoDB", icon: "🍃" },
       { name: "PostgreSQL", icon: "🐘" },
-      { name: "MySQL", icon: "🐬" },
-      { name: "Firebase", icon: "🔥" },
-      { name: "SQLite", icon: "📦" }
+      { name: "Firebase", icon: "🔥" }
     ]
   },
   {
-    title: "Tools",
+    title: "Tools & Platforms",
     color: "text-yellow-400",
     icon: <Cloud className="w-6 h-6" />,
     skills: [
@@ -76,14 +76,14 @@ export default function Skills() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {skillCategories.map((category, index) => (
-              <div key={index} className="bg-gray-800 p-6 rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-300">
+              <div key={index} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-4 sm:p-6 hover:border-gray-600 transition-all duration-300">
                 <div className="flex items-center mb-4">
                   <div className={`${category.color} mr-3`}>
                     {category.icon}
                   </div>
-                  <h3 className={`text-xl font-bold ${category.color}`}>
+                  <h3 className={`text-lg sm:text-xl font-bold ${category.color}`}>
                     {category.title}
                   </h3>
                 </div>
@@ -96,7 +96,7 @@ export default function Skills() {
                       <span className="text-xl skill-icon transition-transform duration-300 group-hover:scale-110">
                         {skill.icon}
                       </span>
-                      <span className="text-gray-300 group-hover:text-white transition-colors duration-300">
+                      <span className="text-sm sm:text-base text-gray-300 group-hover:text-white transition-colors duration-300">
                         {skill.name}
                       </span>
                     </div>
@@ -106,18 +106,59 @@ export default function Skills() {
             ))}
           </div>
           
+          {/* Shopify Partner Section */}
+          <div className="mt-16 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between">
+              <div className="text-center sm:text-left mb-4 sm:mb-0">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Shopify Partner</h3>
+                <p className="text-gray-300 text-sm sm:text-base">
+                  Certified Shopify developer specializing in custom e-commerce solutions
+                </p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-green-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">S</span>
+                </div>
+                <div className="text-green-400 font-semibold">
+                  Official Partner
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* WordPress Section */}
+          <div className="mt-8 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between">
+              <div className="text-center sm:text-left mb-4 sm:mb-0">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">WordPress Expert</h3>
+                <p className="text-gray-300 text-sm sm:text-base">
+                  Custom WordPress development, themes, and plugin creation
+                </p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">W</span>
+                </div>
+                <div className="text-blue-400 font-semibold">
+                  Specialist
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Additional Skills Grid */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="mt-16 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             {[
               "JavaScript", "TypeScript", "React", "Vue.js", "Angular", "Node.js",
               "Python", "Django", "FastAPI", "Express.js", "MongoDB", "PostgreSQL",
-              "MySQL", "Firebase", "AWS", "Docker", "Git", "CI/CD"
+              "MySQL", "MySQL Server", "Firebase", "AWS", "Docker", "Git", "CI/CD", "PHP",
+              "Laravel", ".NET", "Shopify", "WordPress"
             ].map((skill, index) => (
               <div 
                 key={index}
-                className="bg-gray-800 p-4 rounded-lg border border-gray-700 text-center hover:border-green-400 hover:bg-gray-700 transition-all duration-300 cursor-pointer"
+                className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-3 sm:p-4 text-center hover:border-green-400 hover:bg-gray-700/50 transition-all duration-300 cursor-pointer"
               >
-                <span className="text-sm text-gray-300 font-mono">{skill}</span>
+                <span className="text-xs sm:text-sm text-gray-300 font-mono">{skill}</span>
               </div>
             ))}
           </div>

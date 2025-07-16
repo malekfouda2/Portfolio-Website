@@ -14,65 +14,65 @@ export default function About() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8">
-                <h3 className="text-2xl font-bold text-white mb-6">My Expertise</h3>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-2 h-2 bg-green-400 rounded-full mt-3"></div>
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">My Expertise</h3>
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div className="w-2 h-2 bg-green-400 rounded-full mt-3 flex-shrink-0"></div>
                     <div>
-                      <h4 className="text-lg font-semibold text-white">Full-Stack Development</h4>
-                      <p className="text-gray-300">End-to-end web applications with modern frameworks</p>
+                      <h4 className="text-base sm:text-lg font-semibold text-white">Full-Stack Development</h4>
+                      <p className="text-sm sm:text-base text-gray-300">End-to-end web applications with modern frameworks</p>
                     </div>
                   </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full mt-3"></div>
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mt-3 flex-shrink-0"></div>
                     <div>
-                      <h4 className="text-lg font-semibold text-white">Mobile Applications</h4>
-                      <p className="text-gray-300">Cross-platform mobile apps for iOS and Android</p>
+                      <h4 className="text-base sm:text-lg font-semibold text-white">Mobile Applications</h4>
+                      <p className="text-sm sm:text-base text-gray-300">Cross-platform mobile apps for iOS and Android</p>
                     </div>
                   </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="w-2 h-2 bg-purple-400 rounded-full mt-3"></div>
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full mt-3 flex-shrink-0"></div>
                     <div>
-                      <h4 className="text-lg font-semibold text-white">E-commerce Solutions</h4>
-                      <p className="text-gray-300">Custom online stores and payment integrations</p>
+                      <h4 className="text-base sm:text-lg font-semibold text-white">E-commerce Solutions</h4>
+                      <p className="text-sm sm:text-base text-gray-300">Custom online stores and payment integrations</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               <div className="prose prose-invert max-w-none">
-                <p className="text-lg text-gray-300 leading-relaxed mb-6">
+                <p className="text-base sm:text-lg text-gray-300 leading-relaxed mb-4 sm:mb-6">
                   With over 3 years of dedicated experience in software development, I specialize in creating 
                   high-quality digital solutions that drive business growth and enhance user experiences.
                 </p>
                 
-                <p className="text-lg text-gray-300 leading-relaxed mb-6">
+                <p className="text-base sm:text-lg text-gray-300 leading-relaxed mb-6 sm:mb-8">
                   My approach combines technical expertise with creative problem-solving to deliver projects 
                   that not only meet requirements but exceed expectations. I work closely with clients to 
                   understand their vision and bring it to life through clean, efficient code.
                 </p>
                 
-                <div className="grid grid-cols-2 gap-6 mt-8">
-                  <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
-                    <div className="text-3xl font-bold text-green-400 mb-2">3+</div>
-                    <div className="text-sm text-gray-300">Years Experience</div>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 mt-6 sm:mt-8">
+                  <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-4 sm:p-6 text-center">
+                    <div className="text-2xl sm:text-3xl font-bold text-green-400 mb-2">3+</div>
+                    <div className="text-xs sm:text-sm text-gray-300">Years Experience</div>
                   </div>
-                  <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
-                    <div className="text-3xl font-bold text-blue-400 mb-2">50+</div>
-                    <div className="text-sm text-gray-300">Projects Delivered</div>
+                  <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-4 sm:p-6 text-center">
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-400 mb-2">50+</div>
+                    <div className="text-xs sm:text-sm text-gray-300">Projects Delivered</div>
                   </div>
-                  <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
-                    <div className="text-3xl font-bold text-purple-400 mb-2">15+</div>
-                    <div className="text-sm text-gray-300">Technologies</div>
+                  <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-4 sm:p-6 text-center">
+                    <div className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">15+</div>
+                    <div className="text-xs sm:text-sm text-gray-300">Technologies</div>
                   </div>
-                  <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 text-center">
-                    <div className="text-3xl font-bold text-yellow-400 mb-2">100%</div>
-                    <div className="text-sm text-gray-300">Client Satisfaction</div>
+                  <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-4 sm:p-6 text-center">
+                    <div className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-2">100%</div>
+                    <div className="text-xs sm:text-sm text-gray-300">Client Satisfaction</div>
                   </div>
                 </div>
               </div>
