@@ -1,3 +1,6 @@
+import shopifyLogo from "@assets/[CITYPNG.COM]Shopify Bag Icon Symbol Logo - 1000x1000_1752660358554.png";
+import wordpressLogo from "@assets/[CITYPNG.COM]Wordpress Logo Image PNG - 1000x1000_1752660361578.png";
+
 export default function Partnerships() {
   return (
     <section id="partnerships" className="py-20 bg-black">
@@ -20,7 +23,7 @@ export default function Partnerships() {
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-300 p-2">
                   <img 
-                    src="/attached_assets/[CITYPNG.COM]Shopify Bag Icon Symbol Logo - 1000x1000_1752660358554.png" 
+                    src={shopifyLogo} 
                     alt="Shopify Logo" 
                     className="w-full h-full object-contain"
                   />
@@ -65,7 +68,7 @@ export default function Partnerships() {
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-300 p-2">
                   <img 
-                    src="/attached_assets/[CITYPNG.COM]Wordpress Logo Image PNG - 1000x1000_1752660361578.png" 
+                    src={wordpressLogo} 
                     alt="WordPress Logo" 
                     className="w-full h-full object-contain"
                   />
