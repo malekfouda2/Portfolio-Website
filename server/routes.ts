@@ -34,7 +34,7 @@ const upload = multer({
     }
   }),
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -223,7 +223,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await storage.createProject(project);
       res.json(result);
     } catch (error) {
-      res.status(400).json({ error: "Invalid project data" });
+      console.error("Project creation error:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ 
+          error: "Invalid project data", 
+          details: error.errors 
+        });
+      } else {
+        res.status(500).json({ error: "Failed to create project" });
+      }
     }
   });
 
@@ -234,7 +242,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await storage.updateProject(id, project);
       res.json(result);
     } catch (error) {
-      res.status(400).json({ error: "Invalid project data" });
+      console.error("Project update error:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ 
+          error: "Invalid project data", 
+          details: error.errors 
+        });
+      } else {
+        res.status(500).json({ error: "Failed to update project" });
+      }
     }
   });
 
