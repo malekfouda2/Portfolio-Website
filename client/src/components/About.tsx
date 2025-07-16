@@ -1,4 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
+import type { AboutContent } from "@shared/schema";
+
 export default function About() {
+  const { data: aboutContent } = useQuery<AboutContent>({
+    queryKey: ["/api/about"],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
   return (
     <section id="about" className="py-20 bg-gray-900">
       <div className="container mx-auto px-6">
@@ -10,7 +17,7 @@ export default function About() {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-8"></div>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Transforming ideas into digital reality through expert development and creative solutions
+              {aboutContent?.subtitle || "Transforming ideas into digital reality through expert development and creative solutions"}
             </p>
           </div>
           
@@ -46,16 +53,9 @@ export default function About() {
             
             <div className="space-y-6 sm:space-y-8">
               <div className="prose prose-invert max-w-none">
-                <p className="text-base sm:text-lg text-gray-300 leading-relaxed mb-4 sm:mb-6">
-                  With over 3 years of dedicated experience in software development, I specialize in creating 
-                  high-quality digital solutions that drive business growth and enhance user experiences.
-                </p>
-                
-                <p className="text-base sm:text-lg text-gray-300 leading-relaxed mb-6 sm:mb-8">
-                  My approach combines technical expertise with creative problem-solving to deliver projects 
-                  that not only meet requirements but exceed expectations. I work closely with clients to 
-                  understand their vision and bring it to life through clean, efficient code.
-                </p>
+                <div className="text-base sm:text-lg text-gray-300 leading-relaxed mb-6 sm:mb-8">
+                  {aboutContent?.description || "With over 3 years of dedicated experience in software development, I specialize in creating high-quality digital solutions that drive business growth and enhance user experiences. My approach combines technical expertise with creative problem-solving to deliver projects that not only meet requirements but exceed expectations."}
+                </div>
                 
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 mt-6 sm:mt-8">
                   <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-4 sm:p-6 text-center">

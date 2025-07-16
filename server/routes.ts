@@ -65,6 +65,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public API endpoints for website content
+  app.get("/api/hero", async (req, res) => {
+    try {
+      const hero = await storage.getHeroContent();
+      res.json(hero);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch hero content" });
+    }
+  });
+
+  app.get("/api/about", async (req, res) => {
+    try {
+      const about = await storage.getAboutContent();
+      res.json(about);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch about content" });
+    }
+  });
+
+  app.get("/api/projects", async (req, res) => {
+    try {
+      const projects = await storage.getProjects();
+      res.json(projects);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch projects" });
+    }
+  });
+
+  app.get("/api/skills", async (req, res) => {
+    try {
+      const skills = await storage.getSkills();
+      res.json(skills);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch skills" });
+    }
+  });
+
+  app.get("/api/partnerships", async (req, res) => {
+    try {
+      const partnerships = await storage.getPartnerships();
+      res.json(partnerships);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch partnerships" });
+    }
+  });
+
+  app.get("/api/contact-info", async (req, res) => {
+    try {
+      const contactInfo = await storage.getContactInfo();
+      res.json(contactInfo);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch contact info" });
+    }
+  });
+
   // Contact form submission
   app.post("/api/contact", async (req, res) => {
     try {

@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { Mail, MapPin, Clock, Linkedin, Facebook, Github } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import type { ContactInfo } from "@shared/schema";
 
 export default function Contact() {
+  const { data: contactInfo } = useQuery<ContactInfo>({
+    queryKey: ["/api/contact-info"],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
   const [formData, setFormData] = useState({
     name: "",
     email: "",

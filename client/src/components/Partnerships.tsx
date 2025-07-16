@@ -1,7 +1,15 @@
 import shopifyLogo from "@assets/[CITYPNG.COM]Shopify Bag Icon Symbol Logo - 1000x1000_1752660358554.png";
 import wordpressLogo from "@assets/[CITYPNG.COM]Wordpress Logo Image PNG - 1000x1000_1752660361578.png";
+import { useQuery } from "@tanstack/react-query";
+import type { Partnership } from "@shared/schema";
 
 export default function Partnerships() {
+  const { data: partnerships = [] } = useQuery<Partnership[]>({
+    queryKey: ["/api/partnerships"],
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  const hasPartnerships = partnerships.length > 0;
   return (
     <section id="partnerships" className="py-20 bg-black">
       <div className="container mx-auto px-6">
