@@ -37,8 +37,6 @@ import {
   SiVercel,
   SiNetlify
 } from "react-icons/si";
-import { useQuery } from "@tanstack/react-query";
-import type { Skill } from "@shared/schema";
 
 const skillCategories = [
   {
@@ -93,13 +91,6 @@ const skillCategories = [
 ];
 
 export default function Skills() {
-  const { data: skills = [] } = useQuery<Skill[]>({
-    queryKey: ["/api/skills"],
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-
-  // If no skills from database, use default skills
-  const hasSkills = skills.length > 0;
   return (
     <section id="skills" className="py-20 bg-gray-900">
       <div className="container mx-auto px-6">
@@ -116,56 +107,33 @@ export default function Skills() {
           </div>
           
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {hasSkills ? (
-              // Display skills from database
-              skills.map((skill, index) => (
-                <div key={skill.id} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-4 sm:p-6 hover:border-gray-600 transition-all duration-300">
-                  <div className="flex items-center mb-4">
-                    <div className="text-green-400 mr-3">
-                      <Code className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-green-400">
-                      {skill.name}
-                    </h3>
+            {skillCategories.map((category, index) => (
+              <div key={index} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-4 sm:p-6 hover:border-gray-600 transition-all duration-300">
+                <div className="flex items-center mb-4">
+                  <div className={`${category.color} mr-3`}>
+                    {category.icon}
                   </div>
-                  <div className="text-gray-300 text-sm mb-4">
-                    {skill.description}
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    Level: {skill.level}
-                  </div>
+                  <h3 className={`text-lg sm:text-xl font-bold ${category.color}`}>
+                    {category.title}
+                  </h3>
                 </div>
-              ))
-            ) : (
-              // Display default skills if no data in database
-              skillCategories.map((category, index) => (
-                <div key={index} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-4 sm:p-6 hover:border-gray-600 transition-all duration-300">
-                  <div className="flex items-center mb-4">
-                    <div className={`${category.color} mr-3`}>
-                      {category.icon}
-                    </div>
-                    <h3 className={`text-lg sm:text-xl font-bold ${category.color}`}>
-                      {category.title}
-                    </h3>
-                  </div>
-                  <div className="space-y-3">
-                    {category.skills.map((skill, skillIndex) => (
-                      <div 
-                        key={skillIndex}
-                        className="flex items-center space-x-3 group cursor-pointer"
-                      >
-                        <div className="flex items-center justify-center w-6 h-6 skill-icon transition-transform duration-300 group-hover:scale-110">
-                          {skill.icon}
-                        </div>
-                        <span className="text-sm sm:text-base text-gray-300 group-hover:text-white transition-colors duration-300">
-                          {skill.name}
-                        </span>
+                <div className="space-y-3">
+                  {category.skills.map((skill, skillIndex) => (
+                    <div 
+                      key={skillIndex}
+                      className="flex items-center space-x-3 group cursor-pointer"
+                    >
+                      <div className="flex items-center justify-center w-6 h-6 skill-icon transition-transform duration-300 group-hover:scale-110">
+                        {skill.icon}
                       </div>
-                    ))}
-                  </div>
+                      <span className="text-sm sm:text-base text-gray-300 group-hover:text-white transition-colors duration-300">
+                        {skill.name}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))
-            )}
+              </div>
+            ))}
           </div>
           
 
