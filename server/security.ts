@@ -11,7 +11,7 @@ import type { Express, Request, Response, NextFunction } from 'express';
 // Rate limiting configurations
 export const generalRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 1000 : 100, // Higher limit for production
   message: {
     error: 'Too many requests from this IP, please try again later.',
     retryAfter: 15 * 60 * 1000
@@ -19,14 +19,20 @@ export const generalRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
-    // Skip rate limiting for static assets
+    // Skip rate limiting for static assets and public API calls
     return req.path.startsWith('/uploads/') || 
            req.path.startsWith('/favicon') ||
            req.path.includes('.js') ||
            req.path.includes('.css') ||
            req.path.includes('.png') ||
            req.path.includes('.jpg') ||
-           req.path.includes('.svg');
+           req.path.includes('.svg') ||
+           req.path.includes('.ico') ||
+           req.path.includes('.webmanifest') ||
+           req.path.includes('.xml') ||
+           req.path.includes('.txt') ||
+           // Skip for public portfolio API calls
+           (req.method === 'GET' && req.path.match(/^\/api\/(hero|about|projects|partnerships|contact-info|skills)$/));
   }
 });
 
@@ -43,13 +49,17 @@ export const contactFormRateLimit = rateLimit({
 
 export const apiRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // limit each IP to 200 API requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 2000 : 200, // Much higher limit for production
   message: {
     error: 'Too many API requests from this IP, please try again later.',
     retryAfter: 15 * 60 * 1000
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for public portfolio API calls
+    return req.method === 'GET' && req.path.match(/^\/api\/(hero|about|projects|partnerships|contact-info|skills)$/);
+  }
 });
 
 export const authRateLimit = rateLimit({
@@ -61,6 +71,22 @@ export const authRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+});
+
+// Very relaxed rate limiting for public portfolio APIs
+export const publicPortfolioRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === 'production' ? 5000 : 1000, // Very high limit for portfolio APIs
+  message: {
+    error: 'Too many requests from this IP, please try again later.',
+    retryAfter: 15 * 60 * 1000
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Never skip - but with very high limits
+    return false;
+  }
 });
 
 // Slow down middleware for contact form
@@ -192,17 +218,25 @@ export const setupSecurity = (app: Express) => {
   // Remove powered by header
   app.disable('x-powered-by');
   
-  // Apply general rate limiting
-  app.use(generalRateLimit);
+  // Apply very relaxed rate limiting for public portfolio APIs first
+  app.use('/api/hero', publicPortfolioRateLimit);
+  app.use('/api/about', publicPortfolioRateLimit);
+  app.use('/api/projects', publicPortfolioRateLimit);
+  app.use('/api/partnerships', publicPortfolioRateLimit);
+  app.use('/api/contact-info', publicPortfolioRateLimit);
+  app.use('/api/skills', publicPortfolioRateLimit);
   
-  // Apply API rate limiting to API routes
-  app.use('/api', apiRateLimit);
+  // Apply general rate limiting (skip for public portfolio APIs)
+  app.use(generalRateLimit);
   
   // Apply auth rate limiting to auth routes
   app.use('/api/auth', authRateLimit);
   
   // Apply contact form rate limiting and slow down
   app.use('/api/contact', contactFormRateLimit, contactSlowDown);
+  
+  // Apply API rate limiting to API routes (exclude public portfolio APIs)
+  app.use('/api', apiRateLimit);
   
   // Security headers middleware
   app.use((req: Request, res: Response, next: NextFunction) => {

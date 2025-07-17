@@ -77,9 +77,13 @@ Preferred communication style: Simple, everyday language.
 - Created developer-themed logo with gradient colors, circuit patterns, and modern glow effects
 - Improved logo sizing and positioning in navigation for better visual hierarchy
 - **LATEST**: Updated logo and favicon to use custom PNG design with professional "M" branding
-- Increased logo size for better visibility: mobile (w-14 h-14) and desktop (w-16 h-16)
+- Increased logo size for better visibility: mobile (w-20 h-20) and desktop (w-24 h-24)
 - Created comprehensive favicon support with multiple sizes for all browsers and operating systems
 - Generated ICO, PNG, and SVG favicon formats optimized for Google Search and cross-platform compatibility
+- **LATEST**: Fixed rate limiting issues in deployed version preventing excessive "Too many requests" errors
+- Created separate rate limiting tiers: public portfolio APIs (5000 requests/15min), general (1000 requests/15min)
+- Added skip logic for static assets and essential portfolio API endpoints
+- Implemented production-specific rate limit scaling for better user experience
 
 ## System Architecture
 
