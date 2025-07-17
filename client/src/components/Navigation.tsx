@@ -49,7 +49,7 @@ export default function Navigation() {
                 Partnerships
               </button>
               <button onClick={() => scrollToSection('projects')} className="nav-link text-gray-300 hover:text-white font-medium">
-                Portfolio
+                Projects
               </button>
               <button onClick={() => scrollToSection('skills')} className="nav-link text-gray-300 hover:text-white font-medium">
                 Skills
@@ -79,7 +79,7 @@ export default function Navigation() {
                 Partnerships
               </button>
               <button onClick={() => scrollToSection('projects')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
-                Portfolio
+                Projects
               </button>
               <button onClick={() => scrollToSection('skills')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-2 transition-colors duration-200">
                 Skills
