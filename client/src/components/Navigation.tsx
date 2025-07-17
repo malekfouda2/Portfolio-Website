@@ -34,11 +34,8 @@ export default function Navigation() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-gray-800/50">
         <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Logo className="w-8 h-8 sm:w-10 sm:h-10" />
-              <span className="text-xl sm:text-2xl font-bold text-white">
-                Malek <span className="gradient-text">Fouda</span>
-              </span>
+            <div className="flex items-center">
+              <Logo className="w-10 h-10 sm:w-12 sm:h-12" />
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
