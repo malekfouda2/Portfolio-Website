@@ -377,6 +377,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.join(process.cwd(), "public", "sitemap.xml"));
   });
 
+  // Alternative sitemap path for Google Search Console
+  app.get("/public/sitemap.xml", (req, res) => {
+    res.setHeader('Content-Type', 'application/xml');
+    res.sendFile(path.join(process.cwd(), "public", "sitemap.xml"));
+  });
+
   app.get("/.well-known/security.txt", (req, res) => {
     res.sendFile(path.join(process.cwd(), "public", ".well-known", "security.txt"));
   });
