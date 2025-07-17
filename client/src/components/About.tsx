@@ -76,7 +76,7 @@ export default function About() {
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 mt-6 sm:mt-8">
                   <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-4 sm:p-6 text-center">
                     <div className="text-2xl sm:text-3xl font-bold text-green-400 mb-2">
-                      30+
+                      3+
                     </div>
                     <div className="text-xs sm:text-sm text-gray-300">
                       Years Experience
@@ -84,7 +84,7 @@ export default function About() {
                   </div>
                   <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-4 sm:p-6 text-center">
                     <div className="text-2xl sm:text-3xl font-bold text-blue-400 mb-2">
-                      30+
+                      50+
                     </div>
                     <div className="text-xs sm:text-sm text-gray-300">
                       Projects Delivered
