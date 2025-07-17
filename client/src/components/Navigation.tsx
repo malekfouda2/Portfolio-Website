@@ -35,7 +35,7 @@ export default function Navigation() {
         <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Logo className="w-10 h-10 sm:w-12 sm:h-12" />
+              <Logo className="w-14 h-14 sm:w-16 sm:h-16" />
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
