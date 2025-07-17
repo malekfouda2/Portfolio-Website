@@ -62,16 +62,16 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-20 bg-black">
-      <div className="container mx-auto px-6">
+    <section id="contact" className="py-12 sm:py-16 lg:py-20 bg-black">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
               <span className="text-white">Get In</span>
               <span className="gradient-text"> Touch</span>
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-8"></div>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-6 sm:mb-8"></div>
+            <p className="text-base sm:text-lg lg:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
               Ready to work together? Let's discuss your next project and bring your ideas to life.
             </p>
           </div>

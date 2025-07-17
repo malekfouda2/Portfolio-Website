@@ -36,23 +36,23 @@ export default function Projects() {
   }
 
   return (
-    <section id="projects" className="py-20 bg-black">
-      <div className="container mx-auto px-6">
+    <section id="projects" className="py-12 sm:py-16 lg:py-20 bg-black">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
               <span className="text-white">Featured</span>
               <span className="gradient-text"> Projects</span>
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-8"></div>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-6 sm:mb-8"></div>
+            <p className="text-base sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
               A curated selection of my best work showcasing expertise in full-stack development, 
               modern web technologies, and professional client solutions.
             </p>
           </div>
           
           {/* Featured Projects Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
             {featuredProjects.map((project) => (
               <div 
                 key={project.id} 
