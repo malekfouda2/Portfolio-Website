@@ -69,6 +69,9 @@ export default function SEO({
     // Set theme color
     updateMetaTag("theme-color", "#10b981");
 
+    // Google Search Console verification
+    updateMetaTag("google-site-verification", "nQ_IA49yXG9t7cQghRngRA2KGhzmq5aHN46JVwgsU_Y");
+
     // Add structured data for SEO
     const structuredData = {
       "@context": "https://schema.org",
