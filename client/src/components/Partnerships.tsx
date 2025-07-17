@@ -60,11 +60,13 @@ export default function Partnerships() {
                     <div className="text-xl sm:text-2xl font-bold text-green-400 mb-1">
                       15+
                     </div>
-                    <div className="text-xs sm:text-sm text-gray-400">Stores Built</div>
+                    <div className="text-xs sm:text-sm text-gray-400">
+                      Stores Built
+                    </div>
                   </div>
                   <div className="bg-green-900/20 border border-green-800/30 rounded-xl p-3 sm:p-4">
                     <div className="text-xl sm:text-2xl font-bold text-green-400 mb-1">
-                      2+
+                      3+
                     </div>
                     <div className="text-xs sm:text-sm text-gray-400">
                       Years Experience

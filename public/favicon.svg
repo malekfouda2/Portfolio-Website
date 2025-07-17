@@ -2,65 +2,24 @@
   <defs>
     <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#10b981" />
-      <stop offset="100%" stop-color="#3b82f6" />
+      <stop offset="50%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#8b5cf6" />
     </linearGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-      <feMerge> 
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
   </defs>
   
-  <!-- Background circle -->
-  <circle 
-    cx="50" 
-    cy="50" 
-    r="45" 
-    fill="url(#logoGradient)" 
-    filter="url(#glow)"
-  />
+  <!-- Dark background -->
+  <rect width="100" height="100" fill="#1a1a1a"/>
   
-  <!-- Inner circle for contrast -->
-  <circle 
-    cx="50" 
-    cy="50" 
-    r="40" 
-    fill="rgba(0, 0, 0, 0.2)" 
-  />
-  
-  <!-- Letter M -->
-  <text 
-    x="50" 
-    y="50" 
-    text-anchor="middle" 
-    dominant-baseline="central"
-    font-size="36"
-    font-weight="bold"
-    fill="white"
-    font-family="system-ui, -apple-system, sans-serif"
-  >
-    M
-  </text>
-  
-  <!-- Code brackets for developer theme -->
-  <text 
-    x="20" 
-    y="30" 
-    font-size="12" 
-    fill="rgba(255, 255, 255, 0.6)"
-    font-family="monospace"
-  >
-    &lt;
-  </text>
-  <text 
-    x="75" 
-    y="75" 
-    font-size="12" 
-    fill="rgba(255, 255, 255, 0.6)"
-    font-family="monospace"
-  >
-    /&gt;
-  </text>
+  <!-- Code brackets with gradient -->
+  <g fill="url(#logoGradient)" stroke="url(#logoGradient)" stroke-width="3">
+    <!-- Left bracket -->
+    <path d="M25 30 L15 30 L15 70 L25 70" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Right bracket -->
+    <path d="M75 30 L85 30 L85 70 L75 70" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Letter M -->
+    <path d="M35 70 L35 30 L45 50 L55 30 L65 30 L65 70 M35 30 L45 50 L55 30" 
+          fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>
