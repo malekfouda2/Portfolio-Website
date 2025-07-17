@@ -60,12 +60,14 @@ export default function Projects() {
               >
                 <div className="relative overflow-hidden">
                   <img 
-                    src={project.image || "/api/placeholder/600/400"} 
+                    src={project.image || "https://via.placeholder.com/600x400/1f2937/10b981?text=Project+Image"} 
                     alt={project.title}
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = "/api/placeholder/600/400";
+                      if (target.src !== "https://via.placeholder.com/600x400/1f2937/10b981?text=Project+Image") {
+                        target.src = "https://via.placeholder.com/600x400/1f2937/10b981?text=Project+Image";
+                      }
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

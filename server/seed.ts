@@ -40,10 +40,10 @@ export async function seedDatabase() {
         title: "E-Commerce Platform",
         description: "A full-featured e-commerce platform with real-time inventory management, secure payment processing, and advanced analytics.",
         technologies: ["React", "Node.js", "PostgreSQL", "Stripe", "Docker"],
-        image: "/api/placeholder/600/400",
+        image: "https://via.placeholder.com/600x400/1f2937/10b981?text=Project+Image",
         type: "live",
         url: "https://ecommerce-demo.example.com",
-        screenshots: ["/api/placeholder/800/600", "/api/placeholder/800/600"],
+        screenshots: ["https://via.placeholder.com/800x600/1f2937/10b981?text=Screenshot", "https://via.placeholder.com/800x600/1f2937/10b981?text=Screenshot"],
         isVisible: true,
         sortOrder: 1
       },
@@ -51,10 +51,10 @@ export async function seedDatabase() {
         title: "Task Management App",
         description: "A collaborative project management tool with real-time updates, team collaboration features, and detailed reporting.",
         technologies: ["React", "Express.js", "MongoDB", "Socket.io", "JWT"],
-        image: "/api/placeholder/600/400",
+        image: "https://via.placeholder.com/600x400/1f2937/10b981?text=Project+Image",
         type: "live",
         url: "https://taskapp-demo.example.com",
-        screenshots: ["/api/placeholder/800/600"],
+        screenshots: ["https://via.placeholder.com/800x600/1f2937/10b981?text=Screenshot"],
         isVisible: true,
         sortOrder: 2
       },
@@ -62,9 +62,9 @@ export async function seedDatabase() {
         title: "Portfolio Website",
         description: "A modern, responsive portfolio website with dynamic content management and SEO optimization.",
         technologies: ["React", "TypeScript", "Tailwind CSS", "Drizzle ORM"],
-        image: "/api/placeholder/600/400",
+        image: "https://via.placeholder.com/600x400/1f2937/10b981?text=Project+Image",
         type: "portfolio",
-        screenshots: ["/api/placeholder/800/600"],
+        screenshots: ["https://via.placeholder.com/800x600/1f2937/10b981?text=Screenshot"],
         isVisible: true,
         sortOrder: 3
       }
