@@ -392,32 +392,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.join(process.cwd(), "public", "site.webmanifest"));
   });
 
-  // Force favicon to be served with proper headers and no cache (before static middleware)
+  app.get("/browserconfig.xml", (req, res) => {
+    res.setHeader('Content-Type', 'application/xml');
+    res.sendFile(path.join(process.cwd(), "public", "browserconfig.xml"));
+  });
+
+  // Force favicon to be served with proper headers for Google indexing
   app.get("/favicon.ico", (req, res) => {
     res.setHeader('Content-Type', 'image/x-icon');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day for Google
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.sendFile(path.join(process.cwd(), "public", "favicon.ico"));
   });
 
   // Additional favicon routes for different browsers
   app.get("/favicon.svg", (req, res) => {
     res.setHeader('Content-Type', 'image/svg+xml');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.sendFile(path.join(process.cwd(), "public", "favicon.svg"));
   });
 
   app.get("/favicon-16x16.png", (req, res) => {
     res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.sendFile(path.join(process.cwd(), "public", "favicon-16x16.png"));
   });
 
   // Also handle requests for apple-touch-icon.png
   app.get("/apple-touch-icon.png", (req, res) => {
     res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.sendFile(path.join(process.cwd(), "public", "apple-touch-icon.png"));
   });
 
