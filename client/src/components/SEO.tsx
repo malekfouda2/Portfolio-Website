@@ -31,7 +31,7 @@ export default function SEO({
     document.title = finalTitle;
 
     // Set meta description
-    const finalDescription = description || heroContent?.description || "Experienced full stack developer specializing in React, Node.js, and modern web technologies. Creating high-quality digital solutions for businesses.";
+    const finalDescription = description || "Transforming ideas into digital reality through expert development and creative solutions";
     updateMetaTag("description", finalDescription);
 
     // Set keywords
@@ -43,19 +43,17 @@ export default function SEO({
     updateMetaTag("og:description", finalDescription, "property");
     updateMetaTag("og:type", type, "property");
     updateMetaTag("og:url", url || window.location.href, "property");
-    
-    if (image) {
-      updateMetaTag("og:image", image, "property");
-    }
+    updateMetaTag("og:image", image || `${window.location.origin}/favicon.svg`, "property");
+    updateMetaTag("og:image:width", "512", "property");
+    updateMetaTag("og:image:height", "512", "property");
+    updateMetaTag("og:site_name", "Malek Fouda Portfolio", "property");
 
     // Set Twitter Card tags
     updateMetaTag("twitter:card", "summary_large_image", "name");
     updateMetaTag("twitter:title", finalTitle, "name");
     updateMetaTag("twitter:description", finalDescription, "name");
-    
-    if (image) {
-      updateMetaTag("twitter:image", image, "name");
-    }
+    updateMetaTag("twitter:image", image || `${window.location.origin}/favicon.svg`, "name");
+    updateMetaTag("twitter:image:alt", "Malek Fouda - Full Stack Developer", "name");
 
     // Set canonical URL
     updateLinkTag("canonical", url || window.location.href);

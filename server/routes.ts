@@ -387,6 +387,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.join(process.cwd(), "public", ".well-known", "security.txt"));
   });
 
+  app.get("/site.webmanifest", (req, res) => {
+    res.setHeader('Content-Type', 'application/manifest+json');
+    res.sendFile(path.join(process.cwd(), "public", "site.webmanifest"));
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

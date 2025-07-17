@@ -1,0 +1,26 @@
+{
+    "name": "Malek Fouda - Full Stack Developer",
+    "short_name": "Malek Fouda",
+    "description": "Transforming ideas into digital reality through expert development and creative solutions",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "16x16",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "/favicon.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#10b981",
+    "background_color": "#000000",
+    "display": "standalone",
+    "start_url": "/"
+}
