@@ -392,6 +392,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.join(process.cwd(), "public", "site.webmanifest"));
   });
 
+  // Force favicon to be served with proper headers and no cache (before static middleware)
+  app.get("/favicon.ico", (req, res) => {
+    res.setHeader('Content-Type', 'image/x-icon');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.sendFile(path.join(process.cwd(), "public", "favicon.ico"));
+  });
+
+  // Additional favicon routes for different browsers
+  app.get("/favicon.svg", (req, res) => {
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.sendFile(path.join(process.cwd(), "public", "favicon.svg"));
+  });
+
+  app.get("/favicon-16x16.png", (req, res) => {
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.sendFile(path.join(process.cwd(), "public", "favicon-16x16.png"));
+  });
+
+  // Also handle requests for apple-touch-icon.png
+  app.get("/apple-touch-icon.png", (req, res) => {
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.sendFile(path.join(process.cwd(), "public", "apple-touch-icon.png"));
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
