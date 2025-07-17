@@ -55,10 +55,10 @@ export default function Projects() {
           </div>
           
           {/* Project Filter */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-12">
             <button 
               onClick={() => setFilter('all')}
-              className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 ${
+              className={`px-4 sm:px-6 py-2 rounded-lg font-semibold transition-all duration-300 text-sm sm:text-base ${
                 filter === 'all' 
                   ? 'bg-green-400 text-black' 
                   : 'bg-gray-800 text-white hover:bg-gray-700'
@@ -68,7 +68,7 @@ export default function Projects() {
             </button>
             <button 
               onClick={() => setFilter('live')}
-              className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 ${
+              className={`px-4 sm:px-6 py-2 rounded-lg font-semibold transition-all duration-300 text-sm sm:text-base ${
                 filter === 'live' 
                   ? 'bg-green-400 text-black' 
                   : 'bg-gray-800 text-white hover:bg-gray-700'
@@ -78,7 +78,7 @@ export default function Projects() {
             </button>
             <button 
               onClick={() => setFilter('portfolio')}
-              className={`px-6 py-2 rounded-lg font-semibold transition-all duration-300 ${
+              className={`px-4 sm:px-6 py-2 rounded-lg font-semibold transition-all duration-300 text-sm sm:text-base ${
                 filter === 'portfolio' 
                   ? 'bg-green-400 text-black' 
                   : 'bg-gray-800 text-white hover:bg-gray-700'
@@ -95,29 +95,33 @@ export default function Projects() {
                 <span className="text-green-400">Live</span> 
                 <span className="text-white"> Projects</span>
               </h3>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 {liveProjects.map((project) => (
                   <div key={project.id} className="project-card glow-border rounded-lg overflow-hidden">
                     <div className="relative">
                       <img 
-                        src={project.image || "/placeholder-project.jpg"} 
+                        src={project.image || "/api/placeholder/600/400"} 
                         alt={project.title}
-                        className="w-full h-48 object-cover"
+                        className="w-full h-48 sm:h-56 object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/api/placeholder/600/400";
+                        }}
                       />
                       <div className="absolute top-4 right-4">
-                        <span className="bg-green-400 text-black px-3 py-1 rounded-full text-sm font-semibold">
+                        <span className="bg-green-400 text-black px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold">
                           Live
                         </span>
                       </div>
                     </div>
-                    <div className="p-6">
-                      <h4 className="text-xl font-bold mb-2">{project.title}</h4>
-                      <p className="text-gray-400 mb-4">{project.description}</p>
+                    <div className="p-4 sm:p-6">
+                      <h4 className="text-lg sm:text-xl font-bold mb-2">{project.title}</h4>
+                      <p className="text-gray-400 mb-4 text-sm sm:text-base line-clamp-3">{project.description}</p>
                       <div className="flex flex-wrap gap-2 mb-4">
                         {project.technologies?.map((tech, index) => (
                           <span 
                             key={index}
-                            className="px-3 py-1 bg-gray-800 text-green-400 rounded-full text-sm"
+                            className="px-2 sm:px-3 py-1 bg-gray-800 text-green-400 rounded-full text-xs sm:text-sm"
                           >
                             {tech}
                           </span>
@@ -128,10 +132,10 @@ export default function Projects() {
                           href={project.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center bg-gradient-to-r from-green-400 to-blue-500 text-black px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
+                          className="inline-flex items-center bg-gradient-to-r from-green-400 to-blue-500 text-black px-3 sm:px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 text-sm sm:text-base"
                         >
                           <span>View Live</span>
-                          <ExternalLink className="ml-2 w-4 h-4" />
+                          <ExternalLink className="ml-2 w-3 h-3 sm:w-4 sm:h-4" />
                         </a>
                       )}
                     </div>
@@ -148,29 +152,33 @@ export default function Projects() {
                 <span className="text-blue-400">Portfolio</span> 
                 <span className="text-white"> Projects</span>
               </h3>
-              <div className="grid md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                 {portfolioProjects.map((project) => (
                   <div key={project.id} className="project-card glow-border rounded-lg overflow-hidden">
                     <div className="relative">
                       <img 
-                        src={project.image || "/placeholder-project.jpg"} 
+                        src={project.image || "/api/placeholder/600/400"} 
                         alt={project.title}
-                        className="w-full h-48 object-cover"
+                        className="w-full h-48 sm:h-56 object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/api/placeholder/600/400";
+                        }}
                       />
                       <div className="absolute top-4 right-4">
-                        <span className="bg-blue-400 text-black px-3 py-1 rounded-full text-sm font-semibold">
+                        <span className="bg-blue-400 text-black px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold">
                           Portfolio
                         </span>
                       </div>
                     </div>
-                    <div className="p-6">
-                      <h4 className="text-xl font-bold mb-2">{project.title}</h4>
-                      <p className="text-gray-400 mb-4">{project.description}</p>
+                    <div className="p-4 sm:p-6">
+                      <h4 className="text-lg sm:text-xl font-bold mb-2">{project.title}</h4>
+                      <p className="text-gray-400 mb-4 text-sm sm:text-base line-clamp-3">{project.description}</p>
                       <div className="flex flex-wrap gap-2 mb-4">
                         {project.technologies?.map((tech, index) => (
                           <span 
                             key={index}
-                            className="px-3 py-1 bg-gray-800 text-blue-400 rounded-full text-sm"
+                            className="px-2 sm:px-3 py-1 bg-gray-800 text-blue-400 rounded-full text-xs sm:text-sm"
                           >
                             {tech}
                           </span>
@@ -178,10 +186,10 @@ export default function Projects() {
                       </div>
                       <button 
                         onClick={() => setSelectedProject(project)}
-                        className="inline-flex items-center bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-all duration-300"
+                        className="inline-flex items-center bg-gray-800 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-all duration-300 text-sm sm:text-base"
                       >
                         <span>View Screenshots</span>
-                        <Image className="ml-2 w-4 h-4" />
+                        <Image className="ml-2 w-3 h-3 sm:w-4 sm:h-4" />
                       </button>
                     </div>
                   </div>

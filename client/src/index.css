@@ -273,8 +273,25 @@
 }
 
 .animate-typing { animation: typing 3.5s steps(30, end), blink-caret 0.75s step-end infinite; }
+
+.animate-slide-up { animation: slide-up 0.6s ease-out; }
+.animate-fade-in { animation: fade-in 0.8s ease-out; }
 .animate-float { animation: float 6s ease-in-out infinite; }
 .animate-pulse-green { animation: pulse-green 2s ease-in-out infinite; }
-.animate-slide-up { animation: slide-up 0.6s ease-out; }
+
+/* Line clamp utility for responsive text */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Better mobile text wrapping */
+.hyphens-auto {
+  hyphens: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
 .animate-fade-in { animation: fade-in 0.8s ease-out; }
 .animate-glitch { animation: glitch 2s infinite; }
