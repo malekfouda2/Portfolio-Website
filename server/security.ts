@@ -1,0 +1,358 @@
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { body, validationResult } from 'express-validator';
+import slowDown from 'express-slow-down';
+import hpp from 'hpp';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
+import cors from 'cors';
+import type { Express, Request, Response, NextFunction } from 'express';
+
+// Rate limiting configurations
+export const generalRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: {
+    error: 'Too many requests from this IP, please try again later.',
+    retryAfter: 15 * 60 * 1000
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for static assets
+    return req.path.startsWith('/uploads/') || 
+           req.path.startsWith('/favicon') ||
+           req.path.includes('.js') ||
+           req.path.includes('.css') ||
+           req.path.includes('.png') ||
+           req.path.includes('.jpg') ||
+           req.path.includes('.svg');
+  }
+});
+
+export const contactFormRateLimit = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 3, // limit each IP to 3 contact form submissions per 10 minutes
+  message: {
+    error: 'Too many contact form submissions. Please wait 10 minutes before trying again.',
+    retryAfter: 10 * 60 * 1000
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const apiRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // limit each IP to 200 API requests per windowMs
+  message: {
+    error: 'Too many API requests from this IP, please try again later.',
+    retryAfter: 15 * 60 * 1000
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const authRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 auth attempts per windowMs
+  message: {
+    error: 'Too many authentication attempts, please try again later.',
+    retryAfter: 15 * 60 * 1000
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Slow down middleware for contact form
+export const contactSlowDown = slowDown({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  delayAfter: 2, // allow 2 requests per 15 minutes, then...
+  delayMs: () => 500, // begin adding 500ms of delay per request above 2
+  maxDelayMs: 20000, // maximum delay of 20 seconds
+  validate: { delayMs: false } // Disable the warning
+});
+
+// Input validation for contact form
+export const validateContactForm = [
+  body('name')
+    .isLength({ min: 2, max: 50 })
+    .withMessage('Name must be between 2 and 50 characters')
+    .matches(/^[a-zA-Z\s\-'\.]+$/)
+    .withMessage('Name can only contain letters, spaces, hyphens, apostrophes, and periods')
+    .trim()
+    .escape(),
+  
+  body('email')
+    .isEmail()
+    .withMessage('Please provide a valid email address')
+    .isLength({ max: 100 })
+    .withMessage('Email must be less than 100 characters')
+    .normalizeEmail({
+      gmail_remove_dots: false,
+      gmail_remove_subaddress: false,
+      outlookdotcom_remove_subaddress: false,
+      yahoo_remove_subaddress: false,
+      icloud_remove_subaddress: false
+    }),
+  
+  body('message')
+    .isLength({ min: 10, max: 1000 })
+    .withMessage('Message must be between 10 and 1000 characters')
+    .matches(/^[a-zA-Z0-9\s\-'\.,:;!?\(\)\[\]@#$%&*+=_~`"\/\\]+$/)
+    .withMessage('Message contains invalid characters')
+    .trim()
+    .escape(),
+];
+
+// Input validation for dashboard login
+export const validateLogin = [
+  body('username')
+    .isLength({ min: 3, max: 30 })
+    .withMessage('Username must be between 3 and 30 characters')
+    .matches(/^[a-zA-Z0-9_]+$/)
+    .withMessage('Username can only contain letters, numbers, and underscores')
+    .trim()
+    .escape(),
+  
+  body('password')
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters long')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]*/)
+    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+];
+
+// Validation result handler
+export const handleValidationErrors = (req: Request, res: Response, next: NextFunction) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      error: 'Validation failed',
+      details: errors.array()
+    });
+  }
+  next();
+};
+
+// Security headers and middleware setup
+export const setupSecurity = (app: Express) => {
+  // Enable trust proxy for rate limiting behind reverse proxy
+  app.set('trust proxy', 1);
+  
+  // CORS configuration
+  app.use(cors({
+    origin: process.env.NODE_ENV === 'production' 
+      ? ['https://malekfouda.com', 'https://www.malekfouda.com'] 
+      : true,
+    credentials: true,
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    maxAge: 86400 // 24 hours
+  }));
+
+  // Security headers with Helmet
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        connectSrc: ["'self'", "https://www.google-analytics.com"],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        childSrc: ["'none'"],
+        workerSrc: ["'self'"],
+        manifestSrc: ["'self'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
+      },
+      reportOnly: false,
+    },
+    hsts: {
+      maxAge: 31536000, // 1 year
+      includeSubDomains: true,
+      preload: true
+    },
+    noSniff: true,
+    frameguard: { action: 'deny' },
+    xssFilter: true,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+  }));
+
+  // Additional security middleware
+  app.use(mongoSanitize()); // Prevent NoSQL injection
+  app.use(xss()); // Clean user input from malicious HTML
+  app.use(hpp()); // Prevent HTTP Parameter Pollution
+  
+  // Remove powered by header
+  app.disable('x-powered-by');
+  
+  // Apply general rate limiting
+  app.use(generalRateLimit);
+  
+  // Apply API rate limiting to API routes
+  app.use('/api', apiRateLimit);
+  
+  // Apply auth rate limiting to auth routes
+  app.use('/api/auth', authRateLimit);
+  
+  // Apply contact form rate limiting and slow down
+  app.use('/api/contact', contactFormRateLimit, contactSlowDown);
+  
+  // Security headers middleware
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    // Additional security headers
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+    
+    // Prevent clickjacking
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    
+    // Prevent MIME type sniffing
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    
+    next();
+  });
+};
+
+// SQL injection prevention helper
+export const sanitizeInput = (input: string): string => {
+  if (typeof input !== 'string') return '';
+  
+  // Remove potential SQL injection patterns
+  const sqlPatterns = [
+    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,
+    /(\b(OR|AND)\s+\d+\s*=\s*\d+)/gi,
+    /(\b(OR|AND)\s+\w+\s*=\s*\w+)/gi,
+    /(--|\/\*|\*\/|;)/g,
+    /(\b(SCRIPT|JAVASCRIPT|VBSCRIPT|ONLOAD|ONERROR|ONCLICK)\b)/gi,
+    /(<|>|&lt;|&gt;)/g
+  ];
+  
+  let sanitized = input;
+  sqlPatterns.forEach(pattern => {
+    sanitized = sanitized.replace(pattern, '');
+  });
+  
+  return sanitized.trim();
+};
+
+// XSS prevention helper
+export const sanitizeHtml = (input: string): string => {
+  if (typeof input !== 'string') return '';
+  
+  const xssPatterns = [
+    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+    /<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi,
+    /<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi,
+    /<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi,
+    /<link\b[^<]*(?:(?!<\/link>)<[^<]*)*<\/link>/gi,
+    /<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi,
+    /javascript:/gi,
+    /vbscript:/gi,
+    /on\w+\s*=/gi,
+    /expression\s*\(/gi,
+    /eval\s*\(/gi,
+    /document\./gi,
+    /window\./gi
+  ];
+  
+  let sanitized = input;
+  xssPatterns.forEach(pattern => {
+    sanitized = sanitized.replace(pattern, '');
+  });
+  
+  return sanitized;
+};
+
+// IP blocking middleware (for malicious IPs)
+const blockedIPs = new Set<string>();
+const suspiciousActivity = new Map<string, number>();
+
+export const ipSecurityMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  const clientIP = req.ip;
+  
+  // Check if IP is blocked
+  if (blockedIPs.has(clientIP)) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+  
+  // Track suspicious activity
+  const userAgent = req.get('User-Agent') || '';
+  const suspiciousPatterns = [
+    /bot/i,
+    /crawler/i,
+    /spider/i,
+    /scraper/i,
+    /python/i,
+    /curl/i,
+    /wget/i,
+    /http/i,
+    /scanner/i,
+    /exploit/i
+  ];
+  
+  const isSuspicious = suspiciousPatterns.some(pattern => pattern.test(userAgent));
+  
+  if (isSuspicious) {
+    const count = suspiciousActivity.get(clientIP) || 0;
+    suspiciousActivity.set(clientIP, count + 1);
+    
+    // Block IP after 10 suspicious requests
+    if (count >= 10) {
+      blockedIPs.add(clientIP);
+      return res.status(403).json({ error: 'Access denied due to suspicious activity' });
+    }
+  }
+  
+  next();
+};
+
+// File upload security
+export const uploadSecurityMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  // Check for file upload attacks
+  if (req.files || req.file) {
+    const files = req.files || [req.file];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    
+    for (const file of Array.isArray(files) ? files : [files]) {
+      if (!file) continue;
+      
+      if (!allowedTypes.includes(file.mimetype)) {
+        return res.status(400).json({ error: 'Invalid file type' });
+      }
+      
+      if (file.size > maxSize) {
+        return res.status(400).json({ error: 'File too large' });
+      }
+      
+      // Check for malicious file names
+      const maliciousPatterns = [
+        /\.\./g,
+        /\//g,
+        /\\/g,
+        /\0/g,
+        /\x00/g,
+        /[<>:"|?*]/g
+      ];
+      
+      const fileName = file.originalname || file.name || '';
+      if (maliciousPatterns.some(pattern => pattern.test(fileName))) {
+        return res.status(400).json({ error: 'Invalid file name' });
+      }
+    }
+  }
+  
+  next();
+};
+
+export { blockedIPs, suspiciousActivity };

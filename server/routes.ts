@@ -10,12 +10,22 @@ import {
   insertPartnershipSchema,
   insertContactInfoSchema
 } from "@shared/schema";
+import { 
+  validateContactForm, 
+  validateLogin, 
+  handleValidationErrors, 
+  sanitizeInput, 
+  sanitizeHtml,
+  contactFormRateLimit,
+  contactSlowDown
+} from "./security";
 import { z } from "zod";
 import { requireAuth, login } from "./auth";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import express from "express";
 
 // Set up multer for file uploads
 const uploadDir = path.join(process.cwd(), 'uploads');
@@ -29,26 +39,85 @@ const upload = multer({
       cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
+      // Sanitize filename to prevent path traversal
+      const originalName = sanitizeInput(file.originalname);
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+      const safeExtension = path.extname(originalName).toLowerCase();
+      const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+      
+      if (!allowedExtensions.includes(safeExtension)) {
+        return cb(new Error('Invalid file extension'), '');
+      }
+      
+      cb(null, file.fieldname + '-' + uniqueSuffix + safeExtension);
     }
   }),
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'));
+    
+    // Check MIME type
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error('Only image files are allowed'));
     }
+    
+    // Check file extension
+    const ext = path.extname(file.originalname).toLowerCase();
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    if (!allowedExtensions.includes(ext)) {
+      return cb(new Error('Invalid file extension'));
+    }
+    
+    // Check for malicious filenames
+    const maliciousPatterns = [/\.\./g, /\//g, /\\/g, /\0/g, /[<>:"|?*]/g];
+    if (maliciousPatterns.some(pattern => pattern.test(file.originalname))) {
+      return cb(new Error('Invalid filename'));
+    }
+    
+    cb(null, true);
   },
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+    files: 1, // Only allow 1 file at a time
+    fields: 10 // Limit form fields
   }
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication
-  app.post("/api/auth/login", login);
+  app.post("/api/auth/login", 
+    validateLogin, 
+    handleValidationErrors,
+    async (req, res) => {
+      try {
+        // Sanitize inputs
+        const sanitizedUsername = sanitizeInput(req.body.username);
+        const sanitizedPassword = sanitizeInput(req.body.password);
+        
+        if (!sanitizedUsername || !sanitizedPassword) {
+          return res.status(400).json({ error: "Username and password are required" });
+        }
+        
+        // Additional security checks
+        if (sanitizedUsername.length < 3 || sanitizedUsername.length > 30) {
+          return res.status(400).json({ error: "Invalid username length" });
+        }
+        
+        if (sanitizedPassword.length < 8) {
+          return res.status(400).json({ error: "Password too short" });
+        }
+        
+        const result = await login(sanitizedUsername, sanitizedPassword);
+        if (result.success) {
+          res.json({ success: true, token: result.token });
+        } else {
+          res.status(401).json({ error: result.error });
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  );
 
   // File upload endpoint
   app.post("/api/upload", requireAuth, upload.single('image'), (req, res) => {
@@ -121,26 +190,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Contact form submission
-  app.post("/api/contact", async (req, res) => {
-    try {
-      const contactData = insertContactSchema.parse(req.body);
-      const contact = await storage.createContact(contactData);
-      res.json({ success: true, contact });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        res.status(400).json({ 
-          success: false, 
-          message: "Invalid form data", 
-          errors: error.errors 
+  app.post("/api/contact", 
+    validateContactForm, 
+    handleValidationErrors,
+    async (req, res) => {
+      try {
+        // Double sanitization for extra security
+        const sanitizedData = {
+          name: sanitizeHtml(sanitizeInput(req.body.name)),
+          email: sanitizeHtml(sanitizeInput(req.body.email)),
+          message: sanitizeHtml(sanitizeInput(req.body.message))
+        };
+        
+        // Additional validation checks
+        if (!sanitizedData.name || !sanitizedData.email || !sanitizedData.message) {
+          return res.status(400).json({ 
+            success: false, 
+            message: "All fields are required" 
+          });
+        }
+        
+        // Check for spam patterns
+        const spamPatterns = [
+          /viagra|cialis|pharmacy|casino|lottery|winner|bitcoin|crypto|investment|loan|debt|credit|urgent|click here|free money|get rich|make money fast/i,
+          /http[s]?:\/\//i, // URLs in message
+          /\b\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\b/i, // Credit card patterns
+          /\b\d{3}-\d{2}-\d{4}\b/i, // SSN patterns
+        ];
+        
+        const isSpam = spamPatterns.some(pattern => 
+          pattern.test(sanitizedData.name) || 
+          pattern.test(sanitizedData.email) || 
+          pattern.test(sanitizedData.message)
+        );
+        
+        if (isSpam) {
+          return res.status(400).json({ 
+            success: false, 
+            message: "Message contains prohibited content" 
+          });
+        }
+        
+        // Additional email validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(sanitizedData.email)) {
+          return res.status(400).json({ 
+            success: false, 
+            message: "Invalid email format" 
+          });
+        }
+        
+        // Parse with Zod for final validation
+        const contactData = insertContactSchema.parse(sanitizedData);
+        const contact = await storage.createContact(contactData);
+        
+        res.json({ 
+          success: true, 
+          message: "Thank you for your message. We'll get back to you soon!" 
         });
-      } else {
-        res.status(500).json({ 
-          success: false, 
-          message: "Failed to submit contact form" 
-        });
+      } catch (error) {
+        console.error("Contact form error:", error);
+        
+        if (error instanceof z.ZodError) {
+          res.status(400).json({ 
+            success: false, 
+            message: "Invalid form data", 
+            errors: error.errors 
+          });
+        } else {
+          res.status(500).json({ 
+            success: false, 
+            message: "Failed to submit contact form" 
+          });
+        }
       }
     }
-  });
+  );
 
   // Dashboard API Routes (Protected)
   
@@ -427,6 +552,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.sendFile(path.join(process.cwd(), "public", "apple-touch-icon.png"));
   });
+
+
+  
+  // Static file serving for uploads directory
+  const staticOptions = {
+    maxAge: '24h',
+    etag: true,
+    lastModified: true,
+    dotfiles: 'deny', // Prevent serving hidden files
+    index: false // Prevent directory listing
+  };
+  
+  app.use('/uploads', (req, res, next) => {
+    const filePath = req.path;
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    const hasValidExtension = allowedExtensions.some(ext => filePath.toLowerCase().endsWith(ext));
+    
+    if (!hasValidExtension) {
+      return res.status(403).json({ error: 'File type not allowed' });
+    }
+    
+    if (filePath.includes('..') || filePath.includes('//')) {
+      return res.status(403).json({ error: 'Invalid file path' });
+    }
+    
+    next();
+  });
+  
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), staticOptions));
 
   const httpServer = createServer(app);
   return httpServer;

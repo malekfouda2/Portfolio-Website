@@ -2,11 +2,23 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
+import { setupSecurity, ipSecurityMiddleware, uploadSecurityMiddleware } from "./security";
 import path from "path";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Apply security middleware first
+setupSecurity(app);
+
+// IP security middleware
+app.use(ipSecurityMiddleware);
+
+// Parse JSON with size limit
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+
+// Upload security middleware
+app.use(uploadSecurityMiddleware);
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));

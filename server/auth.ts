@@ -23,7 +23,31 @@ export const requireAuth = async (req: AuthenticatedRequest, res: Response, next
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (username: string, password: string) => {
+  try {
+    if (username === "malekfouda" && password === "Malekfouda1882000") {
+      // In a real app, generate a proper JWT token
+      return { 
+        success: true, 
+        token: "authenticated-user"
+      };
+    } else {
+      return { 
+        success: false, 
+        error: "Invalid credentials" 
+      };
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    return { 
+      success: false, 
+      error: "Internal server error" 
+    };
+  }
+};
+
+// Add a simple login route handler for backward compatibility
+export const loginHandler = async (req: Request, res: Response) => {
   const { username, password } = req.body;
   
   if (username === "malekfouda" && password === "Malekfouda1882000") {
