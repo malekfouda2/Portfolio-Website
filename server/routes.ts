@@ -368,10 +368,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // SEO-friendly routes
   app.get("/robots.txt", (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
     res.sendFile(path.join(process.cwd(), "public", "robots.txt"));
   });
 
   app.get("/sitemap.xml", (req, res) => {
+    res.setHeader('Content-Type', 'application/xml');
     res.sendFile(path.join(process.cwd(), "public", "sitemap.xml"));
   });
 
