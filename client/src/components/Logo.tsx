@@ -34,11 +34,24 @@ export default function Logo({ className = "w-10 h-10" }: { className?: string }
           fill="rgba(0, 0, 0, 0.3)" 
         />
         
-        {/* Code symbol < / > in the center */}
-        <g fill="white" fontFamily="monospace" fontSize="16" fontWeight="bold">
-          <text x="30" y="45" textAnchor="middle" dominantBaseline="central">&lt;</text>
-          <text x="50" y="55" textAnchor="middle" dominantBaseline="central">/</text>
-          <text x="70" y="45" textAnchor="middle" dominantBaseline="central">&gt;</text>
+        {/* Letter M in the center */}
+        <text 
+          x="50" 
+          y="50" 
+          textAnchor="middle" 
+          dominantBaseline="central"
+          fontSize="32"
+          fontWeight="bold"
+          fill="white"
+          fontFamily="system-ui, -apple-system, sans-serif"
+        >
+          M
+        </text>
+        
+        {/* Code brackets around the M */}
+        <g fill="rgba(255, 255, 255, 0.7)" fontFamily="monospace" fontSize="14" fontWeight="bold">
+          <text x="25" y="50" textAnchor="middle" dominantBaseline="central">&lt;</text>
+          <text x="75" y="50" textAnchor="middle" dominantBaseline="central">/&gt;</text>
         </g>
         
         {/* Small dots for tech pattern */}
