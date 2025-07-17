@@ -1,0 +1,4 @@
+Contact: mailto:malekfouda2000@gmail.com
+Expires: 2026-01-01T00:00:00Z
+Preferred-Languages: en
+Canonical: https://malekfouda.com/.well-known/security.txt

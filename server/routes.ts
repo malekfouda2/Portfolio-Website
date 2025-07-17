@@ -366,6 +366,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SEO-friendly routes
+  app.get("/robots.txt", (req, res) => {
+    res.sendFile(path.join(process.cwd(), "public", "robots.txt"));
+  });
+
+  app.get("/sitemap.xml", (req, res) => {
+    res.sendFile(path.join(process.cwd(), "public", "sitemap.xml"));
+  });
+
+  app.get("/.well-known/security.txt", (req, res) => {
+    res.sendFile(path.join(process.cwd(), "public", ".well-known", "security.txt"));
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /login
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://malekfouda.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1

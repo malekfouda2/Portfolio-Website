@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { ContactInfo } from "@shared/schema";
+import { trackEvent } from "@/lib/analytics";
 
 export default function Contact() {
   const { data: contactInfo } = useQuery<ContactInfo>({
@@ -23,6 +24,7 @@ export default function Contact() {
       return response.json();
     },
     onSuccess: () => {
+      trackEvent('contact_form_submit', 'engagement', 'success');
       toast({
         title: "Message sent successfully!",
         description: "Thank you for your message. I'll get back to you soon.",
@@ -30,6 +32,7 @@ export default function Contact() {
       setFormData({ name: "", email: "", message: "" });
     },
     onError: (error: any) => {
+      trackEvent('contact_form_submit', 'engagement', 'error');
       toast({
         title: "Error sending message",
         description: error.message || "Something went wrong. Please try again.",

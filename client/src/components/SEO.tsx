@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { HeroContent } from "@shared/schema";
+import { trackEvent } from "@/lib/analytics";
 
 interface SEOProps {
   title?: string;

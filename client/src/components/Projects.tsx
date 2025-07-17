@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import ProjectModal from "./ProjectModal";
 import { useQuery } from "@tanstack/react-query";
 import type { Project } from "@shared/schema";
+import { trackEvent } from "@/lib/analytics";
 
 export default function Projects() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -109,6 +110,7 @@ export default function Projects() {
                         href={project.url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => trackEvent('project_click', 'engagement', project.title)}
                         className="flex-1 inline-flex items-center justify-center bg-gradient-to-r from-green-400 to-blue-500 text-black px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 text-sm"
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />
@@ -116,7 +118,10 @@ export default function Projects() {
                       </a>
                     )}
                     <button 
-                      onClick={() => setSelectedProject(project)}
+                      onClick={() => {
+                        setSelectedProject(project);
+                        trackEvent('project_modal_open', 'engagement', project.title);
+                      }}
                       className="flex-1 inline-flex items-center justify-center bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-all duration-300 text-sm"
                     >
                       <Image className="w-4 h-4 mr-2" />
@@ -131,7 +136,10 @@ export default function Projects() {
           {/* View More Button */}
           <div className="text-center">
             <Link href="/portfolio">
-              <button className="inline-flex items-center bg-transparent border-2 border-green-400 text-green-400 px-8 py-3 rounded-full font-semibold hover:bg-green-400 hover:text-black transition-all duration-300 group">
+              <button 
+                onClick={() => trackEvent('view_all_projects', 'navigation', 'portfolio_page')}
+                className="inline-flex items-center bg-transparent border-2 border-green-400 text-green-400 px-8 py-3 rounded-full font-semibold hover:bg-green-400 hover:text-black transition-all duration-300 group"
+              >
                 <span>View All Projects</span>
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
