@@ -431,14 +431,50 @@ function ProjectsManager() {
               <Label htmlFor="type">Type</Label>
               <select 
                 id="type" 
-                value={formData.type || "portfolio"}
+                value={formData.type || "personal"}
                 onChange={(e) => handleInputChange("type", e.target.value)}
                 className="w-full p-2 border rounded"
               >
-                <option value="portfolio">Portfolio</option>
-                <option value="live">Live</option>
+                <option value="personal">Personal</option>
+                <option value="freelance">Freelance</option>
+                <option value="company">Company</option>
               </select>
             </div>
+
+            {/* Company Information - Only show if type is 'company' */}
+            {formData.type === 'company' && (
+              <>
+                <div>
+                  <Label htmlFor="companyName">Company Name</Label>
+                  <Input
+                    id="companyName"
+                    value={formData.companyName || ""}
+                    onChange={(e) => handleInputChange("companyName", e.target.value)}
+                    placeholder="e.g., Soliman's Enterprise"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="companyUrl">Company Website</Label>
+                  <Input
+                    id="companyUrl"
+                    value={formData.companyUrl || ""}
+                    onChange={(e) => handleInputChange("companyUrl", e.target.value)}
+                    placeholder="https://company.com"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="role">Your Role</Label>
+                  <Input
+                    id="role"
+                    value={formData.role || ""}
+                    onChange={(e) => handleInputChange("role", e.target.value)}
+                    placeholder="e.g., Full-Stack Developer, Frontend Lead"
+                  />
+                </div>
+              </>
+            )}
             <div>
               <Label htmlFor="url">URL (if live)</Label>
               <Input
@@ -470,9 +506,17 @@ function ProjectsManager() {
                     ))}
                   </div>
                   <div className="flex items-center gap-2 mt-2">
-                    <Badge variant={project.type === "live" ? "default" : "outline"}>
-                      {project.type}
+                    <Badge variant={project.type === "company" ? "default" : "outline"}>
+                      {project.type === 'personal' ? 'Personal' : 
+                       project.type === 'company' ? 'Company' : 'Freelance'}
                     </Badge>
+                    
+                    {/* Company Credit */}
+                    {project.companyName && (
+                      <span className="text-xs text-muted-foreground">
+                        @ {project.companyName}
+                      </span>
+                    )}
                     {project.url && (
                       <a 
                         href={project.url} 

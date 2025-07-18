@@ -69,11 +69,14 @@ export default function Projects() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="absolute top-4 right-4">
                     <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      project.type === 'live' 
+                      project.type === 'personal' 
                         ? 'bg-green-400 text-black' 
+                        : project.type === 'company'
+                        ? 'bg-purple-400 text-black'
                         : 'bg-blue-400 text-black'
                     }`}>
-                      {project.type === 'live' ? 'Live' : 'Portfolio'}
+                      {project.type === 'personal' ? 'Personal' : 
+                       project.type === 'company' ? 'Company' : 'Freelance'}
                     </span>
                   </div>
                 </div>
@@ -85,6 +88,28 @@ export default function Projects() {
                   <p className="text-gray-400 mb-4 line-clamp-2 text-sm">
                     {project.description}
                   </p>
+                  
+                  {/* Company Credit */}
+                  {project.companyName && (
+                    <div className="mb-3 p-2 bg-gray-800/50 rounded-lg border border-gray-700">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Built at:</span>
+                        <a 
+                          href={project.companyUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          {project.companyName}
+                        </a>
+                      </div>
+                      {project.role && (
+                        <div className="text-xs text-green-400 mt-1">
+                          Role: {project.role}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   
                   <div className="flex flex-wrap gap-2 mb-4">
                     {project.technologies?.slice(0, 3).map((tech, index) => (

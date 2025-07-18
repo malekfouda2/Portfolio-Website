@@ -87,6 +87,35 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
               {project.description}
             </p>
             
+            {/* Company Credit Section */}
+            {project.companyName && (
+              <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <h4 className="text-lg font-semibold text-white mb-2">Project Attribution</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400">Company:</span>
+                    <a 
+                      href={project.companyUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
+                    >
+                      {project.companyName}
+                    </a>
+                  </div>
+                  {project.role && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400">My Role:</span>
+                      <span className="text-green-400 font-medium">{project.role}</span>
+                    </div>
+                  )}
+                  <div className="text-sm text-gray-500 mt-2">
+                    Built from scratch as part of my professional work
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <div>
               <h4 className="text-lg font-semibold text-white mb-2">Technologies Used:</h4>
               <div className="flex flex-wrap gap-2">

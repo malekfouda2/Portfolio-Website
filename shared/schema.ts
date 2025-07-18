@@ -44,9 +44,12 @@ export const projects = pgTable("projects", {
   description: text("description").notNull(),
   technologies: jsonb("technologies").notNull(),
   image: text("image").notNull(),
-  type: text("type").notNull(),
+  type: text("type").notNull(), // 'personal', 'freelance', 'company'
   url: text("url"),
   screenshots: jsonb("screenshots"),
+  companyName: text("company_name"), // For company projects
+  companyUrl: text("company_url"), // For company projects
+  role: text("role"), // Your specific role/contribution
   isVisible: boolean("is_visible").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -117,6 +120,8 @@ export const insertProjectSchema = createInsertSchema(projects).omit({
   createdAt: true,
   updatedAt: true,
 });
+
+export const updateProjectSchema = insertProjectSchema.partial();
 
 export const insertSkillSchema = createInsertSchema(skills).omit({
   id: true,
