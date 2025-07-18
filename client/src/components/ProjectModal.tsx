@@ -1,5 +1,6 @@
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import ImageWithFallback from "./ImageWithFallback";
 
 interface Project {
   id: string;
@@ -44,10 +45,11 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
         
         <div className="p-6">
           <div className="relative mb-6">
-            <img
+            <ImageWithFallback
               src={images[currentImageIndex]}
               alt={`${project.title} screenshot ${currentImageIndex + 1}`}
               className="w-full h-96 object-cover rounded-lg"
+              fallbackText={`${project.title} Screenshot`}
             />
             
             {images.length > 1 && (

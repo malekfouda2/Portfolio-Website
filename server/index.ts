@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
 import { setupSecurity, ipSecurityMiddleware, uploadSecurityMiddleware } from "./security";
+import { cleanupProjectImages } from "./imageCleanup";
 import path from "path";
 
 const app = express();
@@ -61,6 +62,9 @@ app.use((req, res, next) => {
   // Seed database in development
   if (app.get("env") === "development") {
     await seedDatabase();
+    
+    // Clean up any broken image references
+    await cleanupProjectImages();
   }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

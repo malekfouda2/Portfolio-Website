@@ -56,15 +56,25 @@ export function ImageUpload({
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Upload failed');
       }
 
       const data = await response.json();
       const imageUrl = data.url;
 
-      // Update preview and call onChange
-      setPreview(imageUrl);
-      onChange(imageUrl);
+      // Verify the uploaded image can be loaded
+      const img = new Image();
+      img.onload = () => {
+        // Update preview and call onChange only after successful load
+        setPreview(imageUrl);
+        onChange(imageUrl);
+        console.log('Image uploaded and verified:', imageUrl);
+      };
+      img.onerror = () => {
+        throw new Error('Uploaded image could not be loaded');
+      };
+      img.src = imageUrl;
       
     } catch (error) {
       console.error('Upload error:', error);

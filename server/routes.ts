@@ -127,10 +127,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const fileUrl = `/uploads/${req.file.filename}`;
+      
+      // Verify file was actually saved
+      const fs = require('fs');
+      const filePath = req.file.path;
+      if (!fs.existsSync(filePath)) {
+        return res.status(500).json({ error: "File upload failed - file not saved" });
+      }
+      
+      console.log(`File uploaded successfully: ${req.file.filename}`);
       res.json({ url: fileUrl });
     } catch (error) {
       console.error("Upload error:", error);
       res.status(500).json({ error: "Failed to upload file" });
+    }
+  });
+
+  // Image cleanup endpoint
+  app.post("/api/cleanup-images", requireAuth, async (req, res) => {
+    try {
+      const { cleanupProjectImages, findOrphanedFiles } = await import("./imageCleanup");
+      
+      await cleanupProjectImages();
+      const orphaned = await findOrphanedFiles();
+      
+      res.json({ 
+        success: true, 
+        message: "Image cleanup completed",
+        orphanedFiles: orphaned
+      });
+    } catch (error) {
+      console.error("Cleanup error:", error);
+      res.status(500).json({ error: "Failed to cleanup images" });
     }
   });
 
@@ -156,7 +184,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/projects", async (req, res) => {
     try {
       const projects = await storage.getProjects();
-      res.json(projects);
+      
+      // Validate and clean image URLs
+      const cleanedProjects = projects.map(project => ({
+        ...project,
+        image: project.image && project.image.startsWith('/uploads/') 
+          ? project.image 
+          : project.image
+      }));
+      
+      res.json(cleanedProjects);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch projects" });
     }

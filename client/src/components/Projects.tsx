@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ExternalLink, Image, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import ProjectModal from "./ProjectModal";
+import ImageWithFallback from "./ImageWithFallback";
 import { useQuery } from "@tanstack/react-query";
 import type { Project } from "@shared/schema";
 import { trackEvent } from "@/lib/analytics";
@@ -59,16 +60,11 @@ export default function Projects() {
                 className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-green-400/50 transition-all duration-300 group"
               >
                 <div className="relative overflow-hidden">
-                  <img 
-                    src={project.image || "https://via.placeholder.com/600x400/1f2937/10b981?text=Project+Image"} 
+                  <ImageWithFallback
+                    src={project.image}
                     alt={project.title}
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (target.src !== "https://via.placeholder.com/600x400/1f2937/10b981?text=Project+Image") {
-                        target.src = "https://via.placeholder.com/600x400/1f2937/10b981?text=Project+Image";
-                      }
-                    }}
+                    fallbackText={project.title}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="absolute top-4 right-4">
