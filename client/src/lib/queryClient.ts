@@ -5,19 +5,22 @@ async function throwIfResNotOk(res: Response) {
     try {
       // Try to parse as JSON first for API errors
       const errorData = await res.json();
+      
+      // Create a user-friendly error with just the message
       if (errorData.message) {
-        const error = new Error(errorData.message);
-        (error as any).response = errorData;
-        throw error;
+        throw new Error(errorData.message);
       } else if (errorData.error) {
-        const error = new Error(errorData.error);
-        (error as any).response = errorData;
-        throw error;
+        throw new Error(errorData.error);
       } else {
-        throw new Error(JSON.stringify(errorData));
+        throw new Error("Request failed");
       }
-    } catch (jsonError) {
-      // If JSON parsing fails, fall back to text
+    } catch (parseError) {
+      // If it's already an Error (from above), re-throw it
+      if (parseError instanceof Error && parseError.message !== 'Unexpected end of JSON input') {
+        throw parseError;
+      }
+      
+      // If JSON parsing fails, fall back to status text
       const text = res.statusText || `HTTP Error ${res.status}`;
       throw new Error(text);
     }
