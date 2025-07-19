@@ -105,7 +105,7 @@ export function ImageUpload({
     }
   };
 
-  const handleUrlSubmit = () => {
+  const handleUrlSubmit = async () => {
     if (!urlInput.trim()) return;
     
     // Validate URL format
@@ -116,25 +116,72 @@ export function ImageUpload({
       return;
     }
 
-    // Test if image loads using createElement approach
-    const img = document.createElement('img');
-    img.onload = () => {
-      setPreview(urlInput);
-      onChange(urlInput);
-      console.log('Image URL set successfully:', urlInput);
-    };
-    img.onerror = () => {
-      alert('Could not load image from this URL. Please check the URL and try again.');
-    };
-    img.src = urlInput;
+    setIsUploading(true);
+
+    // For Google Drive URLs, try multiple formats
+    const urlsToTry = [urlInput];
+    
+    if (urlInput.includes('drive.google.com')) {
+      const fileIdMatch = urlInput.match(/(?:\/file\/d\/|id=)([a-zA-Z0-9-_]+)/);
+      if (fileIdMatch) {
+        const fileId = fileIdMatch[1];
+        urlsToTry.push(
+          `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
+          `https://drive.google.com/uc?export=view&id=${fileId}`,
+          `https://drive.google.com/uc?id=${fileId}`,
+          `https://lh3.googleusercontent.com/d/${fileId}`
+        );
+      }
+    }
+
+    // Try each URL format
+    for (const testUrl of urlsToTry) {
+      try {
+        const success = await testImageUrl(testUrl);
+        if (success) {
+          setPreview(testUrl);
+          onChange(testUrl);
+          setUrlInput(testUrl);
+          console.log('Image URL set successfully:', testUrl);
+          setIsUploading(false);
+          return;
+        }
+      } catch (error) {
+        console.log('Failed to load:', testUrl);
+      }
+    }
+
+    setIsUploading(false);
+    alert('Could not load image from this URL. Make sure the image is publicly accessible and try:\n\n1. Right-click the image in Google Drive\n2. "Get link" → "Anyone with the link"\n3. Or try uploading to imgur.com and use that URL instead');
+  };
+
+  const testImageUrl = (url: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = document.createElement('img');
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = url;
+      
+      // Timeout after 5 seconds
+      setTimeout(() => resolve(false), 5000);
+    });
   };
 
   const convertGoogleDriveUrl = (url: string): string => {
     // Convert Google Drive share URL to direct image URL
     const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9-_]+)/);
     if (fileIdMatch) {
-      return `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+      return `https://drive.google.com/thumbnail?id=${fileIdMatch[1]}&sz=w1000`;
     }
+    
+    // If already a Google Drive direct URL, try different formats
+    if (url.includes('drive.google.com/uc')) {
+      const idMatch = url.match(/id=([a-zA-Z0-9-_]+)/);
+      if (idMatch) {
+        return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+      }
+    }
+    
     return url;
   };
 
@@ -202,21 +249,28 @@ export function ImageUpload({
             <Button
               type="button"
               onClick={handleUrlSubmit}
-              disabled={!urlInput.trim()}
+              disabled={!urlInput.trim() || isUploading}
               className="bg-green-600 hover:bg-green-700"
             >
-              <Globe className="h-4 w-4 mr-1" />
-              Set Image
+              {isUploading ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+              ) : (
+                <Globe className="h-4 w-4 mr-1" />
+              )}
+              {isUploading ? 'Testing...' : 'Set Image'}
             </Button>
           </div>
           <div className="bg-gray-800 border border-gray-700 rounded p-3">
-            <p className="text-xs text-gray-300 font-medium mb-2">💡 How to use Google Drive images:</p>
-            <ol className="text-xs text-gray-400 space-y-1 list-decimal list-inside">
-              <li>Upload image to Google Drive</li>
-              <li>Right-click → "Get link" → Set to "Anyone with the link"</li>
-              <li>Copy the share URL and paste it above</li>
-              <li>It will automatically convert to direct image URL</li>
-            </ol>
+            <p className="text-xs text-gray-300 font-medium mb-2">💡 Supported image sources:</p>
+            <ul className="text-xs text-gray-400 space-y-1 list-disc list-inside">
+              <li><strong>Google Drive:</strong> Right-click image → "Get link" → "Anyone with the link"</li>
+              <li><strong>Imgur:</strong> Upload to imgur.com and copy direct image link</li>
+              <li><strong>GitHub:</strong> Upload to repository and use raw.githubusercontent.com URL</li>
+              <li><strong>Direct URLs:</strong> Any publicly accessible image URL</li>
+            </ul>
+            <p className="text-xs text-yellow-400 mt-2">
+              Note: Google Drive URLs will be automatically tested with multiple formats to find the working one.
+            </p>
           </div>
         </div>
       ) : (
