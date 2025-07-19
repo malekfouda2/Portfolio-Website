@@ -113,8 +113,8 @@ export default function Portfolio() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProjects.map((project) => (
-                <div key={project.id} className="project-card group">
-                  <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden hover:border-green-400/50 transition-all duration-300">
+                <div key={project.id} className="project-card group h-full">
+                  <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden hover:border-green-400/50 transition-all duration-300 h-full flex flex-col">
                     <div className="relative overflow-hidden">
                       <ImageWithFallback
                         src={project.image}
@@ -137,7 +137,7 @@ export default function Portfolio() {
                       </div>
                     </div>
                     
-                    <div className="p-6">
+                    <div className="p-6 flex flex-col flex-1">
                       <h3 className="text-xl font-bold mb-2 text-white group-hover:text-green-400 transition-colors">
                         {project.title}
                       </h3>
@@ -145,40 +145,42 @@ export default function Portfolio() {
                         {project.description}
                       </p>
                       
-                      {/* Company Credit */}
-                      {project.companyName && (
-                        <div className="mb-3 p-2 bg-gray-800/50 rounded-lg border border-gray-700">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-400">Built at:</span>
-                            <a 
-                              href={project.companyUrl} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-blue-400 hover:text-blue-300 transition-colors"
-                            >
-                              {project.companyName}
-                            </a>
-                          </div>
-                          {project.role && (
-                            <div className="text-xs text-green-400 mt-1">
-                              Role: {project.role}
+                      {/* Company Credit - Fixed height for consistency */}
+                      <div className="mb-3" style={{ minHeight: project.companyName ? 'auto' : '0px' }}>
+                        {project.companyName && (
+                          <div className="p-2 bg-gray-800/50 rounded-lg border border-gray-700">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-gray-400">Built at:</span>
+                              <a 
+                                href={project.companyUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-blue-400 hover:text-blue-300 transition-colors"
+                              >
+                                {project.companyName}
+                              </a>
                             </div>
-                          )}
-                        </div>
-                      )}
+                            {project.role && (
+                              <div className="text-xs text-green-400 mt-1">
+                                Role: {project.role}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-2 mb-4 flex-1">
                         {project.technologies?.map((tech, index) => (
                           <span 
                             key={index}
-                            className="px-2 py-1 bg-gray-800 text-green-400 rounded text-sm"
+                            className="px-2 py-1 bg-gray-800 text-green-400 rounded text-sm h-fit"
                           >
                             {tech}
                           </span>
                         ))}
                       </div>
                       
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 mt-auto">
                         {project.url && (
                           <a 
                             href={project.url}

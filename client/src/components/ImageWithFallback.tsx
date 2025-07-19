@@ -93,15 +93,21 @@ export default function ImageWithFallback({
   return (
     <div className={`relative ${className}`}>
       {isLoading && (
-        <div className="absolute inset-0 bg-gray-800 animate-pulse flex items-center justify-center">
-          <div className="text-gray-400 text-sm">Loading...</div>
+        <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+          {/* Loading Spinner Animation */}
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-gray-600 border-t-green-400 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-6 h-6 bg-green-400 rounded-full animate-pulse"></div>
+            </div>
+          </div>
         </div>
       )}
       
       <img
         src={currentSrc}
         alt={alt}
-        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500`}
         onLoad={handleImageLoad}
         onError={handleImageError}
         loading="lazy"

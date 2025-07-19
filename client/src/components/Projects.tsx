@@ -57,7 +57,7 @@ export default function Projects() {
             {featuredProjects.map((project) => (
               <div 
                 key={project.id} 
-                className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-green-400/50 transition-all duration-300 group"
+                className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-green-400/50 transition-all duration-300 group h-full flex flex-col"
               >
                 <div className="relative overflow-hidden">
                   <ImageWithFallback
@@ -81,7 +81,7 @@ export default function Projects() {
                   </div>
                 </div>
                 
-                <div className="p-6">
+                <div className="p-6 flex flex-col flex-1">
                   <h3 className="text-xl font-bold mb-2 text-white group-hover:text-green-400 transition-colors">
                     {project.title}
                   </h3>
@@ -89,45 +89,47 @@ export default function Projects() {
                     {project.description}
                   </p>
                   
-                  {/* Company Credit */}
-                  {project.companyName && (
-                    <div className="mb-3 p-2 bg-gray-800/50 rounded-lg border border-gray-700">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-400">Built at:</span>
-                        <a 
-                          href={project.companyUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-400 hover:text-blue-300 transition-colors"
-                        >
-                          {project.companyName}
-                        </a>
-                      </div>
-                      {project.role && (
-                        <div className="text-xs text-green-400 mt-1">
-                          Role: {project.role}
+                  {/* Company Credit - Fixed height for consistency */}
+                  <div className="mb-3" style={{ minHeight: project.companyName ? 'auto' : '0px' }}>
+                    {project.companyName && (
+                      <div className="p-2 bg-gray-800/50 rounded-lg border border-gray-700">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-400">Built at:</span>
+                          <a 
+                            href={project.companyUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:text-blue-300 transition-colors"
+                          >
+                            {project.companyName}
+                          </a>
                         </div>
-                      )}
-                    </div>
-                  )}
+                        {project.role && (
+                          <div className="text-xs text-green-400 mt-1">
+                            Role: {project.role}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2 mb-4 flex-1">
                     {project.technologies?.slice(0, 3).map((tech, index) => (
                       <span 
                         key={index}
-                        className="px-2 py-1 bg-gray-800 text-green-400 rounded text-xs"
+                        className="px-2 py-1 bg-gray-800 text-green-400 rounded text-xs h-fit"
                       >
                         {tech}
                       </span>
                     ))}
                     {project.technologies && project.technologies.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-800 text-gray-400 rounded text-xs">
+                      <span className="px-2 py-1 bg-gray-800 text-gray-400 rounded text-xs h-fit">
                         +{project.technologies.length - 3} more
                       </span>
                     )}
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-auto">
                     {project.url && (
                       <a 
                         href={project.url}
