@@ -45,18 +45,8 @@ export default function Contact() {
       // Extract user-friendly error message
       let errorMessage = "Something went wrong. Please try again.";
       
-      if (error.response) {
-        try {
-          const errorData = error.response;
-          if (errorData.message) {
-            errorMessage = errorData.message;
-          } else if (errorData.error) {
-            errorMessage = errorData.error;
-          }
-        } catch (e) {
-          console.error('Error parsing error response:', e);
-        }
-      } else if (error.message) {
+      // Handle different error formats
+      if (error.message) {
         errorMessage = error.message;
       }
       
