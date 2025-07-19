@@ -160,7 +160,11 @@ export default function Projects() {
           <div className="text-center">
             <Link href="/portfolio">
               <button 
-                onClick={() => trackEvent('view_all_projects', 'navigation', 'portfolio_page')}
+                onClick={() => {
+                  trackEvent('view_all_projects', 'navigation', 'portfolio_page');
+                  // Scroll to top when navigating to portfolio page
+                  setTimeout(() => window.scrollTo(0, 0), 100);
+                }}
                 className="inline-flex items-center bg-transparent border-2 border-green-400 text-green-400 px-8 py-3 rounded-full font-semibold hover:bg-green-400 hover:text-black transition-all duration-300 group"
               >
                 <span>View All Projects</span>

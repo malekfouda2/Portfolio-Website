@@ -109,6 +109,11 @@ Preferred communication style: Simple, everyday language.
 - Created toggle between URL input and file upload methods
 - Fixed Image constructor runtime error using document.createElement approach
 - Added comprehensive instructions for Google Drive image hosting
+- **LATEST**: Fixed portfolio page project labeling and navigation issues
+- Updated portfolio page to use correct project types (personal, freelance, company) instead of outdated (live, portfolio)
+- Added company attribution display in portfolio page matching main site
+- Fixed "View All Projects" navigation to scroll to top of portfolio page instead of middle
+- Enhanced project type filtering with proper dynamic labels
 
 ## System Architecture
 

@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ExternalLink, Image, ArrowLeft, Search, Filter } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import type { Project } from "@shared/schema";
 import ProjectModal from "@/components/ProjectModal";
 import SEO from "@/components/SEO";
+import ImageWithFallback from "@/components/ImageWithFallback";
 
 export default function Portfolio() {
-  const [filter, setFilter] = useState<'all' | 'live' | 'portfolio'>('all');
+  const [filter, setFilter] = useState<'all' | 'personal' | 'freelance' | 'company'>('all');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -15,6 +16,11 @@ export default function Portfolio() {
     queryKey: ["/api/projects"],
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
+
+  // Scroll to top when component mounts (must be before any conditional returns)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const filteredProjects = projects.filter(project => {
     const matchesFilter = filter === 'all' || project.type === filter;
@@ -87,12 +93,13 @@ export default function Portfolio() {
               <Filter className="text-gray-400 w-5 h-5" />
               <select
                 value={filter}
-                onChange={(e) => setFilter(e.target.value as 'all' | 'live' | 'portfolio')}
+                onChange={(e) => setFilter(e.target.value as 'all' | 'personal' | 'freelance' | 'company')}
                 className="bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-green-400"
               >
                 <option value="all">All Projects</option>
-                <option value="live">Live Projects</option>
-                <option value="portfolio">Portfolio Projects</option>
+                <option value="personal">Personal Projects</option>
+                <option value="freelance">Freelance Work</option>
+                <option value="company">Company Projects</option>
               </select>
             </div>
           </div>
@@ -109,23 +116,23 @@ export default function Portfolio() {
                 <div key={project.id} className="project-card group">
                   <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden hover:border-green-400/50 transition-all duration-300">
                     <div className="relative overflow-hidden">
-                      <img 
-                        src={project.image || "/api/placeholder/600/400"} 
+                      <ImageWithFallback
+                        src={project.image}
                         alt={project.title}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "/api/placeholder/600/400";
-                        }}
+                        fallbackText={project.title}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <div className="absolute top-4 right-4">
                         <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                          project.type === 'live' 
+                          project.type === 'personal' 
                             ? 'bg-green-400 text-black' 
+                            : project.type === 'company'
+                            ? 'bg-purple-400 text-black'
                             : 'bg-blue-400 text-black'
                         }`}>
-                          {project.type === 'live' ? 'Live' : 'Portfolio'}
+                          {project.type === 'personal' ? 'Personal' : 
+                           project.type === 'company' ? 'Company' : 'Freelance'}
                         </span>
                       </div>
                     </div>
@@ -137,6 +144,28 @@ export default function Portfolio() {
                       <p className="text-gray-400 mb-4 line-clamp-2">
                         {project.description}
                       </p>
+                      
+                      {/* Company Credit */}
+                      {project.companyName && (
+                        <div className="mb-3 p-2 bg-gray-800/50 rounded-lg border border-gray-700">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-400">Built at:</span>
+                            <a 
+                              href={project.companyUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-400 hover:text-blue-300 transition-colors"
+                            >
+                              {project.companyName}
+                            </a>
+                          </div>
+                          {project.role && (
+                            <div className="text-xs text-green-400 mt-1">
+                              Role: {project.role}
+                            </div>
+                          )}
+                        </div>
+                      )}
                       
                       <div className="flex flex-wrap gap-2 mb-4">
                         {project.technologies?.map((tech, index) => (
