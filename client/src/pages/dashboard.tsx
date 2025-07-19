@@ -27,6 +27,13 @@ import {
   CheckCircle,
   Check
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -458,10 +465,19 @@ function ProjectsManager() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Ensure required fields are present
+    const projectData = {
+      ...formData,
+      type: formData.type || "personal", // Default to personal if not set
+      technologies: Array.isArray(formData.technologies) ? formData.technologies : [],
+      image: formData.image || "",
+    };
+    
     if (isCreating) {
-      createMutation.mutate(formData);
+      createMutation.mutate(projectData);
     } else if (isEditing) {
-      updateMutation.mutate({ id: isEditing, data: formData });
+      updateMutation.mutate({ id: isEditing, data: projectData });
     }
   };
 
@@ -523,6 +539,22 @@ function ProjectsManager() {
                 rows={3}
                 className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
               />
+            </div>
+            <div>
+              <Label htmlFor="type" className="text-gray-300">Project Type</Label>
+              <Select
+                value={formData.type || "personal"}
+                onValueChange={(value) => handleInputChange("type", value)}
+              >
+                <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                  <SelectValue placeholder="Select project type" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-700">
+                  <SelectItem value="personal" className="text-gray-200 hover:bg-gray-700">Personal Project</SelectItem>
+                  <SelectItem value="freelance" className="text-gray-200 hover:bg-gray-700">Freelance Work</SelectItem>
+                  <SelectItem value="company" className="text-gray-200 hover:bg-gray-700">Company Project</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="technologies" className="text-gray-300">Technologies (comma-separated)</Label>
