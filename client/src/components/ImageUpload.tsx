@@ -116,8 +116,8 @@ export function ImageUpload({
       return;
     }
 
-    // Test if image loads
-    const img = new Image();
+    // Test if image loads using createElement approach
+    const img = document.createElement('img');
     img.onload = () => {
       setPreview(urlInput);
       onChange(urlInput);
