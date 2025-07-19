@@ -21,7 +21,14 @@ export default function Contact() {
   const contactMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       const response = await apiRequest("POST", "/api/contact", data);
-      return response.json();
+      const result = await response.json();
+      
+      // Handle server validation errors
+      if (!result.success) {
+        throw new Error(result.message || "Failed to send message");
+      }
+      
+      return result;
     },
     onSuccess: () => {
       trackEvent('contact_form_submit', 'engagement', 'success');
@@ -33,9 +40,29 @@ export default function Contact() {
     },
     onError: (error: any) => {
       trackEvent('contact_form_submit', 'engagement', 'error');
+      console.error('Contact form error:', error);
+      
+      // Extract user-friendly error message
+      let errorMessage = "Something went wrong. Please try again.";
+      
+      if (error.response) {
+        try {
+          const errorData = error.response;
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          console.error('Error parsing error response:', e);
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error sending message",
-        description: error.message || "Something went wrong. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     }

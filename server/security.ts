@@ -151,9 +151,13 @@ export const validateLogin = [
 export const handleValidationErrors = (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    // Extract user-friendly error messages
+    const errorMessages = errors.array().map(error => error.msg);
+    const firstError = errorMessages[0]; // Show only the first error to keep it simple
+    
     return res.status(400).json({
-      error: 'Validation failed',
-      details: errors.array()
+      success: false,
+      message: firstError || 'Please check your input and try again'
     });
   }
   next();

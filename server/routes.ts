@@ -287,18 +287,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         console.error("Contact form error:", error);
         
+        // Handle Zod validation errors with user-friendly messages
         if (error instanceof z.ZodError) {
-          res.status(400).json({ 
+          const firstError = error.errors[0];
+          let friendlyMessage = "Please check your input and try again";
+          
+          if (firstError.path.includes('message') && firstError.code === 'too_small') {
+            friendlyMessage = "Your message is too short. Please write at least 10 characters.";
+          } else if (firstError.path.includes('message') && firstError.code === 'too_big') {
+            friendlyMessage = "Your message is too long. Please keep it under 1000 characters.";
+          } else if (firstError.path.includes('name')) {
+            friendlyMessage = "Please provide a valid name (2-50 characters, letters only).";
+          } else if (firstError.path.includes('email')) {
+            friendlyMessage = "Please provide a valid email address.";
+          }
+          
+          return res.status(400).json({ 
             success: false, 
-            message: "Invalid form data", 
-            errors: error.errors 
-          });
-        } else {
-          res.status(500).json({ 
-            success: false, 
-            message: "Failed to submit contact form" 
+            message: friendlyMessage 
           });
         }
+        
+        res.status(500).json({ 
+          success: false, 
+          message: "Something went wrong. Please try again." 
+        });
       }
     }
   );
