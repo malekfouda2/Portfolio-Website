@@ -128,8 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const fileUrl = `/uploads/${req.file.filename}`;
       
-      // Verify file was actually saved
-      const fs = require('fs');
+      // Verify file was actually saved using the imported fs module
       const filePath = req.file.path;
       if (!fs.existsSync(filePath)) {
         return res.status(500).json({ error: "File upload failed - file not saved" });
