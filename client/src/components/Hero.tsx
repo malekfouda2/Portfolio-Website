@@ -56,7 +56,7 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="min-h-screen flex items-center justify-center relative overflow-hidden pt-16 sm:pt-20"
+      className="min-h-screen flex items-center justify-center relative overflow-hidden pt-24 sm:pt-28 md:pt-20 hero-safe-area"
     >
       <div className="container mx-auto px-4 sm:px-6 text-center z-10">
         <div className="max-w-4xl mx-auto">
