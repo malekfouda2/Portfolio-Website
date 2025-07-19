@@ -103,12 +103,13 @@ function HeroContentManager() {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <Card>
+    <Card className="bg-gray-900 border-gray-800">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Hero Section</CardTitle>
+        <CardTitle className="text-white">Hero Section</CardTitle>
         <Button
           variant={isEditing ? "outline" : "default"}
           onClick={() => setIsEditing(!isEditing)}
+          className={isEditing ? "border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white" : "bg-green-600 hover:bg-green-700 text-white"}
         >
           {isEditing ? <X className="h-4 w-4" /> : <Edit className="h-4 w-4" />}
           {isEditing ? "Cancel" : "Edit"}
@@ -118,102 +119,109 @@ function HeroContentManager() {
         {!isEditing ? (
           <div className="space-y-4">
             <div>
-              <Label className="text-sm font-medium">Name</Label>
-              <p className="text-sm text-muted-foreground">{heroContent?.name || "Not set"}</p>
+              <Label className="text-sm font-medium text-gray-300">Name</Label>
+              <p className="text-sm text-gray-400">{heroContent?.name || "Not set"}</p>
             </div>
             <div>
-              <Label className="text-sm font-medium">Title</Label>
-              <p className="text-sm text-muted-foreground">{heroContent?.title || "Not set"}</p>
+              <Label className="text-sm font-medium text-gray-300">Title</Label>
+              <p className="text-sm text-gray-400">{heroContent?.title || "Not set"}</p>
             </div>
             <div>
-              <Label className="text-sm font-medium">Description</Label>
-              <p className="text-sm text-muted-foreground">{heroContent?.description || "Not set"}</p>
+              <Label className="text-sm font-medium text-gray-300">Description</Label>
+              <p className="text-sm text-gray-400">{heroContent?.description || "Not set"}</p>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label className="text-sm font-medium">Years Experience</Label>
-                <p className="text-sm text-muted-foreground">{heroContent?.yearsExperience || 0}</p>
+                <Label className="text-sm font-medium text-gray-300">Years Experience</Label>
+                <p className="text-sm text-gray-400">{heroContent?.yearsExperience || 0}</p>
               </div>
               <div>
-                <Label className="text-sm font-medium">Projects Delivered</Label>
-                <p className="text-sm text-muted-foreground">{heroContent?.projectsDelivered || 0}</p>
+                <Label className="text-sm font-medium text-gray-300">Projects Delivered</Label>
+                <p className="text-sm text-gray-400">{heroContent?.projectsDelivered || 0}</p>
               </div>
               <div>
-                <Label className="text-sm font-medium">Client Satisfaction</Label>
-                <p className="text-sm text-muted-foreground">{heroContent?.clientSatisfaction || 0}%</p>
+                <Label className="text-sm font-medium text-gray-300">Client Satisfaction</Label>
+                <p className="text-sm text-gray-400">{heroContent?.clientSatisfaction || 0}%</p>
               </div>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name" className="text-gray-300">Name</Label>
               <Input
                 id="name"
                 value={formData.name || ""}
                 onChange={(e) => handleInputChange("name", e.target.value)}
                 placeholder="Your name"
+                className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
               />
             </div>
             <div>
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title" className="text-gray-300">Title</Label>
               <Input
                 id="title"
                 value={formData.title || ""}
                 onChange={(e) => handleInputChange("title", e.target.value)}
                 placeholder="Your professional title"
+                className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
               />
             </div>
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-gray-300">Description</Label>
               <Textarea
                 id="description"
                 value={formData.description || ""}
                 onChange={(e) => handleInputChange("description", e.target.value)}
                 placeholder="Brief description about yourself"
                 rows={3}
+                className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
               />
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="yearsExperience">Years Experience</Label>
+                <Label htmlFor="yearsExperience" className="text-gray-300">Years Experience</Label>
                 <Input
                   id="yearsExperience"
                   type="number"
                   value={formData.yearsExperience || ""}
                   onChange={(e) => handleInputChange("yearsExperience", parseInt(e.target.value))}
+                  className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
                 />
               </div>
               <div>
-                <Label htmlFor="projectsDelivered">Projects Delivered</Label>
+                <Label htmlFor="projectsDelivered" className="text-gray-300">Projects Delivered</Label>
                 <Input
                   id="projectsDelivered"
                   type="number"
                   value={formData.projectsDelivered || ""}
                   onChange={(e) => handleInputChange("projectsDelivered", parseInt(e.target.value))}
+                  className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
                 />
               </div>
               <div>
-                <Label htmlFor="clientSatisfaction">Client Satisfaction (%)</Label>
+                <Label htmlFor="clientSatisfaction" className="text-gray-300">Client Satisfaction (%)</Label>
                 <Input
                   id="clientSatisfaction"
                   type="number"
                   value={formData.clientSatisfaction || ""}
                   onChange={(e) => handleInputChange("clientSatisfaction", parseInt(e.target.value))}
+                  className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="typingTexts">Typing Animation Texts (one per line)</Label>
+              <Label htmlFor="typingTexts" className="text-gray-300">Typing Animation Texts (one per line)</Label>
               <Textarea
                 id="typingTexts"
                 value={Array.isArray(formData.typingTexts) ? formData.typingTexts.join("\n") : ""}
                 onChange={(e) => handleInputChange("typingTexts", e.target.value.split("\n").filter(Boolean))}
                 placeholder="Building scalable web applications&#10;Creating elegant user interfaces&#10;Solving complex technical challenges"
                 rows={4}
+                className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
               />
             </div>
-            <Button type="submit" disabled={updateMutation.isPending}>
+            <Button type="submit" disabled={updateMutation.isPending} className="bg-green-600 hover:bg-green-700 text-white">
               <Save className="h-4 w-4 mr-2" />
               {updateMutation.isPending ? "Saving..." : "Save Changes"}
             </Button>
@@ -232,32 +240,32 @@ function ContactsManager() {
   if (isLoading) return <div>Loading contacts...</div>;
 
   return (
-    <Card>
+    <Card className="bg-gray-900 border-gray-800">
       <CardHeader>
-        <CardTitle>Contact Form Submissions</CardTitle>
+        <CardTitle className="text-white">Contact Form Submissions</CardTitle>
       </CardHeader>
       <CardContent>
         {!contacts?.length ? (
-          <p className="text-muted-foreground">No contact submissions yet.</p>
+          <p className="text-gray-400">No contact submissions yet.</p>
         ) : (
           <div className="space-y-4">
             {contacts.map((contact: Contact) => (
-              <div key={contact.id} className="border rounded-lg p-4">
+              <div key={contact.id} className="border border-gray-700 rounded-lg p-4 bg-gray-800">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="font-medium">{contact.name}</h4>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <h4 className="font-medium text-white">{contact.name}</h4>
+                    <p className="text-sm text-gray-400 flex items-center gap-1">
                       <Mail className="h-3 w-3" />
                       {contact.email}
                     </p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <p className="text-sm text-gray-400 flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {new Date(contact.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
                 <div className="mt-2">
-                  <p className="text-sm">{contact.message}</p>
+                  <p className="text-sm text-gray-300">{contact.message}</p>
                 </div>
               </div>
             ))}
@@ -372,52 +380,55 @@ function ProjectsManager() {
   if (isLoading) return <div>Loading projects...</div>;
 
   return (
-    <Card>
+    <Card className="bg-gray-900 border-gray-800">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Projects</CardTitle>
-        <Button onClick={() => setIsCreating(true)} disabled={isCreating}>
+        <CardTitle className="text-white">Projects</CardTitle>
+        <Button onClick={() => setIsCreating(true)} disabled={isCreating} className="bg-green-600 hover:bg-green-700 text-white">
           <Plus className="h-4 w-4 mr-2" />
           Add Project
         </Button>
       </CardHeader>
       <CardContent>
         {(isCreating || isEditing) && (
-          <form onSubmit={handleSubmit} className="space-y-4 mb-6 p-4 border rounded-lg">
+          <form onSubmit={handleSubmit} className="space-y-4 mb-6 p-4 border border-gray-700 rounded-lg bg-gray-800">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium">
+              <h3 className="text-lg font-medium text-white">
                 {isCreating ? "Create New Project" : "Edit Project"}
               </h3>
-              <Button type="button" variant="outline" onClick={cancelEdit}>
+              <Button type="button" variant="outline" onClick={cancelEdit} className="border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white">
                 <X className="h-4 w-4" />
               </Button>
             </div>
             <div>
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title" className="text-gray-300">Title</Label>
               <Input
                 id="title"
                 value={formData.title || ""}
                 onChange={(e) => handleInputChange("title", e.target.value)}
                 placeholder="Project title"
                 required
+                className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
               />
             </div>
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-gray-300">Description</Label>
               <Textarea
                 id="description"
                 value={formData.description || ""}
                 onChange={(e) => handleInputChange("description", e.target.value)}
                 placeholder="Project description"
                 rows={3}
+                className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
               />
             </div>
             <div>
-              <Label htmlFor="technologies">Technologies (comma-separated)</Label>
+              <Label htmlFor="technologies" className="text-gray-300">Technologies (comma-separated)</Label>
               <Input
                 id="technologies"
                 value={Array.isArray(formData.technologies) ? formData.technologies.join(", ") : ""}
                 onChange={(e) => handleInputChange("technologies", e.target.value.split(",").map(t => t.trim()))}
                 placeholder="React, Node.js, PostgreSQL"
+                className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
               />
             </div>
             <div>
@@ -428,12 +439,12 @@ function ProjectsManager() {
               />
             </div>
             <div>
-              <Label htmlFor="type">Type</Label>
+              <Label htmlFor="type" className="text-gray-300">Type</Label>
               <select 
                 id="type" 
                 value={formData.type || "personal"}
                 onChange={(e) => handleInputChange("type", e.target.value)}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-white"
               >
                 <option value="personal">Personal</option>
                 <option value="freelance">Freelance</option>
@@ -445,47 +456,51 @@ function ProjectsManager() {
             {formData.type === 'company' && (
               <>
                 <div>
-                  <Label htmlFor="companyName">Company Name</Label>
+                  <Label htmlFor="companyName" className="text-gray-300">Company Name</Label>
                   <Input
                     id="companyName"
                     value={formData.companyName || ""}
                     onChange={(e) => handleInputChange("companyName", e.target.value)}
                     placeholder="e.g., Soliman's Enterprise"
+                    className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="companyUrl">Company Website</Label>
+                  <Label htmlFor="companyUrl" className="text-gray-300">Company Website</Label>
                   <Input
                     id="companyUrl"
                     value={formData.companyUrl || ""}
                     onChange={(e) => handleInputChange("companyUrl", e.target.value)}
                     placeholder="https://company.com"
+                    className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="role">Your Role</Label>
+                  <Label htmlFor="role" className="text-gray-300">Your Role</Label>
                   <Input
                     id="role"
                     value={formData.role || ""}
                     onChange={(e) => handleInputChange("role", e.target.value)}
                     placeholder="e.g., Full-Stack Developer, Frontend Lead"
+                    className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
                   />
                 </div>
               </>
             )}
             <div>
-              <Label htmlFor="url">URL (if live)</Label>
+              <Label htmlFor="url" className="text-gray-300">URL (if live)</Label>
               <Input
                 id="url"
                 value={formData.url || ""}
                 onChange={(e) => handleInputChange("url", e.target.value)}
                 placeholder="https://example.com"
+                className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
               />
             </div>
             <div className="flex gap-2">
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-green-600 hover:bg-green-700 text-white">
                 <Save className="h-4 w-4 mr-2" />
                 {createMutation.isPending || updateMutation.isPending ? "Saving..." : "Save Project"}
               </Button>
@@ -495,25 +510,26 @@ function ProjectsManager() {
 
         <div className="space-y-4">
           {projects?.map((project: Project) => (
-            <div key={project.id} className="border rounded-lg p-4">
+            <div key={project.id} className="border border-gray-700 rounded-lg p-4 bg-gray-800">
               <div className="flex justify-between items-start">
                 <div>
-                  <h4 className="font-medium">{project.title}</h4>
-                  <p className="text-sm text-muted-foreground">{project.description}</p>
+                  <h4 className="font-medium text-white">{project.title}</h4>
+                  <p className="text-sm text-gray-400">{project.description}</p>
                   <div className="flex gap-1 mt-2">
                     {project.technologies?.map((tech, index) => (
-                      <Badge key={index} variant="secondary">{tech}</Badge>
+                      <Badge key={index} variant="secondary" className="bg-gray-700 text-gray-300">{tech}</Badge>
                     ))}
                   </div>
                   <div className="flex items-center gap-2 mt-2">
-                    <Badge variant={project.type === "company" ? "default" : "outline"}>
+                    <Badge variant={project.type === "company" ? "default" : "outline"} 
+                           className={project.type === "company" ? "bg-purple-600 text-white" : "border-gray-600 text-gray-300"}>
                       {project.type === 'personal' ? 'Personal' : 
                        project.type === 'company' ? 'Company' : 'Freelance'}
                     </Badge>
                     
                     {/* Company Credit */}
                     {project.companyName && (
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-gray-400">
                         @ {project.companyName}
                       </span>
                     )}
@@ -522,7 +538,7 @@ function ProjectsManager() {
                         href={project.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline text-sm"
+                        className="text-blue-400 hover:underline text-sm"
                       >
                         View Project
                       </a>
@@ -535,6 +551,7 @@ function ProjectsManager() {
                     size="sm"
                     onClick={() => startEdit(project)}
                     disabled={isEditing !== null || isCreating}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -543,6 +560,7 @@ function ProjectsManager() {
                     size="sm"
                     onClick={() => deleteMutation.mutate(project.id)}
                     disabled={deleteMutation.isPending}
+                    className="border-gray-600 text-gray-300 hover:bg-red-600 hover:border-red-600 hover:text-white"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -560,21 +578,21 @@ export default function Dashboard() {
   const { isAuthenticated, logout } = useAuth();
 
   if (!isAuthenticated) {
-    return <div>Redirecting to login...</div>;
+    return <div className="text-white">Redirecting to login...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-black">
+      <div className="bg-gray-900 shadow-sm border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-sm text-gray-600">Manage your portfolio content</p>
+              <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+              <p className="text-sm text-gray-400">Manage your portfolio content</p>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">Welcome back, Malek</span>
-              <Button variant="outline" onClick={logout}>
+              <span className="text-sm text-gray-400">Welcome back, Malek</span>
+              <Button variant="outline" onClick={logout} className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white">
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>
@@ -585,20 +603,20 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">
+          <TabsList className="grid w-full grid-cols-4 bg-gray-800 border-gray-700">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700">
               <Home className="h-4 w-4 mr-2" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="hero">
+            <TabsTrigger value="hero" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700">
               <Users className="h-4 w-4 mr-2" />
               Hero Section
             </TabsTrigger>
-            <TabsTrigger value="projects">
+            <TabsTrigger value="projects" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700">
               <FolderOpen className="h-4 w-4 mr-2" />
               Projects
             </TabsTrigger>
-            <TabsTrigger value="contacts">
+            <TabsTrigger value="contacts" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700">
               <MessageSquare className="h-4 w-4 mr-2" />
               Contacts
             </TabsTrigger>
@@ -606,52 +624,52 @@ export default function Dashboard() {
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
+              <Card className="bg-gray-900 border-gray-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-                  <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-gray-300">Total Projects</CardTitle>
+                  <FolderOpen className="h-4 w-4 text-gray-500" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">0</div>
-                  <p className="text-xs text-muted-foreground">Portfolio projects</p>
+                  <div className="text-2xl font-bold text-white">0</div>
+                  <p className="text-xs text-gray-500">Portfolio projects</p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-gray-900 border-gray-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Contact Submissions</CardTitle>
-                  <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-gray-300">Contact Submissions</CardTitle>
+                  <MessageSquare className="h-4 w-4 text-gray-500" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">0</div>
-                  <p className="text-xs text-muted-foreground">New messages</p>
+                  <div className="text-2xl font-bold text-white">0</div>
+                  <p className="text-xs text-gray-500">New messages</p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-gray-900 border-gray-800">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Years Experience</CardTitle>
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-gray-300">Years Experience</CardTitle>
+                  <Calendar className="h-4 w-4 text-gray-500" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">3+</div>
-                  <p className="text-xs text-muted-foreground">Professional experience</p>
+                  <div className="text-2xl font-bold text-white">3+</div>
+                  <p className="text-xs text-gray-500">Professional experience</p>
                 </CardContent>
               </Card>
             </div>
 
-            <Card>
+            <Card className="bg-gray-900 border-gray-800">
               <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+                <CardTitle className="text-white">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="flex gap-4">
-                <Button variant="outline">
+                <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white">
                   <Plus className="h-4 w-4 mr-2" />
                   Add New Project
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white">
                   <Edit className="h-4 w-4 mr-2" />
                   Update Hero Section
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white">
                   <Eye className="h-4 w-4 mr-2" />
                   View Website
                 </Button>
