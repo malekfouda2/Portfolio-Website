@@ -6,9 +6,13 @@ async function throwIfResNotOk(res: Response) {
       // Try to parse as JSON first for API errors
       const errorData = await res.json();
       if (errorData.message) {
-        throw new Error(errorData.message);
+        const error = new Error(errorData.message);
+        (error as any).response = errorData;
+        throw error;
       } else if (errorData.error) {
-        throw new Error(errorData.error);
+        const error = new Error(errorData.error);
+        (error as any).response = errorData;
+        throw error;
       } else {
         throw new Error(JSON.stringify(errorData));
       }
