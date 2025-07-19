@@ -309,10 +309,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contacts management
   app.get("/api/admin/contacts", requireAuth, async (req, res) => {
     try {
-      const contacts = await storage.getContacts();
+      const contacts = await storage.getAllContacts();
       res.json(contacts);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch contacts" });
+    }
+  });
+
+  app.put("/api/admin/contacts/:id", requireAuth, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const contact = await storage.updateContactStatus(parseInt(id), status);
+      res.json(contact);
+    } catch (error) {
+      console.error("Error updating contact:", error);
+      res.status(500).json({ error: "Failed to update contact" });
+    }
+  });
+
+  app.delete("/api/admin/contacts/:id", requireAuth, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteContact(parseInt(id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting contact:", error);
+      res.status(500).json({ error: "Failed to delete contact" });
     }
   });
 

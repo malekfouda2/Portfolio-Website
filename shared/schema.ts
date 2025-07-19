@@ -13,7 +13,9 @@ export const contacts = pgTable("contacts", {
   name: text("name").notNull(),
   email: text("email").notNull(),
   message: text("message").notNull(),
+  status: text("status").notNull().default("new"), // 'new', 'contacted', 'resolved'
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const heroContent = pgTable("hero_content", {

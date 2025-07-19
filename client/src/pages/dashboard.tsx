@@ -23,7 +23,9 @@ import {
   Plus,
   Save,
   X,
-  LogOut
+  LogOut,
+  CheckCircle,
+  Check
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -233,11 +235,68 @@ function HeroContentManager() {
 }
 
 function ContactsManager() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const { data: contacts, isLoading } = useQuery({
     queryKey: ["/api/admin/contacts"],
   });
 
-  if (isLoading) return <div>Loading contacts...</div>;
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      const response = await apiRequest("PUT", `/api/admin/contacts/${id}`, { status });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Contact status updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/contacts"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update contact status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/contacts/${id}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Contact deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/contacts"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete contact",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "new":
+        return "bg-blue-600 text-white";
+      case "contacted":
+        return "bg-yellow-600 text-white";
+      case "resolved":
+        return "bg-green-600 text-white";
+      default:
+        return "bg-gray-600 text-white";
+    }
+  };
+
+  if (isLoading) return <div className="text-white">Loading contacts...</div>;
 
   return (
     <Card className="bg-gray-900 border-gray-800">
@@ -249,11 +308,16 @@ function ContactsManager() {
           <p className="text-gray-400">No contact submissions yet.</p>
         ) : (
           <div className="space-y-4">
-            {contacts.map((contact: Contact) => (
+            {contacts.map((contact: any) => (
               <div key={contact.id} className="border border-gray-700 rounded-lg p-4 bg-gray-800">
                 <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-medium text-white">{contact.name}</h4>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-medium text-white">{contact.name}</h4>
+                      <Badge className={getStatusColor(contact.status || "new")}>
+                        {contact.status?.charAt(0).toUpperCase() + contact.status?.slice(1) || "New"}
+                      </Badge>
+                    </div>
                     <p className="text-sm text-gray-400 flex items-center gap-1">
                       <Mail className="h-3 w-3" />
                       {contact.email}
@@ -262,10 +326,49 @@ function ContactsManager() {
                       <Calendar className="h-3 w-3" />
                       {new Date(contact.createdAt).toLocaleDateString()}
                     </p>
+                    <div className="mt-3">
+                      <p className="text-sm text-gray-300">{contact.message}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="mt-2">
-                  <p className="text-sm text-gray-300">{contact.message}</p>
+                  
+                  <div className="flex flex-col gap-2 ml-4">
+                    {contact.status !== "contacted" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateStatusMutation.mutate({ id: contact.id, status: "contacted" })}
+                        disabled={updateStatusMutation.isPending}
+                        className="border-yellow-600 text-yellow-400 hover:bg-yellow-600 hover:text-white"
+                      >
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Mark Contacted
+                      </Button>
+                    )}
+                    
+                    {contact.status !== "resolved" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateStatusMutation.mutate({ id: contact.id, status: "resolved" })}
+                        disabled={updateStatusMutation.isPending}
+                        className="border-green-600 text-green-400 hover:bg-green-600 hover:text-white"
+                      >
+                        <Check className="h-3 w-3 mr-1" />
+                        Mark Resolved
+                      </Button>
+                    )}
+                    
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => deleteMutation.mutate(contact.id)}
+                      disabled={deleteMutation.isPending}
+                      className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}

@@ -36,6 +36,9 @@ export interface IStorage {
   // Contacts
   createContact(contact: InsertContact): Promise<Contact>;
   getContacts(): Promise<Contact[]>;
+  getAllContacts(): Promise<Contact[]>;
+  updateContactStatus(id: number, status: string): Promise<Contact>;
+  deleteContact(id: number): Promise<void>;
   
   // Hero Content
   getHeroContent(): Promise<HeroContent | undefined>;
@@ -96,6 +99,23 @@ export class DatabaseStorage implements IStorage {
 
   async getContacts(): Promise<Contact[]> {
     return await db.select().from(contacts).orderBy(desc(contacts.createdAt));
+  }
+
+  async getAllContacts(): Promise<Contact[]> {
+    return await db.select().from(contacts).orderBy(desc(contacts.createdAt));
+  }
+
+  async updateContactStatus(id: number, status: string): Promise<Contact> {
+    const [contact] = await db
+      .update(contacts)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(contacts.id, id))
+      .returning();
+    return contact;
+  }
+
+  async deleteContact(id: number): Promise<void> {
+    await db.delete(contacts).where(eq(contacts.id, id));
   }
 
   // Hero Content
