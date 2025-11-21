@@ -323,18 +323,22 @@ export const ipSecurityMiddleware = (req: Request, res: Response, next: NextFunc
     return res.status(403).json({ error: 'Access denied' });
   }
   
-  // Track suspicious activity
+  // Track suspicious activity - only block clearly malicious tools
   const userAgent = req.get('User-Agent') || '';
   const suspiciousPatterns = [
-    /bot/i,
-    /crawler/i,
-    /spider/i,
-    /scraper/i,
-    /python/i,
-    /curl/i,
-    /wget/i,
-    /http/i,
-    /scanner/i,
+    /^python/i,           // Only at start of user agent
+    /^curl\//i,           // Only at start of user agent
+    /^wget\//i,           // Only at start of user agent
+    /sqlmap/i,
+    /nikto/i,
+    /nmap/i,
+    /masscan/i,
+    /metasploit/i,
+    /burpsuite/i,
+    /w3af/i,
+    /acunetix/i,
+    /nessus/i,
+    /openvas/i,
     /exploit/i
   ];
   

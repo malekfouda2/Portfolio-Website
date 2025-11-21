@@ -20,15 +20,9 @@ export default function Contact() {
 
   const contactMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
+      // apiRequest already handles errors and throws them with proper messages
       const response = await apiRequest("POST", "/api/contact", data);
-      const result = await response.json();
-      
-      // Handle server validation errors
-      if (!result.success) {
-        throw new Error(result.message || "Failed to send message");
-      }
-      
-      return result;
+      return await response.json();
     },
     onSuccess: () => {
       trackEvent('contact_form_submit', 'engagement', 'success');
