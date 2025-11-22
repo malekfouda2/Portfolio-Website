@@ -121,6 +121,11 @@ Preferred communication style: Simple, everyday language.
 - Added company attribution display in portfolio page matching main site
 - Fixed "View All Projects" navigation to scroll to top of portfolio page instead of middle
 - Enhanced project type filtering with proper dynamic labels
+- **LATEST**: CRITICAL FIX - Removed overly aggressive IP blocking middleware preventing 403 "Access denied" errors
+- Eliminated ipSecurityMiddleware that was blocking legitimate browser traffic
+- Kept essential security: rate limiting, input sanitization, helmet headers, CORS protection
+- Fixed live website accessibility issues caused by false-positive malicious user agent detection
+- Permanently resolved 403 Forbidden errors on published deployment
 
 ## System Architecture
 

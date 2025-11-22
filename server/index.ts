@@ -2,7 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
-import { setupSecurity, ipSecurityMiddleware, uploadSecurityMiddleware } from "./security";
+import { setupSecurity, uploadSecurityMiddleware } from "./security";
 import { cleanupProjectImages } from "./imageCleanup";
 import path from "path";
 
@@ -10,9 +10,6 @@ const app = express();
 
 // Apply security middleware first
 setupSecurity(app);
-
-// IP security middleware
-app.use(ipSecurityMiddleware);
 
 // Parse JSON with size limit
 app.use(express.json({ limit: '10mb' }));
