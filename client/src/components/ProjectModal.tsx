@@ -32,14 +32,14 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4"
+      className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[70] p-2 sm:p-4"
       onClick={onClose}
     >
       <div 
-        className="bg-gray-900 rounded-lg max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
+        className="bg-gray-900 rounded-lg max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-gray-900 z-10 flex items-center justify-between p-4 sm:p-6 border-b border-gray-800">
+        <div className="sticky top-0 bg-gray-900 z-20 flex items-center justify-between p-4 sm:p-6 border-b border-gray-800 shadow-lg">
           <h3 className="text-lg sm:text-2xl font-bold text-white pr-4 line-clamp-1">{project.title}</h3>
           <button
             onClick={onClose}

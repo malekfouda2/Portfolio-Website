@@ -211,6 +211,9 @@
     color: hsl(142, 100%, 55%);
     opacity: 0.1;
     animation: matrix 20s linear infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   .particle {
@@ -221,6 +224,9 @@
     border-radius: 50%;
     animation: particle 15s linear infinite;
     opacity: 0.3;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   .typing-demo {
@@ -250,18 +256,18 @@
 }
 
 @keyframes matrix {
-  0% { transform: translateY(-100vh); }
-  100% { transform: translateY(100vh); }
+  0% { transform: translate3d(0, -100vh, 0); }
+  100% { transform: translate3d(0, 100vh, 0); }
 }
 
 @keyframes particle {
-  0% { transform: translateY(100vh) rotate(0deg); }
-  100% { transform: translateY(-100vh) rotate(360deg); }
+  0% { transform: translate3d(0, 100vh, 0) rotate(0deg); }
+  100% { transform: translate3d(0, -100vh, 0) rotate(360deg); }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -20px, 0); }
 }
 
 @keyframes pulse-green {
@@ -270,8 +276,8 @@
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(50px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translate3d(0, 50px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 @keyframes fade-in {
