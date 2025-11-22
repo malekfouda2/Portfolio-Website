@@ -19,32 +19,35 @@ export default function Hero() {
 
   useEffect(() => {
     let i = 0;
-    const typeTimer = setInterval(() => {
-      if (i < fullText.length) {
-        setTypedText(fullText.substring(0, i + 1));
-        i++;
-      } else {
-        clearInterval(typeTimer);
-        // Restart typing after 5 seconds
-        setTimeout(() => {
-          setTypedText("");
-          i = 0;
-          // Move to next text or loop back to first
-          setCurrentTextIndex((prev) => (prev + 1) % typingTexts.length);
-          const restartTimer = setInterval(() => {
-            if (i < fullText.length) {
-              setTypedText(fullText.substring(0, i + 1));
-              i++;
-            } else {
-              clearInterval(restartTimer);
-            }
-          }, 100);
-        }, 3000);
-      }
-    }, 100);
+    let typeTimer: NodeJS.Timeout | null = null;
+    let pauseTimer: NodeJS.Timeout | null = null;
 
-    return () => clearInterval(typeTimer);
-  }, [fullText, typingTexts.length]);
+    const startTyping = () => {
+      i = 0;
+      setTypedText("");
+      
+      typeTimer = setInterval(() => {
+        if (i < fullText.length) {
+          setTypedText(fullText.substring(0, i + 1));
+          i++;
+        } else {
+          if (typeTimer) clearInterval(typeTimer);
+          // Wait 3 seconds before cycling to next text
+          pauseTimer = setTimeout(() => {
+            setCurrentTextIndex((prev) => (prev + 1) % typingTexts.length);
+          }, 3000);
+        }
+      }, 100);
+    };
+
+    startTyping();
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      if (typeTimer) clearInterval(typeTimer);
+      if (pauseTimer) clearTimeout(pauseTimer);
+    };
+  }, [currentTextIndex, fullText, typingTexts.length]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
