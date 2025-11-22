@@ -139,7 +139,7 @@ function HeroContentManager() {
               <Label className="text-sm font-medium text-gray-300">Description</Label>
               <p className="text-sm text-gray-400">{heroContent?.description || "Not set"}</p>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <Label className="text-sm font-medium text-gray-300">Years Experience</Label>
                 <p className="text-sm text-gray-400">{heroContent?.yearsExperience || 0}</p>
@@ -187,7 +187,7 @@ function HeroContentManager() {
                 className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-400"
               />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="yearsExperience" className="text-gray-300">Years Experience</Label>
                 <Input
@@ -316,39 +316,40 @@ function ContactsManager() {
         ) : (
           <div className="space-y-4">
             {contacts.map((contact: any) => (
-              <div key={contact.id} className="border border-gray-700 rounded-lg p-4 bg-gray-800">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h4 className="font-medium text-white">{contact.name}</h4>
+              <div key={contact.id} className="border border-gray-700 rounded-lg p-3 sm:p-4 bg-gray-800">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h4 className="font-medium text-white break-words">{contact.name}</h4>
                       <Badge className={getStatusColor(contact.status || "new")}>
                         {contact.status?.charAt(0).toUpperCase() + contact.status?.slice(1) || "New"}
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-400 flex items-center gap-1">
-                      <Mail className="h-3 w-3" />
-                      {contact.email}
+                    <p className="text-sm text-gray-400 flex items-center gap-1 mb-1 break-all">
+                      <Mail className="h-3 w-3 flex-shrink-0" />
+                      <span className="break-all">{contact.email}</span>
                     </p>
-                    <p className="text-sm text-gray-400 flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
+                    <p className="text-sm text-gray-400 flex items-center gap-1 mb-3">
+                      <Calendar className="h-3 w-3 flex-shrink-0" />
                       {new Date(contact.createdAt).toLocaleDateString()}
                     </p>
-                    <div className="mt-3">
-                      <p className="text-sm text-gray-300">{contact.message}</p>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-300 break-words">{contact.message}</p>
                     </div>
                   </div>
                   
-                  <div className="flex flex-col gap-2 ml-4">
+                  <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto sm:ml-4">
                     {contact.status !== "contacted" && (
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => updateStatusMutation.mutate({ id: contact.id, status: "contacted" })}
                         disabled={updateStatusMutation.isPending}
-                        className="border-yellow-600 text-yellow-400 hover:bg-yellow-600 hover:text-white"
+                        className="flex-1 sm:flex-none border-yellow-600 text-yellow-400 hover:bg-yellow-600 hover:text-white text-xs sm:text-sm whitespace-nowrap"
                       >
                         <CheckCircle className="h-3 w-3 mr-1" />
-                        Mark Contacted
+                        <span className="hidden sm:inline">Mark Contacted</span>
+                        <span className="sm:hidden">Contacted</span>
                       </Button>
                     )}
                     
@@ -358,10 +359,11 @@ function ContactsManager() {
                         variant="outline"
                         onClick={() => updateStatusMutation.mutate({ id: contact.id, status: "resolved" })}
                         disabled={updateStatusMutation.isPending}
-                        className="border-green-600 text-green-400 hover:bg-green-600 hover:text-white"
+                        className="flex-1 sm:flex-none border-green-600 text-green-400 hover:bg-green-600 hover:text-white text-xs sm:text-sm whitespace-nowrap"
                       >
                         <Check className="h-3 w-3 mr-1" />
-                        Mark Resolved
+                        <span className="hidden sm:inline">Mark Resolved</span>
+                        <span className="sm:hidden">Resolved</span>
                       </Button>
                     )}
                     
@@ -370,7 +372,7 @@ function ContactsManager() {
                       variant="outline"
                       onClick={() => deleteMutation.mutate(contact.id)}
                       disabled={deleteMutation.isPending}
-                      className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                      className="flex-1 sm:flex-none border-red-600 text-red-400 hover:bg-red-600 hover:text-white text-xs sm:text-sm"
                     >
                       <Trash2 className="h-3 w-3 mr-1" />
                       Delete
@@ -645,17 +647,17 @@ function ProjectsManager() {
 
         <div className="space-y-4">
           {projects?.map((project: Project) => (
-            <div key={project.id} className="border border-gray-700 rounded-lg p-4 bg-gray-800">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-medium text-white">{project.title}</h4>
-                  <p className="text-sm text-gray-400">{project.description}</p>
-                  <div className="flex gap-1 mt-2">
+            <div key={project.id} className="border border-gray-700 rounded-lg p-3 sm:p-4 bg-gray-800">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-white break-words">{project.title}</h4>
+                  <p className="text-sm text-gray-400 break-words mt-1">{project.description}</p>
+                  <div className="flex flex-wrap gap-1 mt-2">
                     {project.technologies?.map((tech, index) => (
-                      <Badge key={index} variant="secondary" className="bg-gray-700 text-gray-300">{tech}</Badge>
+                      <Badge key={index} variant="secondary" className="bg-gray-700 text-gray-300 text-xs">{tech}</Badge>
                     ))}
                   </div>
-                  <div className="flex items-center gap-2 mt-2">
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
                     <Badge variant={project.type === "company" ? "default" : "outline"} 
                            className={project.type === "company" ? "bg-purple-600 text-white" : "border-gray-600 text-gray-300"}>
                       {project.type === 'personal' ? 'Personal' : 
@@ -673,31 +675,33 @@ function ProjectsManager() {
                         href={project.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-blue-400 hover:underline text-sm"
+                        className="text-blue-400 hover:underline text-xs sm:text-sm"
                       >
                         View Project
                       </a>
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-row sm:flex-row gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => startEdit(project)}
                     disabled={isEditing !== null || isCreating}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                    className="flex-1 sm:flex-none border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
                   >
-                    <Edit className="h-4 w-4" />
+                    <Edit className="h-4 w-4 sm:mr-0" />
+                    <span className="ml-1 sm:hidden">Edit</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => deleteMutation.mutate(project.id)}
                     disabled={deleteMutation.isPending}
-                    className="border-gray-600 text-gray-300 hover:bg-red-600 hover:border-red-600 hover:text-white"
+                    className="flex-1 sm:flex-none border-gray-600 text-gray-300 hover:bg-red-600 hover:border-red-600 hover:text-white"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 sm:mr-0" />
+                    <span className="ml-1 sm:hidden">Delete</span>
                   </Button>
                 </div>
               </div>
@@ -720,14 +724,14 @@ export default function Dashboard() {
     <div className="min-h-screen bg-black">
       <div className="bg-gray-900 shadow-sm border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-4 gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-              <p className="text-sm text-gray-400">Manage your portfolio content</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-white">Dashboard</h1>
+              <p className="text-xs sm:text-sm text-gray-400">Manage your portfolio content</p>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-400">Welcome back, Malek</span>
-              <Button variant="outline" onClick={logout} className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <span className="text-xs sm:text-sm text-gray-400 hidden sm:inline">Welcome back, Malek</span>
+              <Button variant="outline" onClick={logout} className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white w-full sm:w-auto">
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>
@@ -738,22 +742,23 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4 bg-gray-800 border-gray-700">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700">
-              <Home className="h-4 w-4 mr-2" />
-              Overview
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gray-800 border-gray-700">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700 text-xs sm:text-sm">
+              <Home className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Overview</span>
             </TabsTrigger>
-            <TabsTrigger value="hero" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700">
-              <Users className="h-4 w-4 mr-2" />
-              Hero Section
+            <TabsTrigger value="hero" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700 text-xs sm:text-sm">
+              <Users className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Hero Section</span>
+              <span className="sm:hidden ml-1">Hero</span>
             </TabsTrigger>
-            <TabsTrigger value="projects" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700">
-              <FolderOpen className="h-4 w-4 mr-2" />
-              Projects
+            <TabsTrigger value="projects" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700 text-xs sm:text-sm">
+              <FolderOpen className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Projects</span>
             </TabsTrigger>
-            <TabsTrigger value="contacts" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Contacts
+            <TabsTrigger value="contacts" className="data-[state=active]:bg-gray-700 data-[state=active]:text-white text-gray-400 hover:text-white hover:bg-gray-700 text-xs sm:text-sm">
+              <MessageSquare className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Contacts</span>
             </TabsTrigger>
           </TabsList>
 
