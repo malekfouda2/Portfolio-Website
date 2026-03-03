@@ -2,7 +2,10 @@ User-agent: *
 Allow: /
 Disallow: /dashboard
 Disallow: /login
-Disallow: /api/
+Disallow: /api/admin/
+
+User-agent: Apollo
+Allow: /
 
 # Sitemap
 Sitemap: https://malekfouda.com/sitemap.xml
