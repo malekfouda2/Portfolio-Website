@@ -27,58 +27,30 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import express from "express";
 
-// Set up multer for file uploads
-const uploadDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
+// Set up multer with memory storage — images are converted to base64 and stored in the DB
+// This ensures images persist across deployments and work in both dev and production
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-      // Sanitize filename to prevent path traversal
-      const originalName = sanitizeInput(file.originalname);
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const safeExtension = path.extname(originalName).toLowerCase();
-      const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-      
-      if (!allowedExtensions.includes(safeExtension)) {
-        return cb(new Error('Invalid file extension'), '');
-      }
-      
-      cb(null, file.fieldname + '-' + uniqueSuffix + safeExtension);
-    }
-  }),
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
-    
-    // Check MIME type
     if (!allowedTypes.includes(file.mimetype)) {
       return cb(new Error('Only image files are allowed'));
     }
-    
-    // Check file extension
     const ext = path.extname(file.originalname).toLowerCase();
     const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
     if (!allowedExtensions.includes(ext)) {
       return cb(new Error('Invalid file extension'));
     }
-    
-    // Check for malicious filenames
     const maliciousPatterns = [/\.\./g, /\//g, /\\/g, /\0/g, /[<>:"|?*]/g];
     if (maliciousPatterns.some(pattern => pattern.test(file.originalname))) {
       return cb(new Error('Invalid filename'));
     }
-    
     cb(null, true);
   },
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
-    files: 1, // Only allow 1 file at a time
-    fields: 10 // Limit form fields
+    files: 1,
+    fields: 10
   }
 });
 
@@ -119,23 +91,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  // File upload endpoint
+  // File upload endpoint — converts to base64 data URL stored in DB (works in all environments)
   app.post("/api/upload", requireAuth, upload.single('image'), (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
-      
-      const fileUrl = `/uploads/${req.file.filename}`;
-      
-      // Verify file was actually saved using the imported fs module
-      const filePath = req.file.path;
-      if (!fs.existsSync(filePath)) {
-        return res.status(500).json({ error: "File upload failed - file not saved" });
-      }
-      
-      console.log(`File uploaded successfully: ${req.file.filename}`);
-      res.json({ url: fileUrl });
+      // Convert buffer to base64 data URL — stored directly in DB, no filesystem needed
+      const base64 = req.file.buffer.toString('base64');
+      const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
+      console.log(`File uploaded and converted to base64: ${req.file.originalname} (${req.file.size} bytes)`);
+      res.json({ url: dataUrl });
     } catch (error) {
       console.error("Upload error:", error);
       res.status(500).json({ error: "Failed to upload file" });

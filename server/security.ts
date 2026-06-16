@@ -11,7 +11,7 @@ import type { Express, Request, Response, NextFunction } from 'express';
 // Rate limiting configurations
 export const generalRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 1000 : 100, // Higher limit for production
+  max: process.env.NODE_ENV === 'production' ? 1000 : 500, // Higher limit for development too
   message: {
     error: 'Too many requests from this IP, please try again later.',
     retryAfter: 15 * 60 * 1000
@@ -64,7 +64,7 @@ export const apiRateLimit = rateLimit({
 
 export const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 auth attempts per windowMs
+  max: 30, // limit each IP to 30 auth attempts per windowMs
   message: {
     error: 'Too many authentication attempts, please try again later.',
     retryAfter: 15 * 60 * 1000
