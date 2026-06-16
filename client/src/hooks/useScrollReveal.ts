@@ -12,9 +12,15 @@ export function useScrollReveal<T extends HTMLElement = HTMLElement>(
   const { threshold = 0.12, rootMargin = "0px 0px -60px 0px", once = true } = options;
   const ref = useRef<T>(null);
 
+  // Run after every render — bail out early if element is already being observed
+  // or already visible. This handles the common case where ref.current is null on
+  // the first render (data not loaded yet) and becomes populated on re-render.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (el.getAttribute("data-observed") === "1") return;
+
+    el.setAttribute("data-observed", "1");
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -31,14 +37,17 @@ export function useScrollReveal<T extends HTMLElement = HTMLElement>(
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
-  }, [threshold, rootMargin, once]);
+    return () => {
+      observer.disconnect();
+      el.removeAttribute("data-observed");
+    };
+  });
 
   return ref;
 }
 
 export function useStaggeredReveal<T extends HTMLElement = HTMLElement>(
-  _count: number,
+  count: number,
   options: ScrollRevealOptions = {}
 ): RefObject<T> {
   const { threshold = 0.08, rootMargin = "0px 0px -40px 0px", once = true } = options;
@@ -47,6 +56,9 @@ export function useStaggeredReveal<T extends HTMLElement = HTMLElement>(
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    if (container.getAttribute("data-stagger-observed") === "1") return;
+
+    container.setAttribute("data-stagger-observed", "1");
 
     const children = Array.from(container.children) as HTMLElement[];
 
@@ -67,8 +79,11 @@ export function useStaggeredReveal<T extends HTMLElement = HTMLElement>(
     );
 
     observer.observe(container);
-    return () => observer.disconnect();
-  }, [_count, threshold, rootMargin, once]);
+    return () => {
+      observer.disconnect();
+      container.removeAttribute("data-stagger-observed");
+    };
+  });
 
   return containerRef;
 }
