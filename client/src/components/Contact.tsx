@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { ContactInfo } from "@shared/schema";
 import { trackEvent } from "@/lib/analytics";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export default function Contact() {
   const { data: contactInfo } = useQuery<ContactInfo>({
@@ -72,24 +73,39 @@ export default function Contact() {
     });
   };
 
+  const headingRef = useScrollReveal<HTMLHeadingElement>();
+  const lineRef = useScrollReveal<HTMLDivElement>({ threshold: 0.4 });
+  const subtitleRef = useScrollReveal<HTMLParagraphElement>();
+  const formRef = useScrollReveal<HTMLDivElement>({ rootMargin: "0px 0px -60px 0px" });
+  const infoRef = useScrollReveal<HTMLDivElement>({ rootMargin: "0px 0px -60px 0px" });
+
   return (
     <section id="contact" className="py-12 sm:py-16 lg:py-20 bg-black">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
+            <h2
+              ref={headingRef}
+              className="reveal text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6"
+            >
               <span className="text-white">Get In</span>
               <span className="gradient-text"> Touch</span>
             </h2>
-            <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-6 sm:mb-8"></div>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            <div
+              ref={lineRef}
+              className="reveal-line h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-6 sm:mb-8"
+            />
+            <p
+              ref={subtitleRef}
+              className="reveal text-base sm:text-lg lg:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed"
+            >
               Ready to work together? Let's discuss your next project and bring your ideas to life.
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
             {/* Contact Form */}
-            <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
+            <div ref={formRef} className="reveal-left bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8 hover:border-gray-600 transition-colors duration-300">
               <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Let's Discuss Your Project</h3>
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <div>
@@ -148,7 +164,7 @@ export default function Contact() {
             </div>
             
             {/* Contact Info */}
-            <div className="space-y-6 sm:space-y-8">
+            <div ref={infoRef} className="reveal-right space-y-6 sm:space-y-8">
               <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
                 <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Get In Touch</h3>
                 <p className="text-gray-300 mb-6 sm:mb-8 text-base sm:text-lg">

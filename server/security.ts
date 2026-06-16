@@ -189,7 +189,7 @@ export const setupSecurity = (app: Express) => {
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com", "https://assets.apollo.io"],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
-        connectSrc: ["'self'", "https://www.google-analytics.com", "https://app.apollo.io", "https://assets.apollo.io"],
+        connectSrc: ["'self'", "https://www.google-analytics.com", "https://app.apollo.io", "https://assets.apollo.io", "https://aplo-evnt.com"],
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],

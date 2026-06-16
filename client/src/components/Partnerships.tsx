@@ -2,12 +2,19 @@ import shopifyLogo from "@assets/[CITYPNG.COM]Shopify Bag Icon Symbol Logo - 100
 import wordpressLogo from "@assets/[CITYPNG.COM]Wordpress Logo Image PNG - 1000x1000_1752660361578.png";
 import { useQuery } from "@tanstack/react-query";
 import type { Partnership } from "@shared/schema";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 export default function Partnerships() {
   const { data: partnerships = [] } = useQuery<Partnership[]>({
     queryKey: ["/api/partnerships"],
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
+
+  const headingRef = useScrollReveal<HTMLHeadingElement>();
+  const lineRef = useScrollReveal<HTMLDivElement>({ threshold: 0.4 });
+  const subtitleRef = useScrollReveal<HTMLParagraphElement>();
+  const shopifyRef = useScrollReveal<HTMLDivElement>({ rootMargin: "0px 0px -60px 0px" });
+  const wpRef = useScrollReveal<HTMLDivElement>({ rootMargin: "0px 0px -60px 0px" });
 
   const hasPartnerships = partnerships.length > 0;
   return (
@@ -15,12 +22,21 @@ export default function Partnerships() {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
+            <h2
+              ref={headingRef}
+              className="reveal text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6"
+            >
               <span className="text-white">Trusted</span>
               <span className="gradient-text"> Partnerships</span>
             </h2>
-            <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-6 sm:mb-8"></div>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <div
+              ref={lineRef}
+              className="reveal-line h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-6 sm:mb-8"
+            />
+            <p
+              ref={subtitleRef}
+              className="reveal text-base sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
+            >
               Official partnerships with leading platforms to deliver
               exceptional results
             </p>
@@ -28,7 +44,10 @@ export default function Partnerships() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
             {/* Shopify Partner Section */}
-            <div className="bg-gradient-to-br from-green-900/20 to-green-800/10 backdrop-blur-sm border border-green-800/50 rounded-3xl p-6 sm:p-8 lg:p-10 hover:border-green-600/50 transition-all duration-300 group">
+            <div
+              ref={shopifyRef}
+              className="reveal-left bg-gradient-to-br from-green-900/20 to-green-800/10 backdrop-blur-sm border border-green-800/50 rounded-3xl p-6 sm:p-8 lg:p-10 hover:border-green-600/50 card-lift group"
+            >
               <div className="text-center mb-6 sm:mb-8">
                 <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl mb-4 sm:mb-6 group-hover:scale-105 transition-transform duration-300 p-2">
                   <img
@@ -100,7 +119,10 @@ export default function Partnerships() {
             </div>
 
             {/* WordPress Expert Section */}
-            <div className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 backdrop-blur-sm border border-blue-800/50 rounded-3xl p-8 lg:p-10 hover:border-blue-600/50 transition-all duration-300 group">
+            <div
+              ref={wpRef}
+              className="reveal-right bg-gradient-to-br from-blue-900/20 to-blue-800/10 backdrop-blur-sm border border-blue-800/50 rounded-3xl p-8 lg:p-10 hover:border-blue-600/50 card-lift group"
+            >
               <div className="text-center mb-8">
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-300 p-2">
                   <img
