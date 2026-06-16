@@ -42,16 +42,20 @@ export default function ImageWithFallback({
     const sources: string[] = [];
     
     if (originalSrc) {
-      // If it's already a full URL, use it
-      if (originalSrc.startsWith('http')) {
+      // Base64 data URL — use directly, no transformation needed
+      if (originalSrc.startsWith('data:')) {
+        sources.push(originalSrc);
+      }
+      // Full URL — use as-is
+      else if (originalSrc.startsWith('http')) {
         sources.push(originalSrc);
       } 
-      // If it's a relative path, try both with current domain and localhost
+      // Uploads path
       else if (originalSrc.startsWith('/uploads/')) {
-        sources.push(originalSrc); // Current domain
-        sources.push(`http://localhost:5000${originalSrc}`); // Development fallback
+        sources.push(originalSrc);
+        sources.push(`http://localhost:5000${originalSrc}`);
       }
-      // If it's just a filename, construct the full path
+      // Plain filename
       else {
         sources.push(`/uploads/${originalSrc}`);
         sources.push(`http://localhost:5000/uploads/${originalSrc}`);
