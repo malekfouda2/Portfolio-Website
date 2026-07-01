@@ -5,7 +5,11 @@ import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
 import { setupSecurity, uploadSecurityMiddleware } from "./security";
 import { cleanupProjectImages } from "./imageCleanup";
+import { storage } from "./storage";
 import path from "path";
+import type { Project } from "@shared/schema";
+
+const SITE_URL = "https://malekfouda.com";
 
 const app = express();
 
@@ -54,6 +58,158 @@ app.use((req, res, next) => {
   next();
 });
 
+/** Escapes a string so it is safe to embed directly in HTML text nodes/attributes. */
+function escHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Builds the pre-rendered project grid HTML from live project data. */
+function buildPortfolioBodyHtml(projects: Project[]): string {
+  const typeLabel = (type: string) =>
+    type === "personal" ? "Personal" : type === "company" ? "Company" : "Freelance";
+
+  const typeBadgeColor = (type: string) =>
+    type === "personal" ? "#10b981" : type === "company" ? "#a78bfa" : "#60a5fa";
+
+  const projectCards = projects
+    .slice(0, 30) // limit to first 30 for HTML size
+    .map((p) => {
+      const techs = (p.technologies ?? [])
+        .map((t) => `<span style="background:#1f2937;color:#10b981;padding:.2rem .5rem;border-radius:.25rem;font-size:.75rem;">${escHtml(t)}</span>`)
+        .join(" ");
+
+      const liveLink = p.url
+        ? `<a href="${escHtml(p.url)}" rel="noopener noreferrer" style="color:#10b981;font-size:.875rem;">View Live →</a>`
+        : "";
+
+      const companyCredit = p.companyName
+        ? `<p style="color:#9ca3af;font-size:.8rem;margin:.25rem 0 0;">Built at <strong style="color:#60a5fa;">${escHtml(p.companyName)}</strong>${p.role ? ` · ${escHtml(p.role)}` : ""}</p>`
+        : "";
+
+      return `
+        <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;overflow:hidden;display:flex;flex-direction:column;">
+          <div style="padding:1.25rem 1.25rem .75rem;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem;">
+              <h2 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0;">${escHtml(p.title)}</h2>
+              <span style="background:${typeBadgeColor(p.type)};color:#000;padding:.2rem .6rem;border-radius:9999px;font-size:.75rem;font-weight:600;white-space:nowrap;">${typeLabel(p.type)}</span>
+            </div>
+            <p style="color:#9ca3af;font-size:.9rem;line-height:1.6;margin:0 0 .75rem;">${escHtml(p.description)}</p>
+            ${companyCredit}
+          </div>
+          <div style="padding:.75rem 1.25rem;display:flex;flex-wrap:wrap;gap:.375rem;border-top:1px solid #1f2937;">${techs}</div>
+          ${liveLink ? `<div style="padding:.75rem 1.25rem;">${liveLink}</div>` : ""}
+        </article>`;
+    })
+    .join("\n");
+
+  return `
+    <div id="__prerender__" style="font-family:system-ui,sans-serif;background:#000;color:#fff;min-height:100vh;padding:2rem;">
+      <div style="max-width:1100px;margin:0 auto;">
+        <nav style="margin-bottom:2rem;">
+          <a href="/" style="color:#9ca3af;text-decoration:none;font-size:.875rem;">← Back to Home</a>
+        </nav>
+        <h1 style="font-size:clamp(1.75rem,4vw,2.75rem);font-weight:800;margin:0 0 .75rem;">
+          My <span style="background:linear-gradient(135deg,#10b981,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Portfolio</span>
+        </h1>
+        <p style="color:#9ca3af;margin:0 0 2rem;font-size:1rem;">
+          A collection of ${projects.length} projects built with React, Node.js, TypeScript, PHP, Laravel, and more.
+        </p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
+          ${projectCards}
+        </div>
+      </div>
+    </div>`;
+}
+
+/**
+ * Reads the HTML template and injects route-specific head metadata and
+ * pre-rendered body content so crawlers receive meaningful HTML before JS runs.
+ */
+async function buildRouteHtml(
+  isDev: boolean,
+  meta: {
+    title: string;
+    description: string;
+    canonical: string;
+    ogTitle: string;
+    ogDescription: string;
+    keywords: string;
+    jsonLd: object;
+    bodyContent: string;
+  }
+): Promise<string | null> {
+  const templatePath = isDev
+    ? path.resolve(process.cwd(), "client", "index.html")
+    : path.resolve(process.cwd(), "dist", "public", "index.html");
+
+  if (!fs.existsSync(templatePath)) return null;
+
+  let html = await fs.promises.readFile(templatePath, "utf-8");
+
+  // Replace <title>
+  html = html.replace(/<title>[^<]*<\/title>/, `<title>${meta.title}</title>`);
+
+  // Replace meta description
+  html = html.replace(
+    /<meta name="description"[^>]*\/>/,
+    `<meta name="description" content="${meta.description}" />`
+  );
+
+  // Replace/inject meta keywords
+  if (/<meta name="keywords"[^>]*\/>/.test(html)) {
+    html = html.replace(
+      /<meta name="keywords"[^>]*\/>/,
+      `<meta name="keywords" content="${meta.keywords}" />`
+    );
+  } else {
+    html = html.replace(
+      /<link rel="canonical"/,
+      `<meta name="keywords" content="${meta.keywords}" />\n    <link rel="canonical"`
+    );
+  }
+
+  // Replace canonical
+  html = html.replace(
+    /<link rel="canonical"[^>]*\/>/,
+    `<link rel="canonical" href="${meta.canonical}" />`
+  );
+
+  // Replace OG tags
+  html = html.replace(/(<meta property="og:title"[^>]*content=")[^"]*(")/,  `$1${meta.ogTitle}$2`);
+  html = html.replace(/(<meta property="og:description"[^>]*content=")[^"]*(")/,  `$1${meta.ogDescription}$2`);
+  html = html.replace(/(<meta property="og:url"[^>]*content=")[^"]*(")/,  `$1${meta.canonical}$2`);
+
+  // Replace Twitter tags
+  html = html.replace(/(<meta name="twitter:title"[^>]*content=")[^"]*(")/,  `$1${meta.ogTitle}$2`);
+  html = html.replace(/(<meta name="twitter:description"[^>]*content=")[^"]*(")/,  `$1${meta.ogDescription}$2`);
+
+  // Replace the inline JSON-LD structured data
+  html = html.replace(
+    /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
+    `<script type="application/ld+json">\n    ${JSON.stringify(meta.jsonLd, null, 2)}\n    </script>`
+  );
+
+  // Inject the pre-rendered body content, replacing the content inside #root
+  html = html.replace(
+    /<div id="root">[\s\S]*?<\/div>\s*(?=<script)/,
+    `<div id="root">${meta.bodyContent}</div>\n    `
+  );
+
+  // In development, inject the Vite HMR client so hot-reload keeps working
+  if (isDev) {
+    html = html.replace(
+      '<script type="module" src="/src/main.tsx">',
+      '<script type="module" src="/@vite/client"></script>\n    <script type="module" src="/src/main.tsx">'
+    );
+  }
+
+  return html;
+}
+
 (async () => {
   const server = await registerRoutes(app);
 
@@ -71,6 +227,70 @@ app.use((req, res, next) => {
 
     res.status(status).json({ message });
     throw err;
+  });
+
+  // Server-render the /portfolio route with route-specific metadata AND
+  // a pre-rendered project grid from live DB data so crawlers and social
+  // bots receive full page content in the first HTML response.
+  app.get("/portfolio", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const isDev = app.get("env") === "development";
+
+      const portfolioTitle = "Portfolio - Malek Fouda | Full Stack Developer Projects";
+      const portfolioDescription = "Browse through my complete portfolio of web development projects — live applications, freelance work, and company projects built with React, Node.js, TypeScript, PHP, Laravel, and more.";
+      const canonicalUrl = `${SITE_URL}/portfolio`;
+      const keywords = "portfolio, projects, web development, React, Node.js, TypeScript, PHP, Laravel, full-stack, malek fouda";
+
+      // Fetch live project data for the pre-rendered snapshot
+      const projects = await storage.getProjects();
+      const bodyContent = buildPortfolioBodyHtml(projects);
+
+      const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": portfolioTitle,
+        "description": portfolioDescription,
+        "url": canonicalUrl,
+        "author": {
+          "@type": "Person",
+          "name": "Malek Fouda",
+          "url": SITE_URL,
+          "jobTitle": "Full Stack Developer",
+          "sameAs": [
+            "https://github.com/malekfouda",
+            "https://linkedin.com/in/malekfouda"
+          ]
+        },
+        "about": {
+          "@type": "Thing",
+          "name": "Web Development Projects",
+          "description": "A collection of full-stack web development projects built with React, Node.js, TypeScript, PHP, Laravel, and other modern technologies."
+        },
+        "hasPart": projects.slice(0, 10).map((p) => ({
+          "@type": "CreativeWork",
+          "name": p.title,
+          "description": p.description,
+          ...(p.url ? { "url": p.url } : {})
+        }))
+      };
+
+      const html = await buildRouteHtml(isDev, {
+        title: portfolioTitle,
+        description: portfolioDescription,
+        canonical: canonicalUrl,
+        ogTitle: portfolioTitle,
+        ogDescription: portfolioDescription,
+        keywords,
+        jsonLd,
+        bodyContent,
+      });
+
+      if (!html) return next();
+
+      res.status(200).set({ "Content-Type": "text/html" }).end(html);
+    } catch (err) {
+      next(err);
+    }
   });
 
   // Known public SPA routes — any other HTML request gets a real 404 status.

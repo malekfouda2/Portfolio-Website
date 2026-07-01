@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { HeroContent } from "@shared/schema";
-import { trackEvent } from "@/lib/analytics";
+
+const SITE_URL = "https://malekfouda.com";
 
 interface SEOProps {
   title?: string;
@@ -9,7 +10,7 @@ interface SEOProps {
   keywords?: string[];
   image?: string;
   type?: string;
-  url?: string;
+  canonicalPath?: string;
 }
 
 export default function SEO({ 
@@ -18,7 +19,7 @@ export default function SEO({
   keywords = [],
   image,
   type = "website",
-  url
+  canonicalPath
 }: SEOProps) {
   const { data: heroContent } = useQuery<HeroContent>({
     queryKey: ["/api/hero"],
@@ -26,58 +27,47 @@ export default function SEO({
   });
 
   useEffect(() => {
-    // Set document title
     const finalTitle = title || `${heroContent?.name || "Malek Fouda"} - ${heroContent?.title || "Full Stack Developer"}`;
     document.title = finalTitle;
 
-    // Set meta description
     const finalDescription = description || "Transforming ideas into digital reality through expert development and creative solutions";
     updateMetaTag("description", finalDescription);
 
-    // Set keywords
     const finalKeywords = keywords.length > 0 ? keywords.join(", ") : "full stack developer, react developer, node.js, web development, javascript, typescript, freelance developer";
     updateMetaTag("keywords", finalKeywords);
 
-    // Set Open Graph tags
+    // Derive a clean canonical — strip query params and fragments
+    const cleanPath = canonicalPath ?? (window.location.pathname === "/" ? "/" : window.location.pathname.replace(/\/$/, ""));
+    const canonicalUrl = `${SITE_URL}${cleanPath}`;
+
     updateMetaTag("og:title", finalTitle, "property");
     updateMetaTag("og:description", finalDescription, "property");
     updateMetaTag("og:type", type, "property");
-    updateMetaTag("og:url", url || window.location.href, "property");
-    updateMetaTag("og:image", image || `${window.location.origin}/favicon.svg`, "property");
+    updateMetaTag("og:url", canonicalUrl, "property");
+    updateMetaTag("og:image", image || `${SITE_URL}/favicon.svg`, "property");
     updateMetaTag("og:image:width", "512", "property");
     updateMetaTag("og:image:height", "512", "property");
     updateMetaTag("og:site_name", "Malek Fouda Portfolio", "property");
 
-    // Set Twitter Card tags
     updateMetaTag("twitter:card", "summary_large_image", "name");
     updateMetaTag("twitter:title", finalTitle, "name");
     updateMetaTag("twitter:description", finalDescription, "name");
-    updateMetaTag("twitter:image", image || `${window.location.origin}/favicon.svg`, "name");
+    updateMetaTag("twitter:image", image || `${SITE_URL}/favicon.svg`, "name");
     updateMetaTag("twitter:image:alt", "Malek Fouda - Full Stack Developer", "name");
 
-    // Set canonical URL
-    updateLinkTag("canonical", url || window.location.href);
+    updateLinkTag("canonical", canonicalUrl);
 
-    // Set robots
     updateMetaTag("robots", "index, follow");
-
-    // Set viewport
-    updateMetaTag("viewport", "width=device-width, initial-scale=1");
-
-    // Set theme color
     updateMetaTag("theme-color", "#10b981");
-
-    // Google Search Console verification
     updateMetaTag("google-site-verification", "nQ_IA49yXG9t7cQghRngRA2KGhzmq5aHN46JVwgsU_Y");
 
-    // Add structured data for SEO
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "Person",
       "name": heroContent?.name || "Malek Fouda",
       "jobTitle": heroContent?.title || "Full Stack Developer",
       "description": finalDescription,
-      "url": url || window.location.href,
+      "url": canonicalUrl,
       "sameAs": [
         "https://github.com/malekfouda",
         "https://linkedin.com/in/malekfouda",
@@ -105,10 +95,11 @@ export default function SEO({
       }
     };
 
-    // Add or update structured data script
-    let existingScript = document.querySelector('script[type="application/ld+json"]');
-    if (existingScript) {
-      existingScript.textContent = JSON.stringify(structuredData);
+    // Update the existing JSON-LD script (static one from SSR or previously set),
+    // rather than appending a new one — avoids duplicate structured data.
+    let ldScript = document.querySelector('script[type="application/ld+json"]');
+    if (ldScript) {
+      ldScript.textContent = JSON.stringify(structuredData);
     } else {
       const script = document.createElement('script');
       script.type = 'application/ld+json';
@@ -116,7 +107,7 @@ export default function SEO({
       document.head.appendChild(script);
     }
 
-  }, [title, description, keywords, image, type, url, heroContent]);
+  }, [title, description, keywords, image, type, canonicalPath, heroContent]);
 
   return null;
 }
