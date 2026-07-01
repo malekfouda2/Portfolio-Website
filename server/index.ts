@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import fs from "fs";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
@@ -70,6 +71,41 @@ app.use((req, res, next) => {
 
     res.status(status).json({ message });
     throw err;
+  });
+
+  // Known public SPA routes — any other HTML request gets a real 404 status.
+  // This prevents soft-404s where search crawlers receive HTTP 200 for invalid URLs.
+  const KNOWN_SPA_ROUTES = new Set(['/', '/portfolio']);
+
+  app.use((req, res, next) => {
+    const url = req.path;
+
+    // Pass through: API routes, uploads, and any request with a file extension (assets)
+    if (
+      url.startsWith('/api') ||
+      url.startsWith('/uploads') ||
+      /\.\w+/.test(url)
+    ) {
+      return next();
+    }
+
+    // Known SPA pages — let Vite / serveStatic handle them with 200
+    if (KNOWN_SPA_ROUTES.has(url)) {
+      return next();
+    }
+
+    // Unknown route — serve the app shell with a proper 404 status so crawlers
+    // receive an unambiguous signal while the React NotFound UI still renders.
+    const isDev = app.get("env") === "development";
+    const htmlPath = isDev
+      ? path.resolve(process.cwd(), "client", "index.html")
+      : path.resolve(process.cwd(), "dist", "public", "index.html");
+
+    if (fs.existsSync(htmlPath)) {
+      res.status(404).sendFile(htmlPath);
+    } else {
+      res.status(404).send("Not Found");
+    }
   });
 
   // importantly only setup vite in development and after
