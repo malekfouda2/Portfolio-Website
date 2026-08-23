@@ -1,17 +1,7 @@
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import ImageWithFallback from "./ImageWithFallback";
-
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  technologies: string[];
-  image: string;
-  type: 'live' | 'portfolio';
-  url?: string;
-  screenshots?: string[];
-}
+import type { Project } from "@shared/schema";
 
 interface ProjectModalProps {
   project: Project;
@@ -25,7 +15,13 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   const openerRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
   const titleId = useId();
-  const images = project.screenshots || [project.image];
+  const images = Array.isArray(project.screenshots)
+    ? project.screenshots.filter((image): image is string => typeof image === "string" && image.length > 0)
+    : [];
+  const projectImages = images.length > 0 ? images : [project.image];
+  const technologies = Array.isArray(project.technologies)
+    ? project.technologies.filter((technology): technology is string => typeof technology === "string")
+    : [];
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -74,11 +70,11 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   }, []);
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    setCurrentImageIndex((prev) => (prev + 1) % projectImages.length);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    setCurrentImageIndex((prev) => (prev - 1 + projectImages.length) % projectImages.length);
   };
 
   return (
@@ -106,22 +102,21 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
           >
             <X aria-hidden="true" size={24} className="sm:w-6 sm:h-6" />
           </button>
-        </div>
-        
+              </div>
         <div className="p-4 sm:p-6">
           <div className="relative mb-4 sm:mb-6">
             <ImageWithFallback
-              src={images[currentImageIndex]}
+              src={projectImages[currentImageIndex]}
               alt={`${project.title} screenshot ${currentImageIndex + 1}`}
               className="w-full h-48 sm:h-64 md:h-96 object-cover rounded-lg"
               fallbackText={`${project.title} Screenshot`}
             />
             
-            {images.length > 1 && (
+            {projectImages.length > 1 && (
               <>
                 <button
                   onClick={prevImage}
-                  aria-label={`Show previous image (image ${((currentImageIndex - 1 + images.length) % images.length) + 1} of ${images.length})`}
+                  aria-label={`Show previous image (image ${((currentImageIndex - 1 + projectImages.length) % projectImages.length) + 1} of ${projectImages.length})`}
                   className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-70 transition-all"
                   data-testid="modal-prev-image"
                 >
@@ -129,7 +124,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                 </button>
                 <button
                   onClick={nextImage}
-                  aria-label={`Show next image (image ${((currentImageIndex + 1) % images.length) + 1} of ${images.length})`}
+                  aria-label={`Show next image (image ${((currentImageIndex + 1) % projectImages.length) + 1} of ${projectImages.length})`}
                   className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-70 transition-all"
                   data-testid="modal-next-image"
                 >
@@ -137,11 +132,11 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                 </button>
                 
                 <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-1.5 sm:space-x-2">
-                  {images.map((_, index) => (
+                  {projectImages.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      aria-label={`Show image ${index + 1} of ${images.length}`}
+                      aria-label={`Show image ${index + 1} of ${projectImages.length}`}
                       aria-current={index === currentImageIndex ? "true" : undefined}
                       className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all ${
                         index === currentImageIndex ? 'bg-green-400' : 'bg-gray-600'
@@ -151,46 +146,40 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                 </div>
               </>
             )}
-          </div>
-          
+              </div>
           <div className="space-y-3 sm:space-y-4">
-            <p className="text-gray-300 text-sm sm:text-base lg:text-lg leading-relaxed">
-              {project.description}
-            </p>
+            <section>
+              <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Project situation &amp; scope</h4>
+              <p className="text-gray-300 text-sm sm:text-base lg:text-lg leading-relaxed">{project.description}</p>
+            </section>
             
             {/* Company Credit Section */}
             {project.companyName && (
               <div className="p-3 sm:p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-                <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Project Attribution</h4>
+                <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Project context</h4>
                 <div className="space-y-2">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
                     <span className="text-gray-400 text-sm">Company:</span>
-                    <a 
-                      href={project.companyUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 transition-colors font-medium text-sm sm:text-base"
-                    >
-                      {project.companyName}
-                    </a>
-                  </div>
-                  {project.role && (
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
-                      <span className="text-gray-400 text-sm">My Role:</span>
-                      <span className="text-green-400 font-medium text-sm sm:text-base">{project.role}</span>
-                    </div>
-                  )}
-                  <div className="text-xs sm:text-sm text-gray-500 mt-2">
-                    Built from scratch as part of my professional work
+                    {project.companyUrl ? (
+                      <a href={project.companyUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors font-medium text-sm sm:text-base">{project.companyName}</a>
+                    ) : (
+                      <span className="text-blue-400 font-medium text-sm sm:text-base">{project.companyName}</span>
+                    )}
                   </div>
                 </div>
               </div>
             )}
-            
-            <div>
-              <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Technologies Used:</h4>
+            {project.role && (
+              <section>
+                <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Responsibility</h4>
+                <p className="text-green-400 font-medium text-sm sm:text-base">{project.role}</p>
+              </section>
+            )}
+            {technologies.length > 0 && (
+            <section>
+              <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Implementation</h4>
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {project.technologies.map((tech, index) => (
+                {technologies.map((tech, index) => (
                   <span
                     key={index}
                     className="px-2 sm:px-3 py-0.5 sm:py-1 bg-gray-800 text-green-400 rounded-full text-xs sm:text-sm"
@@ -199,8 +188,15 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                   </span>
                 ))}
               </div>
-            </div>
-            
+            </section>
+            )}
+
+            {project.url && (
+              <a href={project.url} target="_blank" rel="noopener noreferrer" className="inline-flex text-green-400 font-semibold hover:text-white transition-colors">
+                View the live project <span aria-hidden="true" className="ml-2">→</span>
+              </a>
+            )}
+
             {/* Close button at bottom for mobile */}
             <div className="pt-4 sm:hidden">
               <button

@@ -71,8 +71,11 @@ function buildPortfolioBodyHtml(projects: Project[]): string {
   const projectCards = projects
     .slice(0, 30) // limit to first 30 for HTML size
     .map((p) => {
-      const techs = (p.technologies ?? [])
-        .map((t) => `<span style="background:#1f2937;color:#10b981;padding:.2rem .5rem;border-radius:.25rem;font-size:.75rem;">${escapeHtml(t)}</span>`)
+      const technologies = Array.isArray(p.technologies)
+        ? p.technologies.filter((technology): technology is string => typeof technology === "string")
+        : [];
+      const techs = technologies
+        .map((technology) => `<span style="background:#1f2937;color:#10b981;padding:.2rem .5rem;border-radius:.25rem;font-size:.75rem;">${escapeHtml(technology)}</span>`)
         .join(" ");
 
       const liveUrl = sanitizeHttpUrl(p.url);
@@ -107,10 +110,10 @@ function buildPortfolioBodyHtml(projects: Project[]): string {
           <a href="/" style="color:#9ca3af;text-decoration:none;font-size:.875rem;">← Back to Home</a>
         </nav>
         <h1 style="font-size:clamp(1.75rem,4vw,2.75rem);font-weight:800;margin:0 0 .75rem;">
-          My <span style="background:linear-gradient(135deg,#10b981,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Portfolio</span>
+          Client <span style="background:linear-gradient(135deg,#10b981,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Work</span>
         </h1>
         <p style="color:#9ca3af;margin:0 0 2rem;font-size:1rem;">
-          A collection of ${projects.length} projects built with React, Node.js, TypeScript, PHP, Laravel, and more.
+          Explore verified web development work, including e-commerce, custom applications, and professional projects.
         </p>
         <h2 style="font-size:1.5rem;font-weight:700;margin:0 0 1.5rem;">Full-Stack Development Projects</h2>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
@@ -133,17 +136,15 @@ function buildHomepageBodyHtml({
   partnerships: Partnership[];
 }): string {
   const heroName = hero?.name || "Malek Fouda";
-  const heroTitle = hero?.title || "Full Stack Developer";
+  const heroTitle = "WooCommerce, WordPress & Custom Web Development";
   const heroDescription =
-    hero?.description ||
-    "Specialized in creating high-quality web applications, mobile apps, and e-commerce solutions that drive business growth.";
+    "Malek Fouda helps businesses and agencies build, improve, and support revenue-critical websites, WooCommerce stores, dashboards, portals, and integrations.";
   const heroHeadlines = Array.isArray(hero?.typingTexts)
     ? hero.typingTexts.filter((text): text is string => typeof text === "string")
     : [];
-  const aboutTitle = about?.title || "About Me";
+  const aboutTitle = "Technical depth, applied to real work";
   const aboutDescription =
-    about?.description ||
-    "Creating high-quality digital solutions that drive business growth and enhance user experiences.";
+    "I bring full-stack development experience to projects where reliability, maintainability, and a clear technical path matter. The goal is useful work that fits the business—not technology for its own sake.";
   const featuredProjects = projects.slice(0, 6);
 
   const projectCards = featuredProjects
@@ -178,17 +179,22 @@ function buildHomepageBodyHtml({
           <nav style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:2rem;">
             <span style="color:#10b981;font-weight:700;font-size:1.25rem;">${escapeHtml(heroName)}</span>
             <div style="display:flex;flex-wrap:wrap;gap:1rem;">
-              <a href="#about" style="color:#9ca3af;text-decoration:none;">About</a>
-              <a href="#projects" style="color:#9ca3af;text-decoration:none;">Projects</a>
-              <a href="#partnerships" style="color:#9ca3af;text-decoration:none;">Partnerships</a>
+              <a href="#services" style="color:#9ca3af;text-decoration:none;">Services</a>
+              <a href="#projects" style="color:#9ca3af;text-decoration:none;">Client Work</a>
+              <a href="#partnerships" style="color:#9ca3af;text-decoration:none;">Platforms</a>
+              <a href="#process" style="color:#9ca3af;text-decoration:none;">Process</a>
               <a href="#contact" style="color:#9ca3af;text-decoration:none;">Contact</a>
             </div>
           </nav>
           <h1 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;margin:0 0 1rem;">
-            ${escapeHtml(heroName)}<br/>
-            <span style="background:linear-gradient(135deg,#10b981,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${escapeHtml(heroHeadlines[0] || heroTitle)}</span>
+            ${escapeHtml(heroName)} builds and fixes<br/>
+            <span style="background:linear-gradient(135deg,#10b981,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">revenue-critical websites and business software.</span>
           </h1>
           <p style="color:#9ca3af;font-size:1.125rem;max-width:720px;line-height:1.7;margin:0 0 1.5rem;">${escapeHtml(heroDescription)}</p>
+          <p style="display:flex;flex-wrap:wrap;gap:.75rem;margin:0 0 1.5rem;">
+            <a href="#contact" style="display:inline-block;background:linear-gradient(135deg,#4ade80,#3b82f6);color:#000;text-decoration:none;font-weight:700;padding:.75rem 1.1rem;border-radius:9999px;">Request a short consultation</a>
+            <a href="#projects" style="display:inline-block;border:1px solid #4b5563;color:#fff;text-decoration:none;font-weight:700;padding:.75rem 1.1rem;border-radius:9999px;">View client work</a>
+          </p>
           <div style="display:flex;flex-wrap:wrap;gap:1.5rem;color:#d1d5db;">
             <span><strong style="color:#10b981;">${hero?.yearsExperience ?? 3}+</strong> Years Experience</span>
             <span><strong style="color:#3b82f6;">${hero?.projectsDelivered ?? 30}+</strong> Projects Delivered</span>
@@ -201,9 +207,20 @@ function buildHomepageBodyHtml({
           <p style="color:#9ca3af;line-height:1.7;max-width:800px;margin:0;">${escapeHtml(aboutDescription)}</p>
         </section>
 
+        <section id="services" style="margin-bottom:3rem;">
+          <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Outcome-led development services</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;">
+            <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;padding:1.25rem;"><h3 style="color:#fff;margin:0 0 .5rem;">Website technical audit</h3><p style="color:#9ca3af;line-height:1.6;margin:0;">A practical review of performance, integrations, maintainability, and the most useful next technical steps.</p></article>
+            <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;padding:1.25rem;"><h3 style="color:#fff;margin:0 0 .5rem;">WooCommerce rescue &amp; improvement</h3><p style="color:#9ca3af;line-height:1.6;margin:0;">Hands-on support for checkout issues, plugin conflicts, store changes, custom functionality, and performance work.</p></article>
+            <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;padding:1.25rem;"><h3 style="color:#fff;margin:0 0 .5rem;">Custom business systems</h3><p style="color:#9ca3af;line-height:1.6;margin:0;">Dashboards, portals, workflows, and integrations shaped around the way a team actually operates.</p></article>
+            <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;padding:1.25rem;"><h3 style="color:#fff;margin:0 0 .5rem;">Development partner retainer</h3><p style="color:#9ca3af;line-height:1.6;margin:0;">Ongoing development capacity for agencies and businesses that need dependable technical support.</p></article>
+          </div>
+          <p style="margin:1.25rem 0 0;"><a href="#contact" style="color:#10b981;">Request a scoped estimate →</a></p>
+        </section>
+
         <section id="projects" style="margin-bottom:3rem;">
-          <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Featured Projects</h2>
-          <p style="color:#9ca3af;line-height:1.7;margin:0 0 1.5rem;">A curated selection of current web applications and client solutions. <a href="/portfolio" style="color:#10b981;">View the full portfolio →</a></p>
+          <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Selected client work</h2>
+          <p style="color:#9ca3af;line-height:1.7;margin:0 0 1.5rem;">A selection of current web applications, e-commerce work, and professional projects. <a href="/portfolio" style="color:#10b981;">View the full portfolio →</a></p>
           ${
             projectCards
               ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">${projectCards}</div>`
@@ -213,13 +230,18 @@ function buildHomepageBodyHtml({
 
         ${
           partnershipItems
-            ? `<section id="partnerships" style="margin-bottom:3rem;"><h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Trusted Partnerships</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">${partnershipItems}</div></section>`
+            ? `<section id="partnerships" style="margin-bottom:3rem;"><h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">WordPress and e-commerce expertise</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">${partnershipItems}</div></section>`
             : ""
         }
 
+        <section id="process" style="margin-bottom:3rem;">
+          <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">A clear way to work together</h2>
+          <p style="color:#9ca3af;line-height:1.7;margin:0;">Discovery, scope, implementation, testing, launch, and ongoing support when it is needed. Every engagement starts with the context needed to recommend a sensible next step.</p>
+        </section>
+
         <section id="contact" style="margin-bottom:3rem;">
-          <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Get In Touch</h2>
-          <p style="color:#9ca3af;line-height:1.7;max-width:720px;margin:0;">Available for freelance projects, consulting, and full-time opportunities. Let’s build something great together.</p>
+          <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Request a short consultation</h2>
+          <p style="color:#9ca3af;line-height:1.7;max-width:720px;margin:0;">Share your company, website, project need, goals, timeline, and budget range to request a scoped conversation.</p>
         </section>
       </div>
     </div>`;
@@ -375,12 +397,10 @@ async function buildRouteHtml(
       ]);
 
       const personName = hero?.name || "Malek Fouda";
-      const personTitle = hero?.title || "Full Stack Developer";
-      const homepageTitle = `${personName} - ${personTitle}`;
+      const personTitle = "Full-Stack Developer";
+      const homepageTitle = `${personName} | WooCommerce, WordPress & Custom Web Development`;
       const homepageDescription =
-        hero?.description ||
-        about?.description ||
-        "Transforming ideas into digital reality through expert development and creative solutions.";
+        "Malek Fouda helps businesses and agencies build, improve, and support WooCommerce stores, custom web applications, dashboards, portals, and integrations.";
       const bodyContent = buildHomepageBodyHtml({
         hero,
         about,
@@ -401,6 +421,12 @@ async function buildRouteHtml(
           "description": homepageDescription,
           "url": SITE_URL,
         },
+        "about": [
+          { "@type": "Service", "name": "Website technical audit" },
+          { "@type": "Service", "name": "WooCommerce rescue and improvement" },
+          { "@type": "Service", "name": "Custom business systems" },
+          { "@type": "Service", "name": "Development partner retainer" },
+        ],
         "hasPart": projects.slice(0, 6).map((project) => {
           const projectUrl = sanitizeHttpUrl(project.url);
 
@@ -421,7 +447,7 @@ async function buildRouteHtml(
         ogDescription: homepageDescription,
         ogImage: SOCIAL_IMAGE_URL,
         keywords:
-          "full stack developer, react developer, node.js, web development, javascript, typescript, freelance developer, software engineer, malek fouda",
+          "Malek Fouda, WooCommerce developer, WordPress developer, custom web application development, business dashboards, web development support, website technical audit, Egypt web developer",
         jsonLd,
         bodyContent,
       });
@@ -441,10 +467,10 @@ async function buildRouteHtml(
     try {
       const isDev = app.get("env") === "development";
 
-      const portfolioTitle = "Portfolio - Malek Fouda | Full Stack Developer Projects";
-      const portfolioDescription = "Browse through my complete portfolio of web development projects — live applications, freelance work, and company projects built with React, Node.js, TypeScript, PHP, Laravel, and more.";
+      const portfolioTitle = "Client Work & Web Development Case Studies | Malek Fouda";
+      const portfolioDescription = "Explore Malek Fouda’s web development work, including e-commerce, custom applications, and professional projects with verified scope, responsibilities, technologies, and live links.";
       const canonicalUrl = `${SITE_URL}/portfolio`;
-      const keywords = "portfolio, projects, web development, React, Node.js, TypeScript, PHP, Laravel, full-stack, malek fouda";
+      const keywords = "Malek Fouda client work, web development case studies, WooCommerce projects, WordPress development, custom web applications, business dashboards";
 
       // Fetch live project data for the pre-rendered snapshot
       const projects = await storage.getProjects();

@@ -27,8 +27,8 @@ export default function About() {
               ref={headingRef}
               className="reveal text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6"
             >
-              <span className="text-white">About</span>
-              <span className="gradient-text"> Me</span>
+              <span className="text-white">Technical depth,</span>
+              <span className="gradient-text"> applied to real work</span>
             </h2>
             <div
               ref={lineRef}
@@ -38,8 +38,7 @@ export default function About() {
               ref={subtitleRef}
               className="reveal text-base sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
             >
-              {aboutContent?.subtitle ||
-                "Transforming ideas into digital reality through expert development and creative solutions"}
+                A full-stack development partner for businesses that need dependable delivery, not just another set of tools.
             </p>
           </div>
 
@@ -52,13 +51,13 @@ export default function About() {
             >
               <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-gray-600 transition-colors duration-300">
                 <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-4 sm:mb-6">
-                  My Expertise
+                  Where I add the most value
                 </h3>
                 <div className="space-y-4 sm:space-y-6">
-                  {[
-                    { color: "bg-green-400", title: "Full-Stack Development", desc: "End-to-end web applications with modern frameworks" },
-                    { color: "bg-blue-400", title: "Mobile Applications", desc: "Cross-platform mobile apps for iOS and Android" },
-                    { color: "bg-purple-400", title: "E-commerce Solutions", desc: "Custom online stores and payment integrations" },
+                    {[
+                     { color: "bg-green-400", title: "Business-critical web work", desc: "Websites, stores, integrations, and custom functionality that need to work reliably." },
+                     { color: "bg-blue-400", title: "Operational systems", desc: "Dashboards, portals, CRM workflows, and tools that reduce manual work." },
+                     { color: "bg-purple-400", title: "Long-term technical support", desc: "A practical development partner for improvements, maintenance, performance, and recovery." },
                   ].map((item, i) => (
                     <div key={i} className="flex items-start space-x-3 sm:space-x-4 group">
                       <div className={`w-2 h-2 ${item.color} rounded-full mt-3 flex-shrink-0 transition-transform duration-300 group-hover:scale-150`} />
@@ -80,8 +79,7 @@ export default function About() {
               className="reveal-right space-y-6 sm:space-y-8"
             >
               <div className="text-sm sm:text-base lg:text-lg text-gray-300 leading-relaxed">
-                {aboutContent?.description ||
-                  "With over 3 years of dedicated experience in software development, I specialize in creating high-quality digital solutions that drive business growth and enhance user experiences. My approach combines technical expertise with creative problem-solving to deliver projects that not only meet requirements but exceed expectations."}
+                I bring full-stack development experience to projects where reliability, maintainability, and a clear technical path matter. The goal is useful work that fits the business—not technology for its own sake.
               </div>
 
               <div
@@ -89,10 +87,10 @@ export default function About() {
                 className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 stagger-children"
               >
                 {[
-                  { value: "3+", label: "Years Experience", color: "text-green-400", border: "hover:border-green-400/40" },
-                  { value: "50+", label: "Projects Delivered", color: "text-blue-400", border: "hover:border-blue-400/40" },
-                  { value: "15+", label: "Technologies", color: "text-purple-400", border: "hover:border-purple-400/40" },
-                  { value: "98%", label: "Client Satisfaction", color: "text-yellow-400", border: "hover:border-yellow-400/40" },
+                  { value: "Cairo", label: "Based in Egypt", color: "text-green-400", border: "hover:border-green-400/40" },
+                  { value: "MENA", label: "And international work", color: "text-blue-400", border: "hover:border-blue-400/40" },
+                  { value: "Full-stack", label: "From interface to integration", color: "text-purple-400", border: "hover:border-purple-400/40" },
+                  { value: "Support", label: "When the work continues", color: "text-yellow-400", border: "hover:border-yellow-400/40" },
                 ].map((stat, i) => (
                   <div
                     key={i}

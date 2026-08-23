@@ -336,6 +336,17 @@ function ContactsManager() {
                     <div className="mt-2">
                       <p className="text-sm text-gray-300 break-words">{contact.message}</p>
                     </div>
+                    {(contact.company || contact.website || contact.projectType || contact.goals || contact.budgetRange || contact.timeline || contact.preferredContact) && (
+                      <dl className="grid sm:grid-cols-2 gap-x-4 gap-y-2 mt-4 border-t border-gray-700 pt-4 text-sm">
+                        {contact.company && <><dt className="text-gray-500">Company</dt><dd className="text-gray-300 break-words">{contact.company}</dd></>}
+                        {contact.website && <><dt className="text-gray-500">Website</dt><dd><a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 break-all">{contact.website}</a></dd></>}
+                        {contact.projectType && <><dt className="text-gray-500">Project type</dt><dd className="text-gray-300">{contact.projectType.replaceAll("_", " ")}</dd></>}
+                        {contact.budgetRange && <><dt className="text-gray-500">Budget range</dt><dd className="text-gray-300">{contact.budgetRange.replaceAll("_", " ")}</dd></>}
+                        {contact.timeline && <><dt className="text-gray-500">Timeline</dt><dd className="text-gray-300">{contact.timeline.replaceAll("_", " ")}</dd></>}
+                        {contact.preferredContact && <><dt className="text-gray-500">Preferred contact</dt><dd className="text-gray-300">{contact.preferredContact.replaceAll("_", " ")}</dd></>}
+                        {contact.goals && <><dt className="text-gray-500 sm:col-span-2">Goals</dt><dd className="text-gray-300 break-words sm:col-span-2">{contact.goals}</dd></>}
+                      </dl>
+                    )}
                   </div>
                   
                   <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto sm:ml-4">

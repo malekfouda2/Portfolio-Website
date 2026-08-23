@@ -128,6 +128,52 @@ export const validateContactForm = [
     .withMessage('Message contains invalid characters')
     .trim()
     .escape(),
+
+  body('company')
+    .optional({ checkFalsy: true })
+    .isLength({ max: 100 })
+    .withMessage('Company must be less than 100 characters')
+    .matches(/^[a-zA-Z0-9\s\-'\.,&()]+$/)
+    .withMessage('Company contains invalid characters')
+    .trim()
+    .escape(),
+
+  body('website')
+    .optional({ checkFalsy: true })
+    .isURL({ require_protocol: true, protocols: ['http', 'https'] })
+    .withMessage('Website must be a valid http or https URL')
+    .isLength({ max: 2048 })
+    .withMessage('Website must be less than 2048 characters')
+    .trim(),
+
+  body('projectType')
+    .optional({ checkFalsy: true })
+    .isIn(['technical_audit', 'woocommerce', 'custom_system', 'development_partner', 'performance_security', 'other'])
+    .withMessage('Please select a valid project type'),
+
+  body('goals')
+    .optional({ checkFalsy: true })
+    .isLength({ max: 1000 })
+    .withMessage('Goals must be less than 1000 characters')
+    .matches(/^[a-zA-Z0-9\s\-'\.,:;!?\(\)\[\]@#$%&*+=_~`"\/\\]+$/)
+    .withMessage('Goals contain invalid characters')
+    .trim()
+    .escape(),
+
+  body('budgetRange')
+    .optional({ checkFalsy: true })
+    .isIn(['not_sure', 'focused', 'established', 'larger'])
+    .withMessage('Please select a valid budget range'),
+
+  body('timeline')
+    .optional({ checkFalsy: true })
+    .isIn(['asap', 'within_month', 'one_to_three_months', 'planning'])
+    .withMessage('Please select a valid timeline'),
+
+  body('preferredContact')
+    .optional({ checkFalsy: true })
+    .isIn(['email', 'linkedin', 'no_preference'])
+    .withMessage('Please select a valid preferred contact method'),
 ];
 
 // Input validation for dashboard login
