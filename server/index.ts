@@ -12,6 +12,12 @@ import { escapeHtml, sanitizeHttpUrl, serializeJsonLd } from "./htmlSafety";
 
 const SITE_URL = "https://malekfouda.com";
 const SOCIAL_IMAGE_URL = `${SITE_URL}/og-image.png`;
+const CRAWLER_USER_AGENT =
+  /bot\b|crawler|spider|slurp|facebookexternalhit|twitterbot|linkedinbot|slackbot|discordbot|whatsapp|telegrambot/i;
+
+function shouldPreRenderForCrawler(req: Request): boolean {
+  return CRAWLER_USER_AGENT.test(req.get("user-agent") || "");
+}
 
 const app = express();
 
@@ -384,10 +390,12 @@ async function buildRouteHtml(
     throw err;
   });
 
-  // Render the homepage from current CMS records so crawlers receive the
-  // same hero, about, projects, and partnership content as app visitors.
-  app.get("/", async (_req: Request, res: Response, next: NextFunction) => {
+  // Let browser requests flow through Vite's HTML transform so React mounts.
+  // Crawlers receive meaningful CMS-backed HTML before JavaScript runs.
+  app.get("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (!shouldPreRenderForCrawler(req)) return next();
+
       const isDev = app.get("env") === "development";
       const [hero, about, projects, partnerships] = await Promise.all([
         storage.getHeroContent(),
@@ -465,6 +473,8 @@ async function buildRouteHtml(
   // bots receive full page content in the first HTML response.
   app.get("/portfolio", async (req: Request, res: Response, next: NextFunction) => {
     try {
+      if (!shouldPreRenderForCrawler(req)) return next();
+
       const isDev = app.get("env") === "development";
 
       const portfolioTitle = "Client Work & Web Development Case Studies | Malek Fouda";
