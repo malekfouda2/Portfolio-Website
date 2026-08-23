@@ -12,6 +12,12 @@ import { escapeHtml, sanitizeHttpUrl, serializeJsonLd } from "./htmlSafety";
 
 const SITE_URL = "https://malekfouda.com";
 const SOCIAL_IMAGE_URL = `${SITE_URL}/og-image.png`;
+const CRAWLER_USER_AGENT =
+  /bot\b|crawler|spider|slurp|facebookexternalhit|twitterbot|linkedinbot|slackbot|discordbot|whatsapp|telegrambot/i;
+
+function shouldPreRenderForCrawler(req: Request): boolean {
+  return CRAWLER_USER_AGENT.test(req.get("user-agent") || "");
+}
 
 const app = express();
 
@@ -384,9 +390,9 @@ async function buildRouteHtml(
     throw err;
   });
 
-  // Render the homepage from current CMS records so crawlers receive the
-  // same hero, about, projects, and partnership content as app visitors.
-  app.get("/", async (_req: Request, res: Response, next: NextFunction) => {
+  // Crawlers receive meaningful CMS-backed HTML before JavaScript runs.
+  // Browsers receive an empty app mount so React can render the full interface.
+  app.get("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
       const isDev = app.get("env") === "development";
       const [hero, about, projects, partnerships] = await Promise.all([
@@ -401,12 +407,14 @@ async function buildRouteHtml(
       const homepageTitle = `${personName} | WooCommerce, WordPress & Custom Web Development`;
       const homepageDescription =
         "Malek Fouda helps businesses and agencies build, improve, and support WooCommerce stores, custom web applications, dashboards, portals, and integrations.";
-      const bodyContent = buildHomepageBodyHtml({
-        hero,
-        about,
-        projects,
-        partnerships: partnerships.slice(0, 2),
-      });
+      const bodyContent = shouldPreRenderForCrawler(req)
+        ? buildHomepageBodyHtml({
+            hero,
+            about,
+            projects,
+            partnerships: partnerships.slice(0, 2),
+          })
+        : "";
 
       const jsonLd = {
         "@context": "https://schema.org",
@@ -472,9 +480,11 @@ async function buildRouteHtml(
       const canonicalUrl = `${SITE_URL}/portfolio`;
       const keywords = "Malek Fouda client work, web development case studies, WooCommerce projects, WordPress development, custom web applications, business dashboards";
 
-      // Fetch live project data for the pre-rendered snapshot
+      // Fetch live project data for crawler-visible content and structured data.
       const projects = await storage.getProjects();
-      const bodyContent = buildPortfolioBodyHtml(projects);
+      const bodyContent = shouldPreRenderForCrawler(req)
+        ? buildPortfolioBodyHtml(projects)
+        : "";
 
       const jsonLd = {
         "@context": "https://schema.org",
