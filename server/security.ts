@@ -211,6 +211,7 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
 
 // Security headers and middleware setup
 export const setupSecurity = (app: Express) => {
+  const isDevelopment = process.env.NODE_ENV !== 'production';
   // Enable trust proxy for rate limiting behind reverse proxy
   app.set('trust proxy', 1);
   
@@ -233,9 +234,23 @@ export const setupSecurity = (app: Express) => {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com", "https://assets.apollo.io"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          ...(isDevelopment ? ["'unsafe-eval'"] : []),
+          "https://www.googletagmanager.com",
+          "https://www.google-analytics.com",
+          "https://assets.apollo.io",
+        ],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
-        connectSrc: ["'self'", "https://www.google-analytics.com", "https://app.apollo.io", "https://assets.apollo.io", "https://aplo-evnt.com"],
+        connectSrc: [
+          "'self'",
+          ...(isDevelopment ? ["ws:", "wss:"] : []),
+          "https://www.google-analytics.com",
+          "https://app.apollo.io",
+          "https://assets.apollo.io",
+          "https://aplo-evnt.com",
+        ],
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
