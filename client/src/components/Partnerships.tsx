@@ -1,5 +1,5 @@
-import shopifyLogo from "@assets/[CITYPNG.COM]Shopify Bag Icon Symbol Logo - 1000x1000_1752660358554.png";
-import wordpressLogo from "@assets/[CITYPNG.COM]Wordpress Logo Image PNG - 1000x1000_1752660361578.png";
+import shopifyLogo from "@assets/shopify-logo-160.webp";
+import wordpressLogo from "@assets/wordpress-logo-160.webp";
 import { useQuery } from "@tanstack/react-query";
 import type { Partnership } from "@shared/schema";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -54,6 +54,8 @@ export default function Partnerships() {
                     src={shopifyLogo}
                     alt="Shopify Logo"
                     className="w-full h-full object-contain"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 sm:mb-4">
@@ -129,6 +131,8 @@ export default function Partnerships() {
                     src={wordpressLogo}
                     alt="WordPress Logo"
                     className="w-full h-full object-contain"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4">

@@ -27,6 +27,8 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    assetsInlineLimit: (filePath) =>
+      filePath.endsWith("shopify-logo-160.webp") ? false : undefined,
   },
   server: {
     fs: {
