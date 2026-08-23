@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { HeroContent } from "@shared/schema";
-import { trackEvent } from "@/lib/analytics";
 
 export default function Hero() {
   const [typedText, setTypedText] = useState("");
@@ -14,13 +13,11 @@ export default function Hero() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const typingTexts = [
-    "Reliable WooCommerce stores",
-    "Custom dashboards and portals",
-    "Integrations, recovery, and support",
+  const typingTexts = heroContent?.typingTexts || [
+    "Software Developer & Problem Solver",
   ];
   const fullText =
-    typingTexts[currentTextIndex] || "Reliable business software";
+    typingTexts[currentTextIndex] || "Software Developer & Problem Solver";
 
   useEffect(() => {
     let i = 0;
@@ -84,14 +81,15 @@ export default function Hero() {
       <div className="container mx-auto px-4 sm:px-6 text-center z-10">
         <div className="max-w-4xl mx-auto">
 
-          {/* Service-led opening */}
+          {/* Name + typing */}
           <div className="mb-8 sm:mb-12 animate-slide-up">
-            <p className="text-green-400 font-semibold tracking-[0.18em] uppercase text-xs sm:text-sm mb-4">
-              Full-stack development for growing businesses & agencies
-            </p>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
-              <span className="text-white">Malek Fouda builds and fixes</span>
-              <span className="gradient-text"> revenue-critical websites and business software.</span>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-8xl font-bold mb-4 sm:mb-6 leading-tight">
+              <span className="text-white">
+                {heroContent?.name?.split(" ")[0] || "Malek"}
+              </span>
+              <span className="gradient-text">
+                {" "}{heroContent?.name?.split(" ")[1] || "Fouda"}
+              </span>
             </h1>
             <div className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-gray-300 mb-6 sm:mb-8 font-light min-h-[2rem] px-2 sm:px-4">
               <span className="typing-demo break-words hyphens-auto">
@@ -131,7 +129,8 @@ export default function Hero() {
               </div>
 
               <div className="border-t border-gray-800 pt-5 text-sm sm:text-base lg:text-lg text-gray-300 leading-relaxed">
-                I help teams with reliable WooCommerce stores, custom dashboards, business portals, integrations, and the ongoing technical support that keeps important systems moving.
+                {heroContent?.description ||
+                  "Specialized in creating high-quality web applications, mobile apps, and e-commerce solutions that drive business growth and deliver exceptional user experiences."}
               </div>
             </div>
 
@@ -145,22 +144,16 @@ export default function Hero() {
             style={{ transitionDelay: "500ms" }}
           >
             <button
-              onClick={() => {
-                trackEvent("hero_consultation_request", "conversion", "primary_cta");
-                scrollToSection("contact");
-              }}
+              onClick={() => scrollToSection("projects")}
               className="btn-shimmer bg-gradient-to-r from-green-400 to-blue-500 text-black px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-full font-semibold text-sm sm:text-base lg:text-lg hover:shadow-lg hover:shadow-green-400/25 transition-all duration-300 hover:scale-105 w-full sm:w-auto"
             >
-              Request a short consultation
+              View My Portfolio
             </button>
             <button
-              onClick={() => {
-                trackEvent("hero_client_work_view", "navigation", "secondary_cta");
-                scrollToSection("projects");
-              }}
+              onClick={() => scrollToSection("contact")}
               className="border-2 border-gray-600 text-white px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-full font-semibold text-sm sm:text-base lg:text-lg hover:border-green-400 hover:bg-green-400/10 hover:text-green-400 transition-all duration-300 w-full sm:w-auto"
             >
-              View client work
+              Start Your Project
             </button>
           </div>
 

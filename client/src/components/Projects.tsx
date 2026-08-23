@@ -57,8 +57,8 @@ export default function Projects() {
               ref={headingRef}
               className="reveal text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6"
             >
-              <span className="text-white">Selected</span>
-              <span className="gradient-text"> client work</span>
+              <span className="text-white">Featured</span>
+              <span className="gradient-text"> Projects</span>
             </h2>
             <div
               ref={lineRef}
@@ -68,7 +68,8 @@ export default function Projects() {
               ref={subtitleRef}
               className="reveal text-base sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
             >
-              Browse real applications, e-commerce work, and professional projects. Each case study keeps the verified scope, responsibility, technology, and live link in view.
+              A curated selection of my best work showcasing expertise in full-stack development,
+              modern web technologies, and professional client solutions.
             </p>
           </div>
 
@@ -179,7 +180,7 @@ export default function Projects() {
                         className="flex-1 inline-flex items-center justify-center bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 hover:text-green-400 transition-all duration-300 text-sm"
                       >
                         <Image className="w-4 h-4 mr-2" />
-                          Case study
+                        Details
                       </button>
                     </div>
                   </div>
@@ -199,7 +200,7 @@ export default function Projects() {
                   }}
                   className="inline-flex items-center bg-transparent border-2 border-green-400 text-green-400 px-8 py-3 rounded-full font-semibold hover:bg-green-400 hover:text-black transition-all duration-300 group"
                 >
-                  <span>View all client work</span>
+                  <span>View All Projects</span>
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                 </button>
               </Link>

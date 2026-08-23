@@ -21,18 +21,12 @@ export default function Portfolio() {
     window.scrollTo(0, 0);
   }, []);
 
-  const getTechnologies = (project: Project) =>
-    Array.isArray(project.technologies)
-      ? project.technologies.filter((technology): technology is string => typeof technology === "string")
-      : [];
-
   const filteredProjects = projects.filter(project => {
-    const technologies = getTechnologies(project);
     const matchesFilter = filter === 'all' || project.type === filter;
     const matchesSearch = searchTerm === '' || 
       project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      technologies.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()));
+      project.technologies?.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()));
     
     return matchesFilter && matchesSearch;
   });
@@ -40,9 +34,9 @@ export default function Portfolio() {
   return (
     <>
       <SEO 
-         title="Client Work & Web Development Case Studies | Malek Fouda"
-         description="Explore Malek Fouda’s web development work, including e-commerce, custom applications, and professional projects with verified scope, responsibilities, technologies, and live links."
-         keywords={['Malek Fouda client work', 'web development case studies', 'WooCommerce projects', 'WordPress development', 'custom web applications', 'business dashboards']}
+        title="Portfolio - Malek Fouda | Full Stack Developer Projects"
+        description="Browse through my complete portfolio of web development projects, including live applications and portfolio pieces showcasing my skills in React, Node.js, and modern web technologies."
+        keywords={['portfolio', 'projects', 'web development', 'React', 'Node.js', 'full-stack', 'malek fouda']}
         canonicalPath="/portfolio"
       />
       
@@ -65,8 +59,8 @@ export default function Portfolio() {
                   </Link>
                   <div className="w-px h-6 bg-gray-700"></div>
                   <h1 className="text-3xl font-bold">
-                     <span className="text-white">Client</span>
-                     <span className="gradient-text"> Work</span>
+                    <span className="text-white">My</span>
+                    <span className="gradient-text"> Portfolio</span>
                   </h1>
                 </div>
                 <div className="text-sm text-gray-400">
@@ -112,8 +106,7 @@ export default function Portfolio() {
             </div>
 
             {/* Projects Grid */}
-            <h2 className="text-2xl font-bold text-white mb-2">Web development case studies</h2>
-            <p className="text-gray-400 mb-6">Browse verified project scope, responsibility, technology choices, and live work where available.</p>
+            <h2 className="text-2xl font-bold text-white mb-6">Full-Stack Development Projects</h2>
             {filteredProjects.length === 0 ? (
               <div className="text-center py-16">
                 <div className="text-gray-400 text-xl mb-4">No projects found</div>
@@ -160,13 +153,14 @@ export default function Portfolio() {
                             <div className="p-2 bg-gray-800/50 rounded-lg border border-gray-700">
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-gray-400">Built at:</span>
-                                {project.companyUrl ? (
-                                  <a href={project.companyUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">
-                                    {project.companyName}
-                                  </a>
-                                ) : (
-                                  <span className="text-blue-400">{project.companyName}</span>
-                                )}
+                                <a 
+                                  href={project.companyUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-blue-400 hover:text-blue-300 transition-colors"
+                                >
+                                  {project.companyName}
+                                </a>
                               </div>
                               {project.role && (
                                 <div className="text-xs text-green-400 mt-1">
@@ -178,7 +172,7 @@ export default function Portfolio() {
                         </div>
                         
                         <div className="flex flex-wrap gap-2 mb-4 flex-1">
-                          {getTechnologies(project).map((tech, index) => (
+                          {project.technologies?.map((tech, index) => (
                             <span 
                               key={index}
                               className="px-2 py-1 bg-gray-800 text-green-400 rounded text-sm h-fit"
@@ -205,7 +199,7 @@ export default function Portfolio() {
                             className="flex-1 inline-flex items-center justify-center bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition-all duration-300"
                           >
                             <Image className="w-4 h-4 mr-2" />
-                            Case study
+                            Details
                           </button>
                         </div>
                       </div>

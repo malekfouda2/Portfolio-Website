@@ -13,13 +13,6 @@ export const contacts = pgTable("contacts", {
   name: text("name").notNull(),
   email: text("email").notNull(),
   message: text("message").notNull(),
-  company: text("company"),
-  website: text("website"),
-  projectType: text("project_type"),
-  goals: text("goals"),
-  budgetRange: text("budget_range"),
-  timeline: text("timeline"),
-  preferredContact: text("preferred_contact"),
   status: text("status").notNull().default("new"), // 'new', 'contacted', 'resolved'
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -112,13 +105,6 @@ export const insertContactSchema = createInsertSchema(contacts).pick({
   name: true,
   email: true,
   message: true,
-  company: true,
-  website: true,
-  projectType: true,
-  goals: true,
-  budgetRange: true,
-  timeline: true,
-  preferredContact: true,
 });
 
 export const insertHeroContentSchema = createInsertSchema(heroContent).omit({

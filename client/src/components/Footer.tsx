@@ -16,7 +16,7 @@ export default function Footer() {
               <span className="gradient-text"> Fouda</span>
             </div>
             <p className="text-gray-400 mb-6">
-              Reliable WordPress, WooCommerce, and custom web development for businesses and agencies.
+              Transforming ideas into digital solutions that drive business success.
             </p>
             <div className="flex justify-center flex-wrap gap-6 mb-8">
               <button 
@@ -26,28 +26,28 @@ export default function Footer() {
                 Home
               </button>
               <button 
-                onClick={() => scrollToSection('services')}
+                onClick={() => scrollToSection('about')}
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                Services
+                About
               </button>
               <button 
                 onClick={() => scrollToSection('partnerships')}
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                Platforms
+                Partnerships
               </button>
               <button 
                 onClick={() => scrollToSection('projects')}
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                Client Work
+                Portfolio
               </button>
               <button 
-                onClick={() => scrollToSection('process')}
+                onClick={() => scrollToSection('skills')}
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                Process
+                Skills
               </button>
               <button 
                 onClick={() => scrollToSection('contact')}
@@ -58,7 +58,7 @@ export default function Footer() {
             </div>
             <div className="border-t border-gray-800 pt-8">
               <p className="text-gray-500 text-sm">
-                © {new Date().getFullYear()} Malek Fouda. All rights reserved.
+                © {new Date().getFullYear()} Malek Fouda. All rights reserved. | Made with ❤️ and lots of ☕
               </p>
             </div>
           </div>

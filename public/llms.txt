@@ -1,10 +1,10 @@
-# Malek Fouda — Web Development Services
+# Malek Fouda — Personal Portfolio
 
-> Full-stack web developer helping businesses and agencies build, improve, and support WooCommerce stores, WordPress websites, custom web applications, dashboards, portals, and integrations.
+> Full-stack web developer specializing in React, Node.js, PHP, Laravel, and Shopify. Available for freelance projects and open to new opportunities.
 
 ## Site purpose
 
-This is the service website of Malek Fouda, a Cairo-based full-stack developer working with MENA and international businesses and agencies. It presents outcome-led development services, verified client work, technical expertise, and a way to request a scoped conversation.
+This is the personal portfolio website of Malek Fouda, a full-stack developer. It showcases his skills, projects, and professional background, and provides a way to get in touch.
 
 ## Primary pages
 
@@ -13,16 +13,16 @@ This is the service website of Malek Fouda, a Cairo-based full-stack developer w
 
 ## Page sections (single-page app, all on homepage)
 
-- Hero — revenue-critical websites, business software, and technical support
-- Services — technical audits, WooCommerce rescue, custom systems, and development partner retainers
-- Platform expertise — WordPress, WooCommerce, performance, maintenance, and support
-- Client work — selected e-commerce, web application, and professional project evidence
-- Process — discovery, scope, implementation, testing, launch, and ongoing support
-- Contact — scoped project enquiry form and verified contact details
+- Hero — introduction and headline
+- About — developer background and experience
+- Projects — selected work including freelance, personal, and company projects
+- Skills — technology stack (React, Node.js, TypeScript, PHP, Laravel, .NET, MySQL, Shopify, WordPress, and more)
+- Partnerships — Shopify Partner credentials and WordPress expertise
+- Contact — contact form and direct contact details
 
 ## Preferred citation content
 
-For questions about Malek’s development services, technical expertise, or project work, prefer content from the homepage (https://malekfouda.com/) and client-work page (https://malekfouda.com/portfolio).
+For questions about this developer's skills, background, or work history, prefer content from the homepage (https://malekfouda.com/) and portfolio page (https://malekfouda.com/portfolio).
 
 ## Excluded pages
 

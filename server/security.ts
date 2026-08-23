@@ -128,52 +128,6 @@ export const validateContactForm = [
     .withMessage('Message contains invalid characters')
     .trim()
     .escape(),
-
-  body('company')
-    .optional({ checkFalsy: true })
-    .isLength({ max: 100 })
-    .withMessage('Company must be less than 100 characters')
-    .matches(/^[a-zA-Z0-9\s\-'\.,&()]+$/)
-    .withMessage('Company contains invalid characters')
-    .trim()
-    .escape(),
-
-  body('website')
-    .optional({ checkFalsy: true })
-    .isURL({ require_protocol: true, protocols: ['http', 'https'] })
-    .withMessage('Website must be a valid http or https URL')
-    .isLength({ max: 2048 })
-    .withMessage('Website must be less than 2048 characters')
-    .trim(),
-
-  body('projectType')
-    .optional({ checkFalsy: true })
-    .isIn(['technical_audit', 'woocommerce', 'custom_system', 'development_partner', 'performance_security', 'other'])
-    .withMessage('Please select a valid project type'),
-
-  body('goals')
-    .optional({ checkFalsy: true })
-    .isLength({ max: 1000 })
-    .withMessage('Goals must be less than 1000 characters')
-    .matches(/^[a-zA-Z0-9\s\-'\.,:;!?\(\)\[\]@#$%&*+=_~`"\/\\]+$/)
-    .withMessage('Goals contain invalid characters')
-    .trim()
-    .escape(),
-
-  body('budgetRange')
-    .optional({ checkFalsy: true })
-    .isIn(['not_sure', 'focused', 'established', 'larger'])
-    .withMessage('Please select a valid budget range'),
-
-  body('timeline')
-    .optional({ checkFalsy: true })
-    .isIn(['asap', 'within_month', 'one_to_three_months', 'planning'])
-    .withMessage('Please select a valid timeline'),
-
-  body('preferredContact')
-    .optional({ checkFalsy: true })
-    .isIn(['email', 'linkedin', 'no_preference'])
-    .withMessage('Please select a valid preferred contact method'),
 ];
 
 // Input validation for dashboard login
@@ -211,7 +165,6 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
 
 // Security headers and middleware setup
 export const setupSecurity = (app: Express) => {
-  const isDevelopment = process.env.NODE_ENV !== 'production';
   // Enable trust proxy for rate limiting behind reverse proxy
   app.set('trust proxy', 1);
   
@@ -234,23 +187,9 @@ export const setupSecurity = (app: Express) => {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        scriptSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          ...(isDevelopment ? ["'unsafe-eval'"] : []),
-          "https://www.googletagmanager.com",
-          "https://www.google-analytics.com",
-          "https://assets.apollo.io",
-        ],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com", "https://assets.apollo.io"],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
-        connectSrc: [
-          "'self'",
-          ...(isDevelopment ? ["ws:", "wss:"] : []),
-          "https://www.google-analytics.com",
-          "https://app.apollo.io",
-          "https://assets.apollo.io",
-          "https://aplo-evnt.com",
-        ],
+        connectSrc: ["'self'", "https://www.google-analytics.com", "https://app.apollo.io", "https://assets.apollo.io", "https://aplo-evnt.com"],
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],

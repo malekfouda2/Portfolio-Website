@@ -201,28 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const sanitizedData = {
           name: sanitizeHtml(sanitizeInput(req.body.name)),
           email: sanitizeHtml(sanitizeInput(req.body.email)),
-          message: sanitizeHtml(sanitizeInput(req.body.message)),
-          company: typeof req.body.company === "string" && req.body.company.trim()
-            ? sanitizeHtml(sanitizeInput(req.body.company))
-            : undefined,
-          website: typeof req.body.website === "string" && req.body.website.trim()
-            ? sanitizeHtml(sanitizeInput(req.body.website))
-            : undefined,
-          projectType: typeof req.body.projectType === "string" && req.body.projectType.trim()
-            ? req.body.projectType
-            : undefined,
-          goals: typeof req.body.goals === "string" && req.body.goals.trim()
-            ? sanitizeHtml(sanitizeInput(req.body.goals))
-            : undefined,
-          budgetRange: typeof req.body.budgetRange === "string" && req.body.budgetRange.trim()
-            ? req.body.budgetRange
-            : undefined,
-          timeline: typeof req.body.timeline === "string" && req.body.timeline.trim()
-            ? req.body.timeline
-            : undefined,
-          preferredContact: typeof req.body.preferredContact === "string" && req.body.preferredContact.trim()
-            ? req.body.preferredContact
-            : undefined,
+          message: sanitizeHtml(sanitizeInput(req.body.message))
         };
         
         // Additional validation checks

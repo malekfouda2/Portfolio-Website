@@ -28,13 +28,13 @@ export default function SEO({
   });
 
   useEffect(() => {
-    const finalTitle = title || `${heroContent?.name || "Malek Fouda"} | WooCommerce, WordPress & Custom Web Development`;
+    const finalTitle = title || `${heroContent?.name || "Malek Fouda"} - ${heroContent?.title || "Full Stack Developer"}`;
     document.title = finalTitle;
 
-    const finalDescription = description || "Reliable WooCommerce, WordPress, and custom web development for businesses and agencies.";
+    const finalDescription = description || "Transforming ideas into digital reality through expert development and creative solutions";
     updateMetaTag("description", finalDescription);
 
-    const finalKeywords = keywords.length > 0 ? keywords.join(", ") : "Malek Fouda, WooCommerce developer, WordPress developer, custom web applications, business dashboards, web development support";
+    const finalKeywords = keywords.length > 0 ? keywords.join(", ") : "full stack developer, react developer, node.js, web development, javascript, typescript, freelance developer";
     updateMetaTag("keywords", finalKeywords);
 
     // Derive a clean canonical — strip query params and fragments
@@ -50,13 +50,13 @@ export default function SEO({
     updateMetaTag("og:image:type", "image/png", "property");
     updateMetaTag("og:image:width", "1200", "property");
     updateMetaTag("og:image:height", "630", "property");
-    updateMetaTag("og:site_name", "Malek Fouda", "property");
+    updateMetaTag("og:site_name", "Malek Fouda Portfolio", "property");
 
     updateMetaTag("twitter:card", "summary_large_image", "name");
     updateMetaTag("twitter:title", finalTitle, "name");
     updateMetaTag("twitter:description", finalDescription, "name");
     updateMetaTag("twitter:image", socialImage, "name");
-    updateMetaTag("twitter:image:alt", "Malek Fouda - Web Development Services", "name");
+    updateMetaTag("twitter:image:alt", "Malek Fouda - Full Stack Developer", "name");
 
     updateLinkTag("canonical", canonicalUrl);
 
@@ -68,7 +68,7 @@ export default function SEO({
       "@context": "https://schema.org",
       "@type": "Person",
       "name": heroContent?.name || "Malek Fouda",
-        "jobTitle": "Full-Stack Developer",
+      "jobTitle": heroContent?.title || "Full Stack Developer",
       "description": finalDescription,
       "url": canonicalUrl,
       "sameAs": [
@@ -77,24 +77,23 @@ export default function SEO({
       ],
       "worksFor": {
         "@type": "Organization",
-          "name": "Independent Web Development"
+        "name": "Freelance"
       },
       "knowsAbout": [
-          "WooCommerce Development",
-          "WordPress Development",
-          "Custom Web Applications",
-          "Business Dashboards",
-          "Web Development Support",
-          "React",
-          "Node.js",
-          "TypeScript"
+        "React",
+        "Node.js",
+        "JavaScript",
+        "TypeScript",
+        "Full Stack Development",
+        "Web Development",
+        "Software Engineering"
       ],
       "hasOccupation": {
         "@type": "Occupation",
-           "name": "Full-Stack Developer",
+        "name": "Full Stack Developer",
         "occupationLocation": {
           "@type": "Place",
-           "name": "Cairo, Egypt"
+          "name": "Remote"
         }
       }
     };

@@ -42,17 +42,17 @@ export default function Navigation() {
               <button onClick={() => scrollToSection('home')} className="nav-link text-gray-300 hover:text-white font-medium">
                 Home
               </button>
-              <button onClick={() => scrollToSection('services')} className="nav-link text-gray-300 hover:text-white font-medium">
-                Services
+              <button onClick={() => scrollToSection('about')} className="nav-link text-gray-300 hover:text-white font-medium">
+                About
               </button>
               <button onClick={() => scrollToSection('partnerships')} className="nav-link text-gray-300 hover:text-white font-medium">
-                Platforms
+                Partnerships
               </button>
               <button onClick={() => scrollToSection('projects')} className="nav-link text-gray-300 hover:text-white font-medium">
-                Work
+                Projects
               </button>
-              <button onClick={() => scrollToSection('process')} className="nav-link text-gray-300 hover:text-white font-medium">
-                Process
+              <button onClick={() => scrollToSection('skills')} className="nav-link text-gray-300 hover:text-white font-medium">
+                Skills
               </button>
               <button onClick={() => scrollToSection('contact')} className="nav-link text-gray-300 hover:text-white font-medium">
                 Contact
@@ -75,17 +75,17 @@ export default function Navigation() {
               <button onClick={() => scrollToSection('home')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
                 Home
               </button>
-              <button onClick={() => scrollToSection('services')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
-                Services
+              <button onClick={() => scrollToSection('about')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
+                About
               </button>
               <button onClick={() => scrollToSection('partnerships')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
-                Platforms
+                Partnerships
               </button>
               <button onClick={() => scrollToSection('projects')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
-                Work
+                Projects
               </button>
-              <button onClick={() => scrollToSection('process')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
-                Process
+              <button onClick={() => scrollToSection('skills')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
+                Skills
               </button>
               <button onClick={() => scrollToSection('contact')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
                 Contact
