@@ -187,10 +187,11 @@ async function buildRouteHtml(
   html = html.replace(/(<meta name="twitter:title"[^>]*content=")[^"]*(")/,  `$1${meta.ogTitle}$2`);
   html = html.replace(/(<meta name="twitter:description"[^>]*content=")[^"]*(")/,  `$1${meta.ogDescription}$2`);
 
-  // Replace the inline JSON-LD structured data
+  // Replace the template's person schema with route-specific JSON-LD.
+  // The client restores the person schema in its own dedicated script after hydration.
   html = html.replace(
-    /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
-    `<script type="application/ld+json">\n    ${JSON.stringify(meta.jsonLd, null, 2)}\n    </script>`
+    /<script\b[^>]*type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/,
+    `<script id="route-structured-data" type="application/ld+json">\n    ${JSON.stringify(meta.jsonLd, null, 2)}\n    </script>`
   );
 
   // Inject the pre-rendered body content, replacing the content inside #root

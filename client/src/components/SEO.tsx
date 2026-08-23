@@ -95,13 +95,14 @@ export default function SEO({
       }
     };
 
-    // Update the existing JSON-LD script (static one from SSR or previously set),
-    // rather than appending a new one — avoids duplicate structured data.
-    let ldScript = document.querySelector('script[type="application/ld+json"]');
+    // Update only the person schema. Route-specific JSON-LD (such as the
+    // portfolio CollectionPage) is server-rendered separately and must remain intact.
+    let ldScript = document.querySelector<HTMLScriptElement>('#person-structured-data');
     if (ldScript) {
       ldScript.textContent = JSON.stringify(structuredData);
     } else {
       const script = document.createElement('script');
+      script.id = 'person-structured-data';
       script.type = 'application/ld+json';
       script.textContent = JSON.stringify(structuredData);
       document.head.appendChild(script);
