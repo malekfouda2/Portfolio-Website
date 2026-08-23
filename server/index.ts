@@ -88,7 +88,7 @@ function buildPortfolioBodyHtml(projects: Project[]): string {
         <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;overflow:hidden;display:flex;flex-direction:column;">
           <div style="padding:1.25rem 1.25rem .75rem;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem;">
-              <h2 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0;">${escapeHtml(p.title)}</h2>
+              <h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0;">${escapeHtml(p.title)}</h3>
               <span style="background:${typeBadgeColor(p.type)};color:#000;padding:.2rem .6rem;border-radius:9999px;font-size:.75rem;font-weight:600;white-space:nowrap;">${typeLabel(p.type)}</span>
             </div>
             <p style="color:#9ca3af;font-size:.9rem;line-height:1.6;margin:0 0 .75rem;">${escapeHtml(p.description)}</p>
@@ -112,6 +112,7 @@ function buildPortfolioBodyHtml(projects: Project[]): string {
         <p style="color:#9ca3af;margin:0 0 2rem;font-size:1rem;">
           A collection of ${projects.length} projects built with React, Node.js, TypeScript, PHP, Laravel, and more.
         </p>
+        <h2 style="font-size:1.5rem;font-weight:700;margin:0 0 1.5rem;">Full-Stack Development Projects</h2>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
           ${projectCards}
         </div>

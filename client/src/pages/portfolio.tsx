@@ -106,6 +106,7 @@ export default function Portfolio() {
             </div>
 
             {/* Projects Grid */}
+            <h2 className="text-2xl font-bold text-white mb-6">Full-Stack Development Projects</h2>
             {filteredProjects.length === 0 ? (
               <div className="text-center py-16">
                 <div className="text-gray-400 text-xl mb-4">No projects found</div>
