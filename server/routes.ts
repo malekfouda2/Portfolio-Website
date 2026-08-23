@@ -535,6 +535,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.join(process.cwd(), "public", "robots.txt"));
   });
 
+  app.get("/llms.txt", (req, res) => {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.sendFile(path.join(process.cwd(), "public", "llms.txt"));
+  });
+
   app.get("/sitemap.xml", (req, res) => {
     res.setHeader('Content-Type', 'application/xml');
     res.sendFile(path.join(process.cwd(), "public", "sitemap.xml"));
