@@ -1,5 +1,5 @@
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import ImageWithFallback from "./ImageWithFallback";
 
 interface Project {
@@ -20,7 +20,58 @@ interface ProjectModalProps {
 
 export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  const titleId = useId();
   const images = project.screenshots || [project.image];
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+
+      if (event.key !== "Tab" || !dialogRef.current) return;
+
+      const focusableElements = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (!firstElement || !lastElement) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      openerRef.current?.focus();
+    };
+  }, []);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
@@ -36,17 +87,24 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
       onClick={onClose}
     >
       <div 
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
         className="bg-gray-900 rounded-lg max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 bg-gray-900 z-20 flex items-center justify-between p-4 sm:p-6 border-b border-gray-800 shadow-lg">
-          <h3 className="text-lg sm:text-2xl font-bold text-white pr-4 line-clamp-1">{project.title}</h3>
+          <h3 id={titleId} className="text-lg sm:text-2xl font-bold text-white pr-4 line-clamp-1">{project.title}</h3>
           <button
+            ref={closeButtonRef}
             onClick={onClose}
+            aria-label="Close project details"
             className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-red-500/20 hover:bg-red-500/40 text-red-400 hover:text-red-300 rounded-full transition-all duration-300"
             data-testid="modal-close-button"
           >
-            <X size={24} className="sm:w-6 sm:h-6" />
+            <X aria-hidden="true" size={24} className="sm:w-6 sm:h-6" />
           </button>
         </div>
         
@@ -63,17 +121,19 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
               <>
                 <button
                   onClick={prevImage}
+                  aria-label={`Show previous image (image ${((currentImageIndex - 1 + images.length) % images.length) + 1} of ${images.length})`}
                   className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-70 transition-all"
                   data-testid="modal-prev-image"
                 >
-                  <ChevronLeft size={20} className="sm:w-6 sm:h-6" />
+                  <ChevronLeft aria-hidden="true" size={20} className="sm:w-6 sm:h-6" />
                 </button>
                 <button
                   onClick={nextImage}
+                  aria-label={`Show next image (image ${((currentImageIndex + 1) % images.length) + 1} of ${images.length})`}
                   className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-70 transition-all"
                   data-testid="modal-next-image"
                 >
-                  <ChevronRight size={20} className="sm:w-6 sm:h-6" />
+                  <ChevronRight aria-hidden="true" size={20} className="sm:w-6 sm:h-6" />
                 </button>
                 
                 <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-1.5 sm:space-x-2">
@@ -81,6 +141,8 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
+                      aria-label={`Show image ${index + 1} of ${images.length}`}
+                      aria-current={index === currentImageIndex ? "true" : undefined}
                       className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all ${
                         index === currentImageIndex ? 'bg-green-400' : 'bg-gray-600'
                       }`}
@@ -146,7 +208,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                 className="w-full bg-red-500/20 hover:bg-red-500/40 text-red-400 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2"
                 data-testid="modal-close-button-bottom"
               >
-                <X size={20} />
+                  <X aria-hidden="true" size={20} />
                 Close
               </button>
             </div>

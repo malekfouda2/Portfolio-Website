@@ -75,8 +75,10 @@ export default function Portfolio() {
             <div className="flex flex-col md:flex-row gap-4 mb-8">
               {/* Search */}
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <label htmlFor="project-search" className="sr-only">Search projects</label>
+                <Search aria-hidden="true" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
+                  id="project-search"
                   type="text"
                   placeholder="Search projects..."
                   value={searchTerm}
@@ -87,8 +89,10 @@ export default function Portfolio() {
 
               {/* Filter */}
               <div className="flex items-center space-x-2">
-                <Filter className="text-gray-400 w-5 h-5" />
+                <Filter aria-hidden="true" className="text-gray-400 w-5 h-5" />
+                <label htmlFor="project-type-filter" className="sr-only">Filter projects by type</label>
                 <select
+                  id="project-type-filter"
                   value={filter}
                   onChange={(e) => setFilter(e.target.value as 'all' | 'personal' | 'freelance' | 'company')}
                   className="bg-gray-900 border border-gray-800 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-green-400"

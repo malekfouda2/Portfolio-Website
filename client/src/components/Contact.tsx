@@ -109,10 +109,11 @@ export default function Contact() {
               <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Let's Discuss Your Project</h3>
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="contact-name" className="block text-sm font-medium text-gray-300 mb-2">
                     Your Name
                   </label>
                   <input 
+                    id="contact-name"
                     type="text"
                     name="name"
                     value={formData.name}
@@ -124,10 +125,11 @@ export default function Contact() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="contact-email" className="block text-sm font-medium text-gray-300 mb-2">
                     Email Address
                   </label>
                   <input 
+                    id="contact-email"
                     type="email"
                     name="email"
                     value={formData.email}
@@ -139,10 +141,11 @@ export default function Contact() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="contact-message" className="block text-sm font-medium text-gray-300 mb-2">
                     Project Details
                   </label>
                   <textarea 
+                    id="contact-message"
                     rows={4}
                     name="message"
                     value={formData.message}
@@ -209,25 +212,28 @@ export default function Contact() {
                     href="https://github.com/malekfouda2" 
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="GitHub profile"
                     className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-green-400 hover:text-black transition-all duration-300"
                   >
-                    <Github className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <Github aria-hidden="true" className="w-5 h-5 sm:w-6 sm:h-6" />
                   </a>
                   <a 
                     href="https://www.facebook.com/mikofouda" 
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="Facebook profile"
                     className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-blue-400 hover:text-black transition-all duration-300"
                   >
-                    <Facebook className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <Facebook aria-hidden="true" className="w-5 h-5 sm:w-6 sm:h-6" />
                   </a>
                   <a 
                     href="https://www.linkedin.com/in/malek-fouda-18a229244?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" 
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="LinkedIn profile"
                     className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-blue-600 hover:text-white transition-all duration-300"
                   >
-                    <Linkedin className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <Linkedin aria-hidden="true" className="w-5 h-5 sm:w-6 sm:h-6" />
                   </a>
                 </div>
               </div>

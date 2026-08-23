@@ -62,12 +62,15 @@ export default function Navigation() {
             <button 
               className="md:hidden text-white"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-navigation-menu"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
           
-          <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div id="mobile-navigation-menu" className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
             <div className="mt-4 pb-4 space-y-2 bg-gray-900/95 backdrop-blur-sm rounded-lg border border-gray-800/50 px-4 py-3">
               <button onClick={() => scrollToSection('home')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
                 Home
