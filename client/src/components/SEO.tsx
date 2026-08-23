@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { HeroContent } from "@shared/schema";
 
 const SITE_URL = "https://malekfouda.com";
+const DEFAULT_SOCIAL_IMAGE = `${SITE_URL}/og-image.png`;
 
 interface SEOProps {
   title?: string;
@@ -39,20 +40,22 @@ export default function SEO({
     // Derive a clean canonical — strip query params and fragments
     const cleanPath = canonicalPath ?? (window.location.pathname === "/" ? "/" : window.location.pathname.replace(/\/$/, ""));
     const canonicalUrl = `${SITE_URL}${cleanPath}`;
+    const socialImage = image || DEFAULT_SOCIAL_IMAGE;
 
     updateMetaTag("og:title", finalTitle, "property");
     updateMetaTag("og:description", finalDescription, "property");
     updateMetaTag("og:type", type, "property");
     updateMetaTag("og:url", canonicalUrl, "property");
-    updateMetaTag("og:image", image || `${SITE_URL}/favicon.svg`, "property");
-    updateMetaTag("og:image:width", "512", "property");
-    updateMetaTag("og:image:height", "512", "property");
+    updateMetaTag("og:image", socialImage, "property");
+    updateMetaTag("og:image:type", "image/png", "property");
+    updateMetaTag("og:image:width", "1200", "property");
+    updateMetaTag("og:image:height", "630", "property");
     updateMetaTag("og:site_name", "Malek Fouda Portfolio", "property");
 
     updateMetaTag("twitter:card", "summary_large_image", "name");
     updateMetaTag("twitter:title", finalTitle, "name");
     updateMetaTag("twitter:description", finalDescription, "name");
-    updateMetaTag("twitter:image", image || `${SITE_URL}/favicon.svg`, "name");
+    updateMetaTag("twitter:image", socialImage, "name");
     updateMetaTag("twitter:image:alt", "Malek Fouda - Full Stack Developer", "name");
 
     updateLinkTag("canonical", canonicalUrl);

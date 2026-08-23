@@ -591,6 +591,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.join(process.cwd(), "public", "apple-touch-icon.png"));
   });
 
+  // Social platforms fetch this image directly when rendering link previews.
+  app.get("/og-image.png", (req, res) => {
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.sendFile(path.join(process.cwd(), "public", "og-image.png"));
+  });
+
 
   
   // Static file serving for uploads directory

@@ -10,6 +10,7 @@ import path from "path";
 import type { Project } from "@shared/schema";
 
 const SITE_URL = "https://malekfouda.com";
+const SOCIAL_IMAGE_URL = `${SITE_URL}/og-image.png`;
 
 const app = express();
 
@@ -137,6 +138,7 @@ async function buildRouteHtml(
     canonical: string;
     ogTitle: string;
     ogDescription: string;
+    ogImage: string;
     keywords: string;
     jsonLd: object;
     bodyContent: string;
@@ -182,10 +184,20 @@ async function buildRouteHtml(
   html = html.replace(/(<meta property="og:title"[^>]*content=")[^"]*(")/,  `$1${meta.ogTitle}$2`);
   html = html.replace(/(<meta property="og:description"[^>]*content=")[^"]*(")/,  `$1${meta.ogDescription}$2`);
   html = html.replace(/(<meta property="og:url"[^>]*content=")[^"]*(")/,  `$1${meta.canonical}$2`);
+  html = html.replace(/(<meta property="og:image"[^>]*content=")[^"]*(")/, `$1${meta.ogImage}$2`);
+  html = html.replace(
+    /(<meta property="og:image:width"[^>]*content=")[^"]*(")/,
+    (_match, prefix, suffix) => `${prefix}1200${suffix}`
+  );
+  html = html.replace(
+    /(<meta property="og:image:height"[^>]*content=")[^"]*(")/,
+    (_match, prefix, suffix) => `${prefix}630${suffix}`
+  );
 
   // Replace Twitter tags
   html = html.replace(/(<meta name="twitter:title"[^>]*content=")[^"]*(")/,  `$1${meta.ogTitle}$2`);
   html = html.replace(/(<meta name="twitter:description"[^>]*content=")[^"]*(")/,  `$1${meta.ogDescription}$2`);
+  html = html.replace(/(<meta name="twitter:image"[^>]*content=")[^"]*(")/, `$1${meta.ogImage}$2`);
 
   // Replace the template's person schema with route-specific JSON-LD.
   // The client restores the person schema in its own dedicated script after hydration.
@@ -281,6 +293,7 @@ async function buildRouteHtml(
         canonical: canonicalUrl,
         ogTitle: portfolioTitle,
         ogDescription: portfolioDescription,
+        ogImage: SOCIAL_IMAGE_URL,
         keywords,
         jsonLd,
         bodyContent,
