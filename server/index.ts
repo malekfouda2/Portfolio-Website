@@ -7,7 +7,8 @@ import { setupSecurity, uploadSecurityMiddleware } from "./security";
 import { cleanupProjectImages } from "./imageCleanup";
 import { storage } from "./storage";
 import path from "path";
-import type { Project } from "@shared/schema";
+import type { AboutContent, HeroContent, Partnership, Project } from "@shared/schema";
+import { escapeHtml, sanitizeHttpUrl, serializeJsonLd } from "./htmlSafety";
 
 const SITE_URL = "https://malekfouda.com";
 const SOCIAL_IMAGE_URL = `${SITE_URL}/og-image.png`;
@@ -59,15 +60,6 @@ app.use((req, res, next) => {
   next();
 });
 
-/** Escapes a string so it is safe to embed directly in HTML text nodes/attributes. */
-function escHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 /** Builds the pre-rendered project grid HTML from live project data. */
 function buildPortfolioBodyHtml(projects: Project[]): string {
   const typeLabel = (type: string) =>
@@ -80,25 +72,26 @@ function buildPortfolioBodyHtml(projects: Project[]): string {
     .slice(0, 30) // limit to first 30 for HTML size
     .map((p) => {
       const techs = (p.technologies ?? [])
-        .map((t) => `<span style="background:#1f2937;color:#10b981;padding:.2rem .5rem;border-radius:.25rem;font-size:.75rem;">${escHtml(t)}</span>`)
+        .map((t) => `<span style="background:#1f2937;color:#10b981;padding:.2rem .5rem;border-radius:.25rem;font-size:.75rem;">${escapeHtml(t)}</span>`)
         .join(" ");
 
-      const liveLink = p.url
-        ? `<a href="${escHtml(p.url)}" rel="noopener noreferrer" style="color:#10b981;font-size:.875rem;">View Live →</a>`
+      const liveUrl = sanitizeHttpUrl(p.url);
+      const liveLink = liveUrl
+        ? `<a href="${escapeHtml(liveUrl)}" rel="noopener noreferrer" style="color:#10b981;font-size:.875rem;">View Live →</a>`
         : "";
 
       const companyCredit = p.companyName
-        ? `<p style="color:#9ca3af;font-size:.8rem;margin:.25rem 0 0;">Built at <strong style="color:#60a5fa;">${escHtml(p.companyName)}</strong>${p.role ? ` · ${escHtml(p.role)}` : ""}</p>`
+        ? `<p style="color:#9ca3af;font-size:.8rem;margin:.25rem 0 0;">Built at <strong style="color:#60a5fa;">${escapeHtml(p.companyName)}</strong>${p.role ? ` · ${escapeHtml(p.role)}` : ""}</p>`
         : "";
 
       return `
         <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;overflow:hidden;display:flex;flex-direction:column;">
           <div style="padding:1.25rem 1.25rem .75rem;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem;">
-              <h2 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0;">${escHtml(p.title)}</h2>
+              <h2 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0;">${escapeHtml(p.title)}</h2>
               <span style="background:${typeBadgeColor(p.type)};color:#000;padding:.2rem .6rem;border-radius:9999px;font-size:.75rem;font-weight:600;white-space:nowrap;">${typeLabel(p.type)}</span>
             </div>
-            <p style="color:#9ca3af;font-size:.9rem;line-height:1.6;margin:0 0 .75rem;">${escHtml(p.description)}</p>
+            <p style="color:#9ca3af;font-size:.9rem;line-height:1.6;margin:0 0 .75rem;">${escapeHtml(p.description)}</p>
             ${companyCredit}
           </div>
           <div style="padding:.75rem 1.25rem;display:flex;flex-wrap:wrap;gap:.375rem;border-top:1px solid #1f2937;">${techs}</div>
@@ -122,6 +115,111 @@ function buildPortfolioBodyHtml(projects: Project[]): string {
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
           ${projectCards}
         </div>
+      </div>
+    </div>`;
+}
+
+/** Builds the crawler-visible homepage from the same CMS records as the React app. */
+function buildHomepageBodyHtml({
+  hero,
+  about,
+  projects,
+  partnerships,
+}: {
+  hero: HeroContent | undefined;
+  about: AboutContent | undefined;
+  projects: Project[];
+  partnerships: Partnership[];
+}): string {
+  const heroName = hero?.name || "Malek Fouda";
+  const heroTitle = hero?.title || "Full Stack Developer";
+  const heroDescription =
+    hero?.description ||
+    "Specialized in creating high-quality web applications, mobile apps, and e-commerce solutions that drive business growth.";
+  const heroHeadlines = Array.isArray(hero?.typingTexts)
+    ? hero.typingTexts.filter((text): text is string => typeof text === "string")
+    : [];
+  const aboutTitle = about?.title || "About Me";
+  const aboutDescription =
+    about?.description ||
+    "Creating high-quality digital solutions that drive business growth and enhance user experiences.";
+  const featuredProjects = projects.slice(0, 6);
+
+  const projectCards = featuredProjects
+    .map(
+      (project) => {
+        const projectUrl = sanitizeHttpUrl(project.url);
+
+        return `
+        <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;padding:1.25rem;">
+          <h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0 0 .5rem;">${escapeHtml(project.title)}</h3>
+          <p style="color:#9ca3af;line-height:1.6;margin:0 0 .75rem;">${escapeHtml(project.description)}</p>
+          ${projectUrl ? `<a href="${escapeHtml(projectUrl)}" rel="noopener noreferrer" style="color:#10b981;font-size:.875rem;">View project →</a>` : ""}
+        </article>`;
+      }
+    )
+    .join("\n");
+
+  const partnershipItems = partnerships
+    .map(
+      (partnership) => `
+        <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;padding:1.25rem;">
+          <h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0 0 .5rem;">${escapeHtml(partnership.title)}</h3>
+          <p style="color:#9ca3af;line-height:1.6;margin:0;">${escapeHtml(partnership.description)}</p>
+        </article>`
+    )
+    .join("\n");
+
+  return `
+    <div id="__prerender__" style="font-family:system-ui,sans-serif;background:#000;color:#fff;min-height:100vh;padding:2rem;">
+      <div style="max-width:1100px;margin:0 auto;">
+        <header id="home" style="margin-bottom:3rem;">
+          <nav style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:2rem;">
+            <span style="color:#10b981;font-weight:700;font-size:1.25rem;">${escapeHtml(heroName)}</span>
+            <div style="display:flex;flex-wrap:wrap;gap:1rem;">
+              <a href="#about" style="color:#9ca3af;text-decoration:none;">About</a>
+              <a href="#projects" style="color:#9ca3af;text-decoration:none;">Projects</a>
+              <a href="#partnerships" style="color:#9ca3af;text-decoration:none;">Partnerships</a>
+              <a href="#contact" style="color:#9ca3af;text-decoration:none;">Contact</a>
+            </div>
+          </nav>
+          <h1 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;margin:0 0 1rem;">
+            ${escapeHtml(heroName)}<br/>
+            <span style="background:linear-gradient(135deg,#10b981,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${escapeHtml(heroHeadlines[0] || heroTitle)}</span>
+          </h1>
+          <p style="color:#9ca3af;font-size:1.125rem;max-width:720px;line-height:1.7;margin:0 0 1.5rem;">${escapeHtml(heroDescription)}</p>
+          <div style="display:flex;flex-wrap:wrap;gap:1.5rem;color:#d1d5db;">
+            <span><strong style="color:#10b981;">${hero?.yearsExperience ?? 3}+</strong> Years Experience</span>
+            <span><strong style="color:#3b82f6;">${hero?.projectsDelivered ?? 30}+</strong> Projects Delivered</span>
+            <span><strong style="color:#a78bfa;">${hero?.clientSatisfaction ?? 98}%</strong> Client Satisfaction</span>
+          </div>
+        </header>
+
+        <section id="about" style="margin-bottom:3rem;">
+          <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">${escapeHtml(aboutTitle)}</h2>
+          <p style="color:#9ca3af;line-height:1.7;max-width:800px;margin:0;">${escapeHtml(aboutDescription)}</p>
+        </section>
+
+        <section id="projects" style="margin-bottom:3rem;">
+          <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Featured Projects</h2>
+          <p style="color:#9ca3af;line-height:1.7;margin:0 0 1.5rem;">A curated selection of current web applications and client solutions. <a href="/portfolio" style="color:#10b981;">View the full portfolio →</a></p>
+          ${
+            projectCards
+              ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">${projectCards}</div>`
+              : `<p style="color:#9ca3af;margin:0;">Projects are being updated. Visit the <a href="/portfolio" style="color:#10b981;">full portfolio</a> for more work.</p>`
+          }
+        </section>
+
+        ${
+          partnershipItems
+            ? `<section id="partnerships" style="margin-bottom:3rem;"><h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Trusted Partnerships</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">${partnershipItems}</div></section>`
+            : ""
+        }
+
+        <section id="contact" style="margin-bottom:3rem;">
+          <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Get In Touch</h2>
+          <p style="color:#9ca3af;line-height:1.7;max-width:720px;margin:0;">Available for freelance projects, consulting, and full-time opportunities. Let’s build something great together.</p>
+        </section>
       </div>
     </div>`;
 }
@@ -153,38 +251,50 @@ async function buildRouteHtml(
   let html = await fs.promises.readFile(templatePath, "utf-8");
 
   // Replace <title>
-  html = html.replace(/<title>[^<]*<\/title>/, `<title>${meta.title}</title>`);
+  html = html.replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(meta.title)}</title>`);
 
   // Replace meta description
   html = html.replace(
     /<meta name="description"[^>]*\/>/,
-    `<meta name="description" content="${meta.description}" />`
+    `<meta name="description" content="${escapeHtml(meta.description)}" />`
   );
 
   // Replace/inject meta keywords
   if (/<meta name="keywords"[^>]*\/>/.test(html)) {
     html = html.replace(
       /<meta name="keywords"[^>]*\/>/,
-      `<meta name="keywords" content="${meta.keywords}" />`
+      `<meta name="keywords" content="${escapeHtml(meta.keywords)}" />`
     );
   } else {
     html = html.replace(
       /<link rel="canonical"/,
-      `<meta name="keywords" content="${meta.keywords}" />\n    <link rel="canonical"`
+      `<meta name="keywords" content="${escapeHtml(meta.keywords)}" />\n    <link rel="canonical"`
     );
   }
 
   // Replace canonical
   html = html.replace(
     /<link rel="canonical"[^>]*\/>/,
-    `<link rel="canonical" href="${meta.canonical}" />`
+    `<link rel="canonical" href="${escapeHtml(meta.canonical)}" />`
   );
 
   // Replace OG tags
-  html = html.replace(/(<meta property="og:title"[^>]*content=")[^"]*(")/,  `$1${meta.ogTitle}$2`);
-  html = html.replace(/(<meta property="og:description"[^>]*content=")[^"]*(")/,  `$1${meta.ogDescription}$2`);
-  html = html.replace(/(<meta property="og:url"[^>]*content=")[^"]*(")/,  `$1${meta.canonical}$2`);
-  html = html.replace(/(<meta property="og:image"[^>]*content=")[^"]*(")/, `$1${meta.ogImage}$2`);
+  html = html.replace(
+    /(<meta property="og:title"[^>]*content=")[^"]*(")/,
+    (_match, prefix, suffix) => `${prefix}${escapeHtml(meta.ogTitle)}${suffix}`
+  );
+  html = html.replace(
+    /(<meta property="og:description"[^>]*content=")[^"]*(")/,
+    (_match, prefix, suffix) => `${prefix}${escapeHtml(meta.ogDescription)}${suffix}`
+  );
+  html = html.replace(
+    /(<meta property="og:url"[^>]*content=")[^"]*(")/,
+    (_match, prefix, suffix) => `${prefix}${escapeHtml(meta.canonical)}${suffix}`
+  );
+  html = html.replace(
+    /(<meta property="og:image"[^>]*content=")[^"]*(")/,
+    (_match, prefix, suffix) => `${prefix}${escapeHtml(meta.ogImage)}${suffix}`
+  );
   html = html.replace(
     /(<meta property="og:image:width"[^>]*content=")[^"]*(")/,
     (_match, prefix, suffix) => `${prefix}1200${suffix}`
@@ -195,15 +305,24 @@ async function buildRouteHtml(
   );
 
   // Replace Twitter tags
-  html = html.replace(/(<meta name="twitter:title"[^>]*content=")[^"]*(")/,  `$1${meta.ogTitle}$2`);
-  html = html.replace(/(<meta name="twitter:description"[^>]*content=")[^"]*(")/,  `$1${meta.ogDescription}$2`);
-  html = html.replace(/(<meta name="twitter:image"[^>]*content=")[^"]*(")/, `$1${meta.ogImage}$2`);
+  html = html.replace(
+    /(<meta name="twitter:title"[^>]*content=")[^"]*(")/,
+    (_match, prefix, suffix) => `${prefix}${escapeHtml(meta.ogTitle)}${suffix}`
+  );
+  html = html.replace(
+    /(<meta name="twitter:description"[^>]*content=")[^"]*(")/,
+    (_match, prefix, suffix) => `${prefix}${escapeHtml(meta.ogDescription)}${suffix}`
+  );
+  html = html.replace(
+    /(<meta name="twitter:image"[^>]*content=")[^"]*(")/,
+    (_match, prefix, suffix) => `${prefix}${escapeHtml(meta.ogImage)}${suffix}`
+  );
 
   // Replace the template's person schema with route-specific JSON-LD.
   // The client restores the person schema in its own dedicated script after hydration.
   html = html.replace(
     /<script\b[^>]*type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/,
-    `<script id="route-structured-data" type="application/ld+json">\n    ${JSON.stringify(meta.jsonLd, null, 2)}\n    </script>`
+    `<script id="route-structured-data" type="application/ld+json">\n    ${serializeJsonLd(meta.jsonLd)}\n    </script>`
   );
 
   // Inject the pre-rendered body content, replacing the content inside #root
@@ -240,6 +359,78 @@ async function buildRouteHtml(
 
     res.status(status).json({ message });
     throw err;
+  });
+
+  // Render the homepage from current CMS records so crawlers receive the
+  // same hero, about, projects, and partnership content as app visitors.
+  app.get("/", async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const isDev = app.get("env") === "development";
+      const [hero, about, projects, partnerships] = await Promise.all([
+        storage.getHeroContent(),
+        storage.getAboutContent(),
+        storage.getProjects(),
+        storage.getPartnerships(),
+      ]);
+
+      const personName = hero?.name || "Malek Fouda";
+      const personTitle = hero?.title || "Full Stack Developer";
+      const homepageTitle = `${personName} - ${personTitle}`;
+      const homepageDescription =
+        hero?.description ||
+        about?.description ||
+        "Transforming ideas into digital reality through expert development and creative solutions.";
+      const bodyContent = buildHomepageBodyHtml({
+        hero,
+        about,
+        projects,
+        partnerships: partnerships.slice(0, 2),
+      });
+
+      const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": homepageTitle,
+        "description": homepageDescription,
+        "url": SITE_URL,
+        "mainEntity": {
+          "@type": "Person",
+          "name": personName,
+          "jobTitle": personTitle,
+          "description": homepageDescription,
+          "url": SITE_URL,
+        },
+        "hasPart": projects.slice(0, 6).map((project) => {
+          const projectUrl = sanitizeHttpUrl(project.url);
+
+          return {
+            "@type": "CreativeWork",
+            "name": project.title,
+            "description": project.description,
+            ...(projectUrl ? { "url": projectUrl } : {}),
+          };
+        }),
+      };
+
+      const html = await buildRouteHtml(isDev, {
+        title: homepageTitle,
+        description: homepageDescription,
+        canonical: SITE_URL,
+        ogTitle: homepageTitle,
+        ogDescription: homepageDescription,
+        ogImage: SOCIAL_IMAGE_URL,
+        keywords:
+          "full stack developer, react developer, node.js, web development, javascript, typescript, freelance developer, software engineer, malek fouda",
+        jsonLd,
+        bodyContent,
+      });
+
+      if (!html) return next();
+
+      res.status(200).set({ "Content-Type": "text/html" }).end(html);
+    } catch (err) {
+      next(err);
+    }
   });
 
   // Server-render the /portfolio route with route-specific metadata AND
@@ -279,12 +470,16 @@ async function buildRouteHtml(
           "name": "Web Development Projects",
           "description": "A collection of full-stack web development projects built with React, Node.js, TypeScript, PHP, Laravel, and other modern technologies."
         },
-        "hasPart": projects.slice(0, 10).map((p) => ({
-          "@type": "CreativeWork",
-          "name": p.title,
-          "description": p.description,
-          ...(p.url ? { "url": p.url } : {})
-        }))
+        "hasPart": projects.slice(0, 10).map((project) => {
+          const projectUrl = sanitizeHttpUrl(project.url);
+
+          return {
+            "@type": "CreativeWork",
+            "name": project.title,
+            "description": project.description,
+            ...(projectUrl ? { "url": projectUrl } : {}),
+          };
+        })
       };
 
       const html = await buildRouteHtml(isDev, {
