@@ -435,12 +435,15 @@ async function buildRouteHtml(
 (async () => {
   const server = await registerRoutes(app);
 
-  // Seed database in development
+  // Seed the full development database; production only receives missing
+  // marketing records so existing live CMS and enquiry data stays untouched.
   if (app.get("env") === "development") {
     await seedDatabase();
-    
+
     // Clean up any broken image references
     await cleanupProjectImages();
+  } else {
+    await seedDatabase("marketing");
   }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

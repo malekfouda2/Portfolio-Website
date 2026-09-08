@@ -2,8 +2,9 @@ import { storage } from "./storage";
 import type { InsertPartnership } from "@shared/schema";
 import { AIQDA_CASE_STUDY } from "./caseStudyContent";
 
-export async function seedDatabase() {
+export async function seedDatabase(scope: "all" | "marketing" = "all") {
   try {
+    if (scope === "all") {
     // Seed hero content
     if (!(await storage.getHeroContent())) {
       await storage.updateHeroContent({
@@ -194,9 +195,9 @@ export async function seedDatabase() {
       }
       });
     }
+    }
 
-    if ((await storage.getServices()).length === 0) {
-      const services = [
+    const services = [
         {
           slug: "shopify-development",
           title: "Shopify Development & Rescue",
@@ -302,42 +303,50 @@ export async function seedDatabase() {
           seoTitle: "Website Technical Audits, Performance & Security Recovery | Malek Fouda",
           seoDescription: "Technical audits, performance fixes, security recovery, maintenance planning, and ongoing support for important websites and business applications.",
         },
-      ];
-      for (const service of services) await storage.createService(service);
+    ];
+    for (const service of services) {
+      if (await storage.getServiceBySlug(service.slug)) continue;
+      try {
+        await storage.createService(service);
+      } catch (error) {
+        if (!(await storage.getServiceBySlug(service.slug))) throw error;
+      }
     }
 
-    if ((await storage.getCaseStudies()).length === 0) {
-      const drafts = [
-        { slug: "ezhalha-logistics-platform", title: "Ezhalha Logistics Platform", clientName: "Ezhalha", projectId: null, sortOrder: 1 },
-        { slug: "aiqda-learning-platform", title: "Aiqda Learning Platform", clientName: "Aiqda", projectId: null, sortOrder: 2 },
-        { slug: "tabliya-shopify-middleware", title: "Tabliya Shopify Middleware", clientName: "Tabliya", projectId: null, sortOrder: 3 },
-      ];
-      for (const draft of drafts) {
-        if (draft.slug === AIQDA_CASE_STUDY.slug) {
-          await storage.createCaseStudy(AIQDA_CASE_STUDY);
-          continue;
-        }
-        await storage.createCaseStudy({
-          ...draft,
-          industry: "",
-          summary: "",
-          context: "",
-          problem: "",
-          role: "",
-          approach: "",
-          solution: "",
-          challenges: [],
-          results: [],
-          technologies: [],
-          screenshots: [],
-          serviceSlugs: [],
-          image: null,
-          liveUrl: null,
-          isFeatured: true,
-          isPublished: false,
-          seoTitle: "",
-          seoDescription: "",
-        });
+    const drafts = [
+      { slug: "ezhalha-logistics-platform", title: "Ezhalha Logistics Platform", clientName: "Ezhalha", projectId: null, sortOrder: 1 },
+      { slug: "aiqda-learning-platform", title: "Aiqda Learning Platform", clientName: "Aiqda", projectId: null, sortOrder: 2 },
+      { slug: "tabliya-shopify-middleware", title: "Tabliya Shopify Middleware", clientName: "Tabliya", projectId: null, sortOrder: 3 },
+    ];
+    for (const draft of drafts) {
+      if (await storage.getCaseStudyBySlug(draft.slug)) continue;
+      const caseStudy = draft.slug === AIQDA_CASE_STUDY.slug
+        ? AIQDA_CASE_STUDY
+        : {
+            ...draft,
+            industry: "",
+            summary: "",
+            context: "",
+            problem: "",
+            role: "",
+            approach: "",
+            solution: "",
+            challenges: [],
+            results: [],
+            technologies: [],
+            screenshots: [],
+            serviceSlugs: [],
+            image: null,
+            liveUrl: null,
+            isFeatured: true,
+            isPublished: false,
+            seoTitle: "",
+            seoDescription: "",
+          };
+      try {
+        await storage.createCaseStudy(caseStudy);
+      } catch (error) {
+        if (!(await storage.getCaseStudyBySlug(draft.slug))) throw error;
       }
     }
 
