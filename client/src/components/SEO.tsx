@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { HeroContent } from "@shared/schema";
 
 const SITE_URL = "https://malekfouda.com";
-const DEFAULT_SOCIAL_IMAGE = `${SITE_URL}/og-image.png`;
+const DEFAULT_SOCIAL_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 interface SEOProps {
   title?: string;
@@ -12,6 +12,10 @@ interface SEOProps {
   image?: string;
   type?: string;
   canonicalPath?: string;
+  noIndex?: boolean;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
 }
 
 export default function SEO({ 
@@ -20,7 +24,11 @@ export default function SEO({
   keywords = [],
   image,
   type = "website",
-  canonicalPath
+  canonicalPath,
+  noIndex = false,
+  imageAlt,
+  imageWidth,
+  imageHeight,
 }: SEOProps) {
   const { data: heroContent } = useQuery<HeroContent>({
     queryKey: ["/api/hero"],
@@ -40,37 +48,49 @@ export default function SEO({
     // Derive a clean canonical — strip query params and fragments
     const cleanPath = canonicalPath ?? (window.location.pathname === "/" ? "/" : window.location.pathname.replace(/\/$/, ""));
     const canonicalUrl = `${SITE_URL}${cleanPath}`;
-    const socialImage = image || DEFAULT_SOCIAL_IMAGE;
+    const socialImage = image
+      ? /^(https?:|data:)/.test(image) ? image : `${SITE_URL}${image.startsWith("/") ? image : `/${image}`}`
+      : DEFAULT_SOCIAL_IMAGE;
+    const socialImageType = socialImage.toLowerCase().includes(".webp")
+      ? "image/webp"
+      : socialImage.toLowerCase().match(/\.jpe?g(?:$|\?)/)
+        ? "image/jpeg"
+        : "image/png";
+    const finalImageAlt = imageAlt || `${finalTitle} social preview`;
+    const finalImageWidth = image ? imageWidth : 1200;
+    const finalImageHeight = image ? imageHeight : 630;
 
     updateMetaTag("og:title", finalTitle, "property");
     updateMetaTag("og:description", finalDescription, "property");
     updateMetaTag("og:type", type, "property");
     updateMetaTag("og:url", canonicalUrl, "property");
     updateMetaTag("og:image", socialImage, "property");
-    updateMetaTag("og:image:type", "image/png", "property");
-    updateMetaTag("og:image:width", "1200", "property");
-    updateMetaTag("og:image:height", "630", "property");
-    updateMetaTag("og:site_name", "Malek Fouda Portfolio", "property");
+    updateMetaTag("og:image:type", socialImageType, "property");
+    updateMetaTag("og:image:alt", finalImageAlt, "property");
+    setOptionalMetaTag("og:image:width", finalImageWidth, "property");
+    setOptionalMetaTag("og:image:height", finalImageHeight, "property");
+    updateMetaTag("og:site_name", "Malek Fouda", "property");
 
     updateMetaTag("twitter:card", "summary_large_image", "name");
     updateMetaTag("twitter:title", finalTitle, "name");
     updateMetaTag("twitter:description", finalDescription, "name");
     updateMetaTag("twitter:image", socialImage, "name");
-    updateMetaTag("twitter:image:alt", "Malek Fouda - Full Stack Developer", "name");
+    updateMetaTag("twitter:image:alt", finalImageAlt, "name");
 
     updateLinkTag("canonical", canonicalUrl);
 
-    updateMetaTag("robots", "index, follow");
-    updateMetaTag("theme-color", "#10b981");
+    updateMetaTag("robots", noIndex ? "noindex, nofollow" : "index, follow");
+    updateMetaTag("theme-color", "#050808");
     updateMetaTag("google-site-verification", "nQ_IA49yXG9t7cQghRngRA2KGhzmq5aHN46JVwgsU_Y");
 
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "Person",
+      "@id": `${SITE_URL}/#person`,
       "name": heroContent?.name || "Malek Fouda",
       "jobTitle": heroContent?.title || "Full Stack Developer",
-      "description": finalDescription,
-      "url": canonicalUrl,
+      "description": "Cairo-based full-stack developer specializing in Shopify, WordPress, WooCommerce, custom business systems, and integrations.",
+      "url": `${SITE_URL}/`,
       "sameAs": [
         "https://github.com/malekfouda",
         "https://linkedin.com/in/malekfouda",
@@ -84,6 +104,10 @@ export default function SEO({
         "Node.js",
         "JavaScript",
         "TypeScript",
+        "Shopify",
+        "WordPress",
+        "WooCommerce",
+        "Business systems",
         "Full Stack Development",
         "Web Development",
         "Software Engineering"
@@ -111,9 +135,17 @@ export default function SEO({
       document.head.appendChild(script);
     }
 
-  }, [title, description, keywords, image, type, canonicalPath, heroContent]);
+  }, [title, description, keywords, image, type, canonicalPath, noIndex, imageAlt, imageWidth, imageHeight, heroContent]);
 
   return null;
+}
+
+function setOptionalMetaTag(name: string, content: number | undefined, attribute: string) {
+  if (content === undefined) {
+    document.querySelector(`meta[${attribute}="${name}"]`)?.remove();
+    return;
+  }
+  updateMetaTag(name, String(content), attribute);
 }
 
 function updateMetaTag(name: string, content: string, attribute: string = "name") {

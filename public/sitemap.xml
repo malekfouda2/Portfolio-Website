@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  <url>
-    <loc>https://malekfouda.com/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://malekfouda.com/portfolio</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://malekfouda.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://malekfouda.com/services</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://malekfouda.com/services/shopify-development</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://malekfouda.com/services/wordpress-woocommerce</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://malekfouda.com/services/custom-business-systems</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://malekfouda.com/services/white-label-development</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://malekfouda.com/services/maintenance-performance-security</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://malekfouda.com/work</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://malekfouda.com/about</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://malekfouda.com/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>

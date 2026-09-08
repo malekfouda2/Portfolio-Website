@@ -1,7 +1,7 @@
 {
-    "name": "Malek Fouda - Full Stack Developer",
+    "name": "Malek Fouda — Shopify, WordPress & Custom Software Developer",
     "short_name": "Malek Fouda",
-    "description": "Transforming ideas into digital reality through expert development and creative solutions",
+    "description": "Commercial Shopify, WordPress, WooCommerce, and custom software development.",
     "icons": [
         {
             "src": "/favicon.ico",
@@ -24,13 +24,13 @@
             "type": "image/png"
         },
         {
-            "src": "/logo.png",
+            "src": "/logo-512.webp",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/webp"
         }
     ],
-    "theme_color": "#10b981",
-    "background_color": "#1a1a1a",
+    "theme_color": "#050808",
+    "background_color": "#050808",
     "display": "standalone",
     "start_url": "/"
 }

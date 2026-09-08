@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
@@ -8,7 +8,11 @@ import {
   insertProjectSchema,
   insertSkillSchema,
   insertPartnershipSchema,
-  insertContactInfoSchema
+  insertContactInfoSchema,
+  insertServiceSchema,
+  updateServiceSchema,
+  insertCaseStudySchema,
+  updateCaseStudySchema,
 } from "@shared/schema";
 import { 
   validateContactForm, 
@@ -59,7 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", 
     validateLogin, 
     handleValidationErrors,
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       try {
         // Sanitize inputs
         const sanitizedUsername = sanitizeInput(req.body.username);
@@ -148,7 +152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/projects", async (req, res) => {
     try {
-      const projects = await storage.getProjects();
+      const projects = (await storage.getProjects()).filter((project) => project.isVisible);
       
       // Validate and clean image URLs
       const cleanedProjects = projects.map(project => ({
@@ -166,7 +170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/skills", async (req, res) => {
     try {
-      const skills = await storage.getSkills();
+      const skills = (await storage.getSkills()).filter((skill) => skill.isVisible);
       res.json(skills);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch skills" });
@@ -175,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/partnerships", async (req, res) => {
     try {
-      const partnerships = await storage.getPartnerships();
+      const partnerships = (await storage.getPartnerships()).filter((partnership) => partnership.isVisible);
       res.json(partnerships);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch partnerships" });
@@ -191,24 +195,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/services", async (_req, res) => {
+    try {
+      res.json(await storage.getServices(true));
+    } catch {
+      res.status(500).json({ error: "Failed to fetch services" });
+    }
+  });
+
+  app.get("/api/services/:slug", async (req, res) => {
+    try {
+      const service = await storage.getServiceBySlug(req.params.slug, true);
+      if (!service) return res.status(404).json({ error: "Service not found" });
+      return res.json(service);
+    } catch {
+      return res.status(500).json({ error: "Failed to fetch service" });
+    }
+  });
+
+  app.get("/api/case-studies", async (_req, res) => {
+    try {
+      res.json(await storage.getCaseStudies(true));
+    } catch {
+      res.status(500).json({ error: "Failed to fetch case studies" });
+    }
+  });
+
+  app.get("/api/case-studies/:slug", async (req, res) => {
+    try {
+      const caseStudy = await storage.getCaseStudyBySlug(req.params.slug, true);
+      if (!caseStudy) return res.status(404).json({ error: "Case study not found" });
+      return res.json(caseStudy);
+    } catch {
+      return res.status(500).json({ error: "Failed to fetch case study" });
+    }
+  });
+
   // Contact form submission
   app.post("/api/contact", 
     validateContactForm, 
     handleValidationErrors,
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       try {
         // Double sanitization for extra security
+        const cleanOptional = (value: unknown, maxLength: number) =>
+          typeof value === "string" && value.trim()
+            ? sanitizeHtml(sanitizeInput(value)).slice(0, maxLength)
+            : null;
         const sanitizedData = {
           name: sanitizeHtml(sanitizeInput(req.body.name)),
           email: sanitizeHtml(sanitizeInput(req.body.email)),
-          message: sanitizeHtml(sanitizeInput(req.body.message))
+          company: sanitizeHtml(sanitizeInput(req.body.company)),
+          websiteUrl: cleanOptional(req.body.websiteUrl, 300),
+          projectType: sanitizeHtml(sanitizeInput(req.body.projectType)),
+          message: sanitizeHtml(sanitizeInput(req.body.message)),
+          budgetRange: sanitizeHtml(sanitizeInput(req.body.budgetRange)),
+          timeline: sanitizeHtml(sanitizeInput(req.body.timeline)),
+          preferredContact: sanitizeHtml(sanitizeInput(req.body.preferredContact)),
+          landingPage: cleanOptional(req.body.landingPage, 300),
+          referrer: cleanOptional(req.body.referrer, 500),
+          utmSource: cleanOptional(req.body.utmSource, 120),
+          utmMedium: cleanOptional(req.body.utmMedium, 120),
+          utmCampaign: cleanOptional(req.body.utmCampaign, 180),
         };
         
         // Additional validation checks
-        if (!sanitizedData.name || !sanitizedData.email || !sanitizedData.message) {
+        if (
+          !sanitizedData.name ||
+          !sanitizedData.email ||
+          !sanitizedData.company ||
+          !sanitizedData.projectType ||
+          !sanitizedData.message ||
+          !sanitizedData.budgetRange ||
+          !sanitizedData.timeline ||
+          !sanitizedData.preferredContact
+        ) {
           return res.status(400).json({ 
             success: false, 
-            message: "All fields are required" 
+            message: "Please complete all required fields"
           });
         }
         
@@ -529,6 +593,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Services
+  app.get("/api/admin/services", requireAuth, async (_req, res) => {
+    try {
+      res.json(await storage.getServices());
+    } catch {
+      res.status(500).json({ error: "Failed to fetch services" });
+    }
+  });
+
+  app.post("/api/admin/services", requireAuth, async (req, res) => {
+    try {
+      res.json(await storage.createService(insertServiceSchema.parse(req.body)));
+    } catch (error) {
+      res.status(400).json({ error: "Invalid service data", details: error instanceof z.ZodError ? error.flatten() : undefined });
+    }
+  });
+
+  app.put("/api/admin/services/:id", requireAuth, async (req, res) => {
+    try {
+      res.json(await storage.updateService(Number(req.params.id), updateServiceSchema.parse(req.body)));
+    } catch (error) {
+      res.status(400).json({ error: "Invalid service data", details: error instanceof z.ZodError ? error.flatten() : undefined });
+    }
+  });
+
+  app.delete("/api/admin/services/:id", requireAuth, async (req, res) => {
+    try {
+      await storage.deleteService(Number(req.params.id));
+      res.json({ success: true });
+    } catch {
+      res.status(500).json({ error: "Failed to delete service" });
+    }
+  });
+
+  // Case studies
+  app.get("/api/admin/case-studies", requireAuth, async (_req, res) => {
+    try {
+      res.json(await storage.getCaseStudies());
+    } catch {
+      res.status(500).json({ error: "Failed to fetch case studies" });
+    }
+  });
+
+  app.post("/api/admin/case-studies", requireAuth, async (req, res) => {
+    try {
+      res.json(await storage.createCaseStudy(insertCaseStudySchema.parse(req.body)));
+    } catch (error) {
+      res.status(400).json({ error: "Invalid case study data", details: error instanceof z.ZodError ? error.flatten() : undefined });
+    }
+  });
+
+  app.put("/api/admin/case-studies/:id", requireAuth, async (req, res) => {
+    try {
+      res.json(await storage.updateCaseStudy(Number(req.params.id), updateCaseStudySchema.parse(req.body)));
+    } catch (error) {
+      res.status(400).json({ error: "Invalid case study data", details: error instanceof z.ZodError ? error.flatten() : undefined });
+    }
+  });
+
+  app.delete("/api/admin/case-studies/:id", requireAuth, async (req, res) => {
+    try {
+      await storage.deleteCaseStudy(Number(req.params.id));
+      res.json({ success: true });
+    } catch {
+      res.status(500).json({ error: "Failed to delete case study" });
+    }
+  });
+
   // SEO-friendly routes
   app.get("/robots.txt", (req, res) => {
     res.setHeader('Content-Type', 'text/plain');
@@ -540,16 +672,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(path.join(process.cwd(), "public", "llms.txt"));
   });
 
-  app.get("/sitemap.xml", (req, res) => {
-    res.setHeader('Content-Type', 'application/xml');
-    res.sendFile(path.join(process.cwd(), "public", "sitemap.xml"));
-  });
+  const sendSitemap = async (_req: Request, res: Response) => {
+    try {
+      const [services, caseStudies, projects] = await Promise.all([
+        storage.getServices(true),
+        storage.getCaseStudies(true),
+        storage.getProjects(),
+      ]);
+      const visibleProjects = projects.filter((project) => project.isVisible);
+      const latestDate = (dates: Date[]) => dates.length
+        ? new Date(Math.max(...dates.map((date) => new Date(date).getTime())))
+        : undefined;
+      const projectDate = latestDate(visibleProjects.map((project) => project.updatedAt));
+      const serviceDate = latestDate(services.map((service) => service.updatedAt));
+      const caseStudyDate = latestDate(caseStudies.map((study) => study.updatedAt));
+      const entries = [
+        { path: "/", priority: "1.0", lastModified: latestDate([...(projectDate ? [projectDate] : []), ...(serviceDate ? [serviceDate] : []), ...(caseStudyDate ? [caseStudyDate] : [])]) },
+        { path: "/services", priority: "0.9", lastModified: serviceDate },
+        ...services.map((service) => ({ path: `/services/${service.slug}`, priority: service.isFeatured ? "0.9" : "0.8", lastModified: service.updatedAt })),
+        { path: "/portfolio", priority: "0.8", lastModified: projectDate },
+        { path: "/work", priority: "0.8", lastModified: caseStudyDate },
+        ...caseStudies.map((study) => ({ path: `/work/${study.slug}`, priority: study.isFeatured ? "0.9" : "0.8", lastModified: study.updatedAt })),
+        { path: "/about", priority: "0.6" },
+        { path: "/contact", priority: "0.8" },
+      ];
+      const urls = entries.map(({ path: url, priority, lastModified }) => `  <url><loc>https://malekfouda.com${url}</loc>${lastModified ? `<lastmod>${new Date(lastModified).toISOString()}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>${priority}</priority></url>`).join("\n");
+      res.setHeader("Cache-Control", "public, max-age=3600, stale-while-revalidate=86400");
+      res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`);
+    } catch {
+      res.status(500).type("text/plain").send("Unable to generate sitemap");
+    }
+  };
 
-  // Alternative sitemap path for Google Search Console
-  app.get("/public/sitemap.xml", (req, res) => {
-    res.setHeader('Content-Type', 'application/xml');
-    res.sendFile(path.join(process.cwd(), "public", "sitemap.xml"));
-  });
+  app.get("/sitemap.xml", sendSitemap);
+  app.get("/public/sitemap.xml", (_req, res) => res.redirect(301, "/sitemap.xml"));
 
   app.get("/.well-known/security.txt", (req, res) => {
     res.sendFile(path.join(process.cwd(), "public", ".well-known", "security.txt"));

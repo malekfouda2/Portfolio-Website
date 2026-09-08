@@ -7,6 +7,8 @@ import {
   skills,
   partnerships,
   contactInfo,
+  services,
+  caseStudies,
   type User,
   type InsertUser,
   type Contact,
@@ -23,6 +25,10 @@ import {
   type InsertPartnership,
   type ContactInfo,
   type InsertContactInfo,
+  type Service,
+  type InsertService,
+  type CaseStudy,
+  type InsertCaseStudy,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, asc } from "drizzle-orm";
@@ -72,6 +78,22 @@ export interface IStorage {
   // Contact Info
   getContactInfo(): Promise<ContactInfo | undefined>;
   updateContactInfo(info: InsertContactInfo): Promise<ContactInfo>;
+
+  // Services
+  getServices(publishedOnly?: boolean): Promise<Service[]>;
+  getService(id: number): Promise<Service | undefined>;
+  getServiceBySlug(slug: string, publishedOnly?: boolean): Promise<Service | undefined>;
+  createService(service: InsertService): Promise<Service>;
+  updateService(id: number, service: Partial<InsertService>): Promise<Service>;
+  deleteService(id: number): Promise<void>;
+
+  // Case studies
+  getCaseStudies(publishedOnly?: boolean): Promise<CaseStudy[]>;
+  getCaseStudy(id: number): Promise<CaseStudy | undefined>;
+  getCaseStudyBySlug(slug: string, publishedOnly?: boolean): Promise<CaseStudy | undefined>;
+  createCaseStudy(caseStudy: InsertCaseStudy): Promise<CaseStudy>;
+  updateCaseStudy(id: number, caseStudy: Partial<InsertCaseStudy>): Promise<CaseStudy>;
+  deleteCaseStudy(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -272,6 +294,80 @@ export class DatabaseStorage implements IStorage {
       const [created] = await db.insert(contactInfo).values(info).returning();
       return created;
     }
+  }
+
+  // Services
+  async getServices(publishedOnly = false): Promise<Service[]> {
+    const query = db.select().from(services);
+    const rows = publishedOnly
+      ? await query.where(eq(services.isPublished, true)).orderBy(asc(services.sortOrder), asc(services.title))
+      : await query.orderBy(asc(services.sortOrder), asc(services.title));
+    return rows;
+  }
+
+  async getService(id: number): Promise<Service | undefined> {
+    const [service] = await db.select().from(services).where(eq(services.id, id));
+    return service;
+  }
+
+  async getServiceBySlug(slug: string, publishedOnly = false): Promise<Service | undefined> {
+    const [service] = await db.select().from(services).where(eq(services.slug, slug));
+    return publishedOnly && !service?.isPublished ? undefined : service;
+  }
+
+  async createService(service: InsertService): Promise<Service> {
+    const [created] = await db.insert(services).values(service).returning();
+    return created;
+  }
+
+  async updateService(id: number, service: Partial<InsertService>): Promise<Service> {
+    const [updated] = await db
+      .update(services)
+      .set({ ...service, updatedAt: new Date() })
+      .where(eq(services.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteService(id: number): Promise<void> {
+    await db.delete(services).where(eq(services.id, id));
+  }
+
+  // Case studies
+  async getCaseStudies(publishedOnly = false): Promise<CaseStudy[]> {
+    const query = db.select().from(caseStudies);
+    const rows = publishedOnly
+      ? await query.where(eq(caseStudies.isPublished, true)).orderBy(asc(caseStudies.sortOrder), desc(caseStudies.createdAt))
+      : await query.orderBy(asc(caseStudies.sortOrder), desc(caseStudies.createdAt));
+    return rows;
+  }
+
+  async getCaseStudy(id: number): Promise<CaseStudy | undefined> {
+    const [caseStudy] = await db.select().from(caseStudies).where(eq(caseStudies.id, id));
+    return caseStudy;
+  }
+
+  async getCaseStudyBySlug(slug: string, publishedOnly = false): Promise<CaseStudy | undefined> {
+    const [caseStudy] = await db.select().from(caseStudies).where(eq(caseStudies.slug, slug));
+    return publishedOnly && !caseStudy?.isPublished ? undefined : caseStudy;
+  }
+
+  async createCaseStudy(caseStudy: InsertCaseStudy): Promise<CaseStudy> {
+    const [created] = await db.insert(caseStudies).values(caseStudy).returning();
+    return created;
+  }
+
+  async updateCaseStudy(id: number, caseStudy: Partial<InsertCaseStudy>): Promise<CaseStudy> {
+    const [updated] = await db
+      .update(caseStudies)
+      .set({ ...caseStudy, updatedAt: new Date() })
+      .where(eq(caseStudies.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteCaseStudy(id: number): Promise<void> {
+    await db.delete(caseStudies).where(eq(caseStudies.id, id));
   }
 }
 

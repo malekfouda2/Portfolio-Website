@@ -1,29 +1,43 @@
-import { Switch, Route } from "wouter";
+import { Route, Switch } from "wouter";
+import { lazy, Suspense, useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/home";
-import Portfolio from "@/pages/portfolio";
-import Dashboard from "@/pages/dashboard";
-import Login from "@/pages/login";
-import NotFound from "@/pages/not-found";
-import { useEffect } from "react";
 import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
+
+const Services = lazy(() => import("@/pages/services"));
+const Service = lazy(() => import("@/pages/service"));
+const Work = lazy(() => import("@/pages/work"));
+const Portfolio = lazy(() => import("@/pages/portfolio"));
+const CaseStudy = lazy(() => import("@/pages/case-study"));
+const About = lazy(() => import("@/pages/about"));
+const Contact = lazy(() => import("@/pages/contact"));
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const Login = lazy(() => import("@/pages/login"));
+const NotFound = lazy(() => import("@/pages/not-found"));
 
 function Router() {
   // Track page views when routes change
   useAnalytics();
   
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/portfolio" component={Portfolio} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/login" component={Login} />
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<main className="min-h-screen bg-[#050808]" aria-busy="true" />}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/services" component={Services} />
+        <Route path="/services/:slug" component={Service} />
+        <Route path="/work" component={Work} />
+        <Route path="/work/:slug" component={CaseStudy} />
+        <Route path="/portfolio" component={Portfolio} />
+        <Route path="/about" component={About} />
+        <Route path="/contact" component={Contact} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/login" component={Login} />
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 
@@ -40,10 +54,8 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <Toaster />
+      <Router />
     </QueryClientProvider>
   );
 }

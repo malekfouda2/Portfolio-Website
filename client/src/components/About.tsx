@@ -38,8 +38,7 @@ export default function About() {
               ref={subtitleRef}
               className="reveal text-base sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
             >
-              {aboutContent?.subtitle ||
-                "Transforming ideas into digital reality through expert development and creative solutions"}
+              Transforming ideas into dependable digital products through expert development and practical problem-solving
             </p>
           </div>
 

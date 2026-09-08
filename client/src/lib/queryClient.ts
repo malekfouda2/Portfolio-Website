@@ -34,10 +34,9 @@ export async function apiRequest(
 ): Promise<Response> {
   // Add auth token to requests
   const token = localStorage.getItem("auth_token");
-  const headers: Record<string, string> = {
-    ...(data && { "Content-Type": "application/json" }),
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
+  const headers: Record<string, string> = {};
+  if (data !== undefined) headers["Content-Type"] = "application/json";
+  if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(url, {
     method,

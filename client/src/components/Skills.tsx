@@ -145,7 +145,7 @@ export default function Skills() {
                 className={`reveal bg-gray-800/50 backdrop-blur-sm border border-gray-700 ${category.borderHover} rounded-2xl p-4 sm:p-6 card-lift`}
               >
                 <div className="flex items-center mb-4">
-                  <div className={`${category.color} mr-2 sm:mr-3`}>{category.icon}</div>
+                  <div aria-hidden="true" className={`${category.color} mr-2 sm:mr-3`}>{category.icon}</div>
                   <h3 className={`text-base sm:text-lg lg:text-xl font-bold ${category.color}`}>
                     {category.title}
                   </h3>
@@ -156,7 +156,7 @@ export default function Skills() {
                       key={skillIndex}
                       className="skill-pill flex items-center space-x-2 sm:space-x-3 group cursor-pointer px-2 py-1 rounded-lg hover:bg-gray-700/50"
                     >
-                      <div className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-200 group-hover:scale-110">
+                      <div aria-hidden="true" className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-200 group-hover:scale-110">
                         {skill.icon}
                       </div>
                       <span className="text-xs sm:text-sm lg:text-base text-gray-300 group-hover:text-white transition-colors duration-200">
@@ -188,7 +188,7 @@ export default function Skills() {
                   className="reveal skill-pill bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-3 sm:p-4 text-center hover:border-green-400 hover:bg-gray-700/50 cursor-pointer group"
                 >
                   <div className="flex flex-col items-center space-y-1 sm:space-y-2">
-                    <div className="transition-transform duration-300 group-hover:scale-125">
+                    <div aria-hidden="true" className="transition-transform duration-300 group-hover:scale-125">
                       {skill.icon}
                     </div>
                     <span className="text-xs sm:text-sm text-gray-300 font-medium group-hover:text-white transition-colors duration-200">

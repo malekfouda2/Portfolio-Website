@@ -128,7 +128,7 @@ export default function Projects() {
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-400">Built at:</span>
                             <a
-                              href={project.companyUrl}
+                              href={project.companyUrl || undefined}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-400 hover:text-blue-300 transition-colors"

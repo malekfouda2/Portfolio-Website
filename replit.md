@@ -23,9 +23,9 @@ Preferred communication style: Simple, everyday language.
 - **LATEST**: Replaced emoji icons with actual technology logos using react-icons library
 - Implemented proper brand colors for each technology icon (React blue, Node.js green, etc.)
 - Added professional authentication system for dashboard management
-- Created comprehensive CMS with login credentials (username: malekfouda, password: Malekfouda1882000)
+- Created a CMS protected by database-backed credentials bootstrapped from environment variables
 - Built complete CRUD functionality for hero content, projects, and contact submissions
-- Added JWT-like authentication with localStorage and automatic redirect to login
+- Added signed, expiring authentication with automatic redirect to login
 - **LATEST**: Removed dashboard link from website header navigation
 - **LATEST**: Implemented image upload functionality in dashboard replacing URL inputs with actual file upload
 - Added multer middleware for secure file uploads with validation

@@ -1,17 +1,7 @@
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import ImageWithFallback from "./ImageWithFallback";
-
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  technologies: string[];
-  image: string;
-  type: 'live' | 'portfolio';
-  url?: string;
-  screenshots?: string[];
-}
+import type { Project } from "@shared/schema";
 
 interface ProjectModalProps {
   project: Project;
@@ -25,7 +15,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   const openerRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
   const titleId = useId();
-  const images = project.screenshots || [project.image];
+  const images = project.screenshots?.length ? project.screenshots : [project.image];
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -166,7 +156,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
                     <span className="text-gray-400 text-sm">Company:</span>
                     <a 
-                      href={project.companyUrl} 
+                      href={project.companyUrl || undefined}
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-blue-400 hover:text-blue-300 transition-colors font-medium text-sm sm:text-base"

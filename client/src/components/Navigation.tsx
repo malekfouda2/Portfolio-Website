@@ -1,99 +1,49 @@
-import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowUpRight, Menu, X } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import Logo from "./Logo";
+import { trackEvent } from "@/lib/analytics";
+
+const links = [
+  { href: "/", label: "Home" },
+  { href: "/services", label: "Services" },
+  { href: "/portfolio", label: "Projects" },
+  { href: "/work", label: "Work" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
 
 export default function Navigation() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [location] = useLocation();
 
+  useEffect(() => setIsOpen(false), [location]);
   useEffect(() => {
-    const updateScrollProgress = () => {
-      const scrolled = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-      setScrollProgress(scrolled);
+    const update = () => {
+      const available = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(available > 0 ? window.scrollY / available : 0);
     };
-
-    window.addEventListener('scroll', updateScrollProgress);
-    return () => window.removeEventListener('scroll', updateScrollProgress);
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
   }, []);
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsMenuOpen(false);
-  };
+  const active = (href: string) => href === "/" ? location === "/" : location.startsWith(href);
 
-  return (
-    <>
-      <div 
-        className="scroll-indicator"
-        style={{ transform: `scaleX(${scrollProgress / 100})` }}
-      />
-      
-      <nav className="fixed top-0 left-0 right-0 z-[60] bg-black/95 backdrop-blur-md border-b border-gray-800/50 nav-safe-area">
-        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Logo className="w-20 h-20 sm:w-24 sm:h-24" />
-            </div>
-            
-            <div className="hidden md:flex items-center space-x-8">
-              <button onClick={() => scrollToSection('home')} className="nav-link text-gray-300 hover:text-white font-medium">
-                Home
-              </button>
-              <button onClick={() => scrollToSection('about')} className="nav-link text-gray-300 hover:text-white font-medium">
-                About
-              </button>
-              <button onClick={() => scrollToSection('partnerships')} className="nav-link text-gray-300 hover:text-white font-medium">
-                Partnerships
-              </button>
-              <button onClick={() => scrollToSection('projects')} className="nav-link text-gray-300 hover:text-white font-medium">
-                Projects
-              </button>
-              <button onClick={() => scrollToSection('skills')} className="nav-link text-gray-300 hover:text-white font-medium">
-                Skills
-              </button>
-              <button onClick={() => scrollToSection('contact')} className="nav-link text-gray-300 hover:text-white font-medium">
-                Contact
-              </button>
-            </div>
-            
-            <button 
-              className="md:hidden text-white"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-              aria-expanded={isMenuOpen}
-              aria-controls="mobile-navigation-menu"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-          
-          <div id="mobile-navigation-menu" className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-            <div className="mt-4 pb-4 space-y-2 bg-gray-900/95 backdrop-blur-sm rounded-lg border border-gray-800/50 px-4 py-3">
-              <button onClick={() => scrollToSection('home')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
-                Home
-              </button>
-              <button onClick={() => scrollToSection('about')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
-                About
-              </button>
-              <button onClick={() => scrollToSection('partnerships')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
-                Partnerships
-              </button>
-              <button onClick={() => scrollToSection('projects')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
-                Projects
-              </button>
-              <button onClick={() => scrollToSection('skills')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
-                Skills
-              </button>
-              <button onClick={() => scrollToSection('contact')} className="block text-gray-300 hover:text-white font-medium w-full text-left py-3 px-2 rounded-lg hover:bg-gray-800/50 transition-all duration-200">
-                Contact
-              </button>
-            </div>
-          </div>
+  return <>
+    <div className="scroll-indicator" style={{ transform: `scaleX(${progress})` }} />
+    <header className="fixed inset-x-0 top-0 z-[60] border-b border-gray-800/70 bg-black/95 backdrop-blur-md nav-safe-area">
+      <nav className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-6" aria-label="Primary navigation">
+        <Link href="/" aria-label="Malek Fouda home"><Logo className="h-16 w-16" /></Link>
+        <div className="hidden items-center gap-8 md:flex">
+          {links.map((link) => <Link key={link.href} href={link.href} aria-current={active(link.href) ? "page" : undefined} className={`nav-link text-sm font-medium ${active(link.href) ? "text-green-400" : "text-gray-300 hover:text-white"}`}>{link.label}</Link>)}
         </div>
+        <a href="https://calendly.com/malekfouda2000/30min" target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("calendly_click", "lead", "header")} className="hidden items-center gap-2 rounded-full bg-gradient-to-r from-green-400 to-blue-500 px-5 py-2.5 text-sm font-semibold text-black transition hover:scale-105 hover:shadow-lg hover:shadow-green-400/20 lg:inline-flex">Book a Call <ArrowUpRight className="h-4 w-4" /></a>
+        <button type="button" onClick={() => setIsOpen((value) => !value)} aria-expanded={isOpen} aria-controls="mobile-navigation" aria-label={isOpen ? "Close navigation" : "Open navigation"} className="rounded-lg border border-gray-700 p-2 text-white md:hidden">{isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}</button>
       </nav>
-    </>
-  );
+      <div id="mobile-navigation" className={`${isOpen ? "block" : "hidden"} border-t border-gray-800 bg-gray-950/98 px-4 py-4 md:hidden`}>
+        <div className="container mx-auto space-y-1">{links.map((link) => <Link key={link.href} href={link.href} className={`block rounded-lg px-4 py-3 font-medium ${active(link.href) ? "bg-green-400/10 text-green-400" : "text-gray-300 hover:bg-gray-800/70 hover:text-white"}`}>{link.label}</Link>)}<a href="https://calendly.com/malekfouda2000/30min" target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("calendly_click", "lead", "mobile_header")} className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 px-4 py-3 font-semibold text-black">Book a Call <ArrowUpRight className="h-4 w-4" /></a></div>
+      </div>
+    </header>
+  </>;
 }

@@ -76,10 +76,22 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  app.use(
+    "/assets",
+    express.static(path.resolve(distPath, "assets"), {
+      maxAge: "1y",
+      immutable: true,
+      etag: true,
+    }),
+  );
+  app.use(express.static(distPath, { maxAge: "1d", etag: true }));
 
   // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  app.use("*", (req, res) => {
+    const requestedPath = new URL(req.originalUrl, "http://localhost").pathname;
+    if (/\.[a-z0-9]+$/i.test(requestedPath)) {
+      return res.status(404).type("text/plain").send("Not Found");
+    }
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

@@ -1,246 +1,62 @@
-import { useState } from "react";
-import { Mail, MapPin, Clock, Linkedin, Facebook, Github } from "lucide-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+import { useRef, useState } from "react";
+import { ArrowUpRight, CalendarDays, Mail, MapPin, MessageCircle } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import type { ContactInfo } from "@shared/schema";
 import { trackEvent } from "@/lib/analytics";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
 
-export default function Contact() {
-  const { data: contactInfo } = useQuery<ContactInfo>({
-    queryKey: ["/api/contact-info"],
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: ""
-  });
-  const { toast } = useToast();
+const initialForm = { name: "", email: "", company: "", websiteUrl: "", projectType: "", message: "", budgetRange: "", timeline: "", preferredContact: "email" as "email" | "calendly" | "whatsapp" };
+const fieldClass = "mt-2 w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-white placeholder:text-gray-600 focus:border-green-400 focus:outline-none";
+const labelClass = "block text-sm font-medium text-gray-300";
 
-  const contactMutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
-      // apiRequest already handles errors and throws them with proper messages
-      const response = await apiRequest("POST", "/api/contact", data);
-      return await response.json();
+export default function Contact({ headingLevel = "h1" }: { headingLevel?: "h1" | "h2" }) {
+  const [formData, setFormData] = useState(initialForm);
+  const [successMessage, setSuccessMessage] = useState("");
+  const started = useRef(false);
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const params = new URLSearchParams(window.location.search);
+      const response = await apiRequest("POST", "/api/contact", { ...formData, websiteUrl: formData.websiteUrl || null, landingPage: `${window.location.pathname}${window.location.search}`, referrer: document.referrer || null, utmSource: params.get("utm_source"), utmMedium: params.get("utm_medium"), utmCampaign: params.get("utm_campaign") });
+      return response.json();
     },
-    onSuccess: () => {
-      trackEvent('contact_form_submit', 'engagement', 'success');
-      toast({
-        title: "Message sent successfully!",
-        description: "Thank you for your message. I'll get back to you soon.",
-      });
-      setFormData({ name: "", email: "", message: "" });
-    },
-    onError: (error: any) => {
-      trackEvent('contact_form_submit', 'engagement', 'error');
-      console.error('Contact form error:', error);
-      
-      // Extract user-friendly error message
-      let errorMessage = "Something went wrong. Please try again.";
-      
-      // Handle different error formats
-      if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      toast({
-        title: "Error sending message",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    }
+    onSuccess: () => { trackEvent("contact_form_submit", "lead", "success"); setSuccessMessage("Thanks — I’ll review the details and reply within 24 hours."); setFormData(initialForm); started.current = false; },
+    onError: () => trackEvent("contact_form_submit", "lead", "error"),
   });
+  const update = (field: keyof typeof formData, value: string) => setFormData({ ...formData, [field]: value });
+  const markStarted = () => { if (!started.current) { started.current = true; trackEvent("contact_form_start", "lead", window.location.pathname); } };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) {
-      toast({
-        title: "Please fill in all fields",
-        description: "All fields are required to send a message.",
-        variant: "destructive",
-      });
-      return;
-    }
-    contactMutation.mutate(formData);
-  };
+  const Heading = headingLevel;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const headingRef = useScrollReveal<HTMLHeadingElement>();
-  const lineRef = useScrollReveal<HTMLDivElement>({ threshold: 0.4 });
-  const subtitleRef = useScrollReveal<HTMLParagraphElement>();
-  const formRef = useScrollReveal<HTMLDivElement>({ rootMargin: "0px 0px -60px 0px" });
-  const infoRef = useScrollReveal<HTMLDivElement>({ rootMargin: "0px 0px -60px 0px" });
-
-  return (
-    <section id="contact" className="py-12 sm:py-16 lg:py-20 bg-black">
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2
-              ref={headingRef}
-              className="reveal text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6"
-            >
-              <span className="text-white">Get In</span>
-              <span className="gradient-text"> Touch</span>
-            </h2>
-            <div
-              ref={lineRef}
-              className="reveal-line h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-6 sm:mb-8"
-            />
-            <p
-              ref={subtitleRef}
-              className="reveal text-base sm:text-lg lg:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed"
-            >
-              Ready to work together? Let's discuss your next project and bring your ideas to life.
-            </p>
+  return <section id="contact" className="bg-black py-16 sm:py-20">
+    <div className="container mx-auto px-4 sm:px-6"><div className="mx-auto max-w-6xl">
+      <div className="mb-12 text-center"><Heading className="text-4xl font-bold sm:text-5xl"><span className="text-white">Discuss Your</span><span className="gradient-text"> Project</span></Heading><div className="mx-auto mt-6 h-1 w-24 rounded bg-gradient-to-r from-green-400 to-blue-500" /><p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-300">Tell me what needs to work better. You do not need a technical brief—business context, current problems, and the desired outcome are enough.</p></div>
+      <div className="grid gap-8 lg:grid-cols-[1fr_0.42fr]">
+        <form onSubmit={(event) => { event.preventDefault(); setSuccessMessage(""); mutation.mutate(); }} onFocus={markStarted} className="rounded-2xl border border-gray-800 bg-gray-900/60 p-6 backdrop-blur-sm sm:p-8">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <label className={labelClass}>Your name *<input required autoComplete="name" className={fieldClass} value={formData.name} onChange={(e) => update("name", e.target.value)} placeholder="Name" /></label>
+            <label className={labelClass}>Work email *<input required type="email" autoComplete="email" className={fieldClass} value={formData.email} onChange={(e) => update("email", e.target.value)} placeholder="you@company.com" /></label>
+            <label className={labelClass}>Company *<input required autoComplete="organization" className={fieldClass} value={formData.company} onChange={(e) => update("company", e.target.value)} placeholder="Company or agency" /></label>
+            <label className={labelClass}>Website or app URL<input type="url" className={fieldClass} value={formData.websiteUrl} onChange={(e) => update("websiteUrl", e.target.value)} placeholder="https://" /></label>
+            <label className={labelClass}>Project type *<select required className={fieldClass} value={formData.projectType} onChange={(e) => update("projectType", e.target.value)}><option value="">Choose one</option><option value="shopify">Shopify development or rescue</option><option value="wordpress-woocommerce">WordPress or WooCommerce</option><option value="custom-business-system">Custom business system</option><option value="white-label">White-label agency delivery</option><option value="audit-maintenance">Audit, maintenance, or recovery</option><option value="other">Something else</option></select></label>
+            <label className={labelClass}>Approximate budget *<select required className={fieldClass} value={formData.budgetRange} onChange={(e) => update("budgetRange", e.target.value)}><option value="">Choose a range</option><option value="under-1000">Under $1,000</option><option value="1000-3000">$1,000–$3,000</option><option value="3000-7500">$3,000–$7,500</option><option value="7500-15000">$7,500–$15,000</option><option value="15000-plus">$15,000+</option><option value="guidance">Not sure yet</option></select></label>
+            <label className={labelClass}>Desired timeline *<select required className={fieldClass} value={formData.timeline} onChange={(e) => update("timeline", e.target.value)}><option value="">Choose a timeline</option><option value="urgent">Urgent issue</option><option value="2-4-weeks">2–4 weeks</option><option value="1-2-months">1–2 months</option><option value="3-plus-months">3+ months</option><option value="flexible">Flexible / planning</option></select></label>
+            <label className={labelClass}>Preferred contact *<select required className={fieldClass} value={formData.preferredContact} onChange={(e) => update("preferredContact", e.target.value)}><option value="email">Email</option><option value="calendly">Video call</option><option value="whatsapp">WhatsApp</option></select></label>
           </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-            {/* Contact Form */}
-            <div ref={formRef} className="reveal-left bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8 hover:border-gray-600 transition-colors duration-300">
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Let's Discuss Your Project</h3>
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                <div>
-                  <label htmlFor="contact-name" className="block text-sm font-medium text-gray-300 mb-2">
-                    Your Name
-                  </label>
-                  <input 
-                    id="contact-name"
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors text-sm sm:text-base"
-                    placeholder="John Doe"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="contact-email" className="block text-sm font-medium text-gray-300 mb-2">
-                    Email Address
-                  </label>
-                  <input 
-                    id="contact-email"
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors text-sm sm:text-base"
-                    placeholder="john@example.com"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="contact-message" className="block text-sm font-medium text-gray-300 mb-2">
-                    Project Details
-                  </label>
-                  <textarea 
-                    id="contact-message"
-                    rows={4}
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:border-green-400 focus:outline-none transition-colors text-sm sm:text-base"
-                    placeholder="Tell me about your project requirements, timeline, and budget..."
-                    required
-                  />
-                </div>
-                
-                <button 
-                  type="submit"
-                  disabled={contactMutation.isPending}
-                  className="w-full bg-gradient-to-r from-green-400 to-blue-500 text-black px-6 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:shadow-lg hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {contactMutation.isPending ? "Sending..." : "Send Message"}
-                </button>
-              </form>
-            </div>
-            
-            {/* Contact Info */}
-            <div ref={infoRef} className="reveal-right space-y-6 sm:space-y-8">
-              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Get In Touch</h3>
-                <p className="text-gray-300 mb-6 sm:mb-8 text-base sm:text-lg">
-                  Ready to bring your project to life? I'm here to help you create something amazing.
-                </p>
-                
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="flex items-center space-x-3 sm:space-x-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-400/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Mail className="text-green-400 w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
-                    <div>
-                      <div className="text-xs sm:text-sm text-gray-400">Email</div>
-                      <div className="text-white font-medium text-sm sm:text-base break-all">malekfouda2000@gmail.com</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 sm:space-x-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-400/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <MapPin className="text-blue-400 w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
-                    <div>
-                      <div className="text-xs sm:text-sm text-gray-400">Location</div>
-                      <div className="text-white font-medium text-sm sm:text-base">Available Worldwide</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 sm:space-x-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-400/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Clock className="text-purple-400 w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
-                    <div>
-                      <div className="text-xs sm:text-sm text-gray-400">Response Time</div>
-                      <div className="text-white font-medium text-sm sm:text-base">Within 24 hours</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 sm:p-8">
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Follow Me</h3>
-                <div className="flex space-x-4">
-                  <a 
-                    href="https://github.com/malekfouda2" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="GitHub profile"
-                    className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-green-400 hover:text-black transition-all duration-300"
-                  >
-                    <Github aria-hidden="true" className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </a>
-                  <a 
-                    href="https://www.facebook.com/mikofouda" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Facebook profile"
-                    className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-blue-400 hover:text-black transition-all duration-300"
-                  >
-                    <Facebook aria-hidden="true" className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </a>
-                  <a 
-                    href="https://www.linkedin.com/in/malek-fouda-18a229244?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="LinkedIn profile"
-                    className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 rounded-full flex items-center justify-center text-white hover:bg-blue-600 hover:text-white transition-all duration-300"
-                  >
-                    <Linkedin aria-hidden="true" className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          <label className={`${labelClass} mt-6`}>Project details *<textarea required minLength={10} maxLength={2000} rows={6} className={`${fieldClass} resize-y`} value={formData.message} onChange={(e) => update("message", e.target.value)} placeholder="What is happening now, and what would a successful outcome change?" /></label>
+          <button type="submit" disabled={mutation.isPending} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-400 to-blue-500 px-6 py-4 font-semibold text-black transition hover:scale-[1.01] disabled:cursor-wait disabled:opacity-50">{mutation.isPending ? "Sending…" : "Send project details"} <ArrowUpRight className="h-4 w-4" /></button>
+          <div aria-live="polite" className="mt-5 text-sm">{successMessage && <p className="rounded-lg border border-green-400/30 bg-green-400/10 p-4 text-green-300">{successMessage}</p>}{mutation.isError && <p className="rounded-lg border border-red-400/30 bg-red-400/10 p-4 text-red-300">{mutation.error instanceof Error ? mutation.error.message : "The message could not be sent. Please use email or WhatsApp instead."}</p>}</div>
+        </form>
+        <aside className="space-y-5">
+          <DirectLink icon={CalendarDays} title="Book a Call" copy="Choose a convenient time for a focused 30-minute conversation." href="https://calendly.com/malekfouda2000/30min" />
+          <DirectLink icon={MessageCircle} title="WhatsApp" copy="+20 122 607 6000" href="https://wa.me/201226076000" />
+          <DirectLink icon={Mail} title="Email" copy="malekfouda2000@gmail.com" href="mailto:malekfouda2000@gmail.com" />
+          <div className="rounded-2xl border border-gray-800 bg-gray-900/60 p-6"><MapPin className="h-6 w-6 text-blue-400" /><p className="mt-4 font-semibold">Cairo, Egypt</p><p className="mt-2 text-sm leading-6 text-gray-400">Available for remote work across Egypt, the GCC, Europe, and the USA.</p></div>
+        </aside>
       </div>
-    </section>
-  );
+    </div></div>
+  </section>;
+}
+
+function DirectLink({ icon: Icon, title, copy, href }: { icon: typeof Mail; title: string; copy: string; href: string }) {
+  const external = href.startsWith("http");
+  return <a href={href} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} className="group block rounded-2xl border border-gray-800 bg-gray-900/60 p-6 transition hover:-translate-y-1 hover:border-green-400/50"><Icon className="h-6 w-6 text-green-400" /><p className="mt-4 text-xl font-semibold">{title}</p><p className="mt-2 break-words text-sm leading-6 text-gray-400">{copy}</p></a>;
 }

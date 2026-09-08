@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock, User } from "lucide-react";
+import SEO from "@/components/SEO";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -49,7 +50,8 @@ export default function Login() {
     }
   };
 
-  return (
+  return (<>
+    <SEO title="Admin Login | Malek Fouda" description="Private portfolio administration." canonicalPath="/login" noIndex />
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-900">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent"></div>
       
@@ -111,5 +113,5 @@ export default function Login() {
         </CardContent>
       </Card>
     </div>
-  );
+  </>);
 }

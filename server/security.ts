@@ -4,7 +4,6 @@ import { body, validationResult } from 'express-validator';
 import slowDown from 'express-slow-down';
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
-import xss from 'xss-clean';
 import cors from 'cors';
 import type { Express, Request, Response, NextFunction } from 'express';
 
@@ -21,18 +20,15 @@ export const generalRateLimit = rateLimit({
   skip: (req) => {
     // Skip rate limiting for static assets and public API calls
     return req.path.startsWith('/uploads/') || 
+           req.path.startsWith('/@vite/') ||
+           req.path.startsWith('/@fs/') ||
+           req.path.startsWith('/src/') ||
+           req.path.startsWith('/node_modules/') ||
+           req.path === '/@react-refresh' ||
            req.path.startsWith('/favicon') ||
-           req.path.includes('.js') ||
-           req.path.includes('.css') ||
-           req.path.includes('.png') ||
-           req.path.includes('.jpg') ||
-           req.path.includes('.svg') ||
-           req.path.includes('.ico') ||
-           req.path.includes('.webmanifest') ||
-           req.path.includes('.xml') ||
-           req.path.includes('.txt') ||
+           /\.(?:js|mjs|css|map|tsx?|png|jpe?g|gif|webp|avif|svg|ico|woff2?|webmanifest|xml|txt)$/i.test(req.path) ||
            // Skip for public portfolio API calls
-           (req.method === 'GET' && req.path.match(/^\/api\/(hero|about|projects|partnerships|contact-info|skills)$/));
+           (req.method === 'GET' && /^\/api\/(hero|about|projects|partnerships|contact-info|skills|services|case-studies)/.test(req.path));
   }
 });
 
@@ -58,7 +54,7 @@ export const apiRateLimit = rateLimit({
   legacyHeaders: false,
   skip: (req) => {
     // Skip rate limiting for public portfolio API calls
-    return req.method === 'GET' && req.path.match(/^\/api\/(hero|about|projects|partnerships|contact-info|skills)$/);
+    return req.method === 'GET' && /^\/api\/(hero|about|projects|partnerships|contact-info|skills|services|case-studies)/.test(req.path);
   }
 });
 
@@ -171,7 +167,7 @@ export const setupSecurity = (app: Express) => {
   // CORS configuration
   app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-      ? ['https://malekfouda.com', 'https://www.malekfouda.com', 'https://app.apollo.io', 'https://assets.apollo.io'] 
+      ? ['https://malekfouda.com', 'https://www.malekfouda.com']
       : true,
     credentials: true,
     optionsSuccessStatus: 200,
@@ -187,9 +183,9 @@ export const setupSecurity = (app: Express) => {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com", "https://assets.apollo.io"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
-        connectSrc: ["'self'", "https://www.google-analytics.com", "https://app.apollo.io", "https://assets.apollo.io", "https://aplo-evnt.com"],
+        connectSrc: ["'self'", "https://www.google-analytics.com"],
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
@@ -216,7 +212,6 @@ export const setupSecurity = (app: Express) => {
 
   // Additional security middleware
   app.use(mongoSanitize()); // Prevent NoSQL injection
-  app.use(xss()); // Clean user input from malicious HTML
   app.use(hpp()); // Prevent HTTP Parameter Pollution
   
   // Remove powered by header
@@ -316,7 +311,7 @@ const blockedIPs = new Set<string>();
 const suspiciousActivity = new Map<string, number>();
 
 export const ipSecurityMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const clientIP = req.ip;
+  const clientIP = req.ip || req.socket.remoteAddress || 'unknown';
   
   // Check if IP is blocked
   if (blockedIPs.has(clientIP)) {
@@ -362,13 +357,14 @@ export const ipSecurityMiddleware = (req: Request, res: Response, next: NextFunc
 export const uploadSecurityMiddleware = (req: Request, res: Response, next: NextFunction) => {
   // Check for file upload attacks
   if (req.files || req.file) {
-    const files = req.files || [req.file];
+    const files: Express.Multer.File[] = [];
+    if (req.file) files.push(req.file);
+    if (Array.isArray(req.files)) files.push(...req.files);
+    else if (req.files) files.push(...Object.values(req.files).flat());
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     const maxSize = 5 * 1024 * 1024; // 5MB
     
-    for (const file of Array.isArray(files) ? files : [files]) {
-      if (!file) continue;
-      
+    for (const file of files) {
       if (!allowedTypes.includes(file.mimetype)) {
         return res.status(400).json({ error: 'Invalid file type' });
       }
@@ -387,7 +383,7 @@ export const uploadSecurityMiddleware = (req: Request, res: Response, next: Next
         /[<>:"|?*]/g
       ];
       
-      const fileName = file.originalname || file.name || '';
+      const fileName = file.originalname || '';
       if (maliciousPatterns.some(pattern => pattern.test(fileName))) {
         return res.status(400).json({ error: 'Invalid file name' });
       }

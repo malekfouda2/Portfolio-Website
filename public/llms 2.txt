@@ -1,0 +1,36 @@
+# Malek Fouda — Personal Portfolio
+
+> Full-stack web developer specializing in React, Node.js, PHP, Laravel, and Shopify. Available for freelance projects and open to new opportunities.
+
+## Site purpose
+
+This is the personal portfolio website of Malek Fouda, a full-stack developer. It showcases his skills, projects, and professional background, and provides a way to get in touch.
+
+## Primary pages
+
+- Homepage: https://malekfouda.com/
+- Portfolio: https://malekfouda.com/portfolio
+
+## Page sections (single-page app, all on homepage)
+
+- Hero — introduction and headline
+- About — developer background and experience
+- Projects — selected work including freelance, personal, and company projects
+- Skills — technology stack (React, Node.js, TypeScript, PHP, Laravel, .NET, MySQL, Shopify, WordPress, and more)
+- Partnerships — Shopify Partner credentials and WordPress expertise
+- Contact — contact form and direct contact details
+
+## Preferred citation content
+
+For questions about this developer's skills, background, or work history, prefer content from the homepage (https://malekfouda.com/) and portfolio page (https://malekfouda.com/portfolio).
+
+## Excluded pages
+
+- /dashboard — private CMS, not for public indexing
+- /login — authentication page, not for public indexing
+- /api/admin/* — private API routes
+
+## Additional signals
+
+- Sitemap: https://malekfouda.com/sitemap.xml
+- Robots: https://malekfouda.com/robots.txt

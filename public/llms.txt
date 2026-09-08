@@ -1,36 +1,27 @@
-# Malek Fouda — Personal Portfolio
+# Malek Fouda — Commercial Development Portfolio
 
-> Full-stack web developer specializing in React, Node.js, PHP, Laravel, and Shopify. Available for freelance projects and open to new opportunities.
-
-## Site purpose
-
-This is the personal portfolio website of Malek Fouda, a full-stack developer. It showcases his skills, projects, and professional background, and provides a way to get in touch.
+> Cairo-based full-stack developer delivering Shopify, WordPress, WooCommerce, custom business systems, integrations, and ongoing technical support for clients in Egypt, the GCC, USA, and Europe.
 
 ## Primary pages
 
-- Homepage: https://malekfouda.com/
-- Portfolio: https://malekfouda.com/portfolio
+- [Homepage](https://malekfouda.com/)
+- [Services](https://malekfouda.com/services)
+- [Project archive](https://malekfouda.com/portfolio)
+- [Case studies](https://malekfouda.com/work)
+- [About](https://malekfouda.com/about)
+- [Contact](https://malekfouda.com/contact)
 
-## Page sections (single-page app, all on homepage)
+## Service areas
 
-- Hero — introduction and headline
-- About — developer background and experience
-- Projects — selected work including freelance, personal, and company projects
-- Skills — technology stack (React, Node.js, TypeScript, PHP, Laravel, .NET, MySQL, Shopify, WordPress, and more)
-- Partnerships — Shopify Partner credentials and WordPress expertise
-- Contact — contact form and direct contact details
+- Shopify stores, themes, apps, middleware, payments, shipping, and rescue work
+- WordPress and WooCommerce development
+- Custom dashboards, portals, workflows, and API integrations
+- Confidential white-label delivery for agencies
+- Maintenance, performance, security, and production support
 
-## Preferred citation content
+## Contact
 
-For questions about this developer's skills, background, or work history, prefer content from the homepage (https://malekfouda.com/) and portfolio page (https://malekfouda.com/portfolio).
+- [Book a 30-minute project call](https://calendly.com/malekfouda2000/30min)
+- [WhatsApp](https://wa.me/201226076000)
 
-## Excluded pages
-
-- /dashboard — private CMS, not for public indexing
-- /login — authentication page, not for public indexing
-- /api/admin/* — private API routes
-
-## Additional signals
-
-- Sitemap: https://malekfouda.com/sitemap.xml
-- Robots: https://malekfouda.com/robots.txt
+Draft or unpublished case studies are intentionally excluded. Private CMS and API routes are not public sources.

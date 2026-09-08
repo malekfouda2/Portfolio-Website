@@ -5,7 +5,6 @@ interface ScrollRevealOptions {
   rootMargin?: string;
   once?: boolean;
 }
-
 export function useScrollReveal<T extends HTMLElement = HTMLElement>(
   options: ScrollRevealOptions = {}
 ): RefObject<T> {
