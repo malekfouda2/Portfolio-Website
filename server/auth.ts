@@ -13,7 +13,9 @@ export interface AuthenticatedRequest extends Request {
 }
 
 function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET;
+  // Keep existing deployments compatible with the previously configured
+  // session signing secret while allowing a dedicated JWT secret later.
+  const secret = process.env.JWT_SECRET || process.env.SESSION_SECRET;
   if (secret) return secret;
   if (process.env.NODE_ENV !== "production") {
     return "local-development-only-secret";
