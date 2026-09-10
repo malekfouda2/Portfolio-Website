@@ -46,9 +46,9 @@ export default function Contact({ headingLevel = "h1" }: { headingLevel?: "h1" |
           <div aria-live="polite" className="mt-5 text-sm">{successMessage && <p className="rounded-lg border border-green-400/30 bg-green-400/10 p-4 text-green-300">{successMessage}</p>}{mutation.isError && <p className="rounded-lg border border-red-400/30 bg-red-400/10 p-4 text-red-300">{mutation.error instanceof Error ? mutation.error.message : "The message could not be sent. Please use email or WhatsApp instead."}</p>}</div>
         </form>
         <aside className="space-y-5">
-          <DirectLink icon={CalendarDays} title="Book a Call" copy="Choose a convenient time for a focused 30-minute conversation." href="https://calendly.com/malekfouda2000/30min" />
-          <DirectLink icon={MessageCircle} title="WhatsApp" copy="+20 122 607 6000" href="https://wa.me/201226076000" />
-          <DirectLink icon={Mail} title="Email" copy="malekfouda2000@gmail.com" href="mailto:malekfouda2000@gmail.com" />
+          <DirectLink icon={CalendarDays} title="Book a Call" copy="Choose a convenient time for a focused 30-minute conversation." href="https://calendly.com/malekfouda2000/30min" eventName="calendly_click" />
+          <DirectLink icon={MessageCircle} title="WhatsApp" copy="+20 122 607 6000" href="https://wa.me/201226076000" eventName="whatsapp_click" />
+          <DirectLink icon={Mail} title="Email" copy="malekfouda2000@gmail.com" href="mailto:malekfouda2000@gmail.com" eventName="email_click" />
           <div className="rounded-2xl border border-gray-800 bg-gray-900/60 p-6"><MapPin className="h-6 w-6 text-blue-400" /><p className="mt-4 font-semibold">Cairo, Egypt</p><p className="mt-2 text-sm leading-6 text-gray-400">Available for remote work across Egypt, the GCC, Europe, and the USA.</p></div>
         </aside>
       </div>
@@ -56,7 +56,7 @@ export default function Contact({ headingLevel = "h1" }: { headingLevel?: "h1" |
   </section>;
 }
 
-function DirectLink({ icon: Icon, title, copy, href }: { icon: typeof Mail; title: string; copy: string; href: string }) {
+function DirectLink({ icon: Icon, title, copy, href, eventName }: { icon: typeof Mail; title: string; copy: string; href: string; eventName: string }) {
   const external = href.startsWith("http");
-  return <a href={href} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} className="group block rounded-2xl border border-gray-800 bg-gray-900/60 p-6 transition hover:-translate-y-1 hover:border-green-400/50"><Icon className="h-6 w-6 text-green-400" /><p className="mt-4 text-xl font-semibold">{title}</p><p className="mt-2 break-words text-sm leading-6 text-gray-400">{copy}</p></a>;
+  return <a href={href} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined} onClick={() => trackEvent(eventName, "lead", "contact_panel")} className="group block rounded-2xl border border-gray-800 bg-gray-900/60 p-6 transition hover:-translate-y-1 hover:border-green-400/50"><Icon className="h-6 w-6 text-green-400" /><p className="mt-4 text-xl font-semibold">{title}</p><p className="mt-2 break-words text-sm leading-6 text-gray-400">{copy}</p></a>;
 }
