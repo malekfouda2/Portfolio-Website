@@ -6,6 +6,7 @@
 
 - [Homepage](https://malekfouda.com/)
 - [Services](https://malekfouda.com/services)
+- [Focused commercial solutions](https://malekfouda.com/solutions)
 - [Project archive](https://malekfouda.com/portfolio)
 - [Case studies](https://malekfouda.com/work)
 - [About](https://malekfouda.com/about)
@@ -18,6 +19,15 @@
 - Custom dashboards, portals, workflows, and API integrations
 - Confidential white-label delivery for agencies
 - Maintenance, performance, security, and production support
+
+## Focused solutions
+
+- [Shopify API integration development](https://malekfouda.com/solutions/shopify-api-integration-developer)
+- [Shopify maintenance and support](https://malekfouda.com/solutions/shopify-maintenance-support)
+- [WooCommerce checkout, payment, and shipping fixes](https://malekfouda.com/solutions/woocommerce-checkout-payment-shipping)
+- [Custom dashboard development](https://malekfouda.com/solutions/custom-dashboard-development)
+- [White-label e-commerce development](https://malekfouda.com/solutions/white-label-ecommerce-development)
+- [Website technical audits](https://malekfouda.com/solutions/website-technical-audit)
 
 ## Contact
 

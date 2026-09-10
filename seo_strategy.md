@@ -2,7 +2,9 @@
 
 ## In scope
 - Public marketing homepage (`/`)
-- Public portfolio page (`/portfolio`)
+- Service hub and broad service pages (`/services`, `/services/*`)
+- Focused commercial solution pages (`/solutions`, `/solutions/*`)
+- Case studies and project archive (`/work/*`, `/portfolio`)
 - Search-facing assets such as `robots.txt`, `sitemap.xml`, favicon files, and manifest files
 
 ## Out of scope
@@ -12,8 +14,8 @@
 
 ## Target audience
 - Potential freelance clients
-- Employers or recruiters evaluating full-stack development experience
-- Visitors searching for Malek Fouda by name or for related developer services
+- Store owners, founders, operations teams, and agencies with an active technical buying need
+- Visitors searching for Malek Fouda by name or for related development services
 
 ## Primary keywords
 - Malek Fouda
@@ -23,14 +25,22 @@
 - React developer
 - Node.js developer
 - freelance full-stack developer
+- Shopify API integration developer
+- Shopify maintenance developer
+- WooCommerce checkout developer
+- custom dashboard development
+- white-label e-commerce developer
+- website technical audit
 
 ## Rendering model
 - Frontend framework: Vite + React + Wouter
-- Public routes are client-rendered SPA routes, not server-rendered pages
-- Initial crawler-visible HTML comes from `client/index.html`
+- Public routes use React in the browser and route-specific HTML rendering on the Express server
+- Crawlers receive the page title, description, canonical URL, structured data, headings, copy, and internal links in the initial response
 
-## Dismissed categories
-- None yet
+## Content boundaries
+- Do not create cloned country or city pages that differ only by place name
+- Do not invent performance, revenue, conversion, client, testimonial, or location claims
+- Keep focused solutions subordinate to the broad service pages through contextual internal links
 
 ## Notes
-- A legacy planning document exists at `SEO_STRATEGY.md`, but this file is the active scan scope document for future scans.
+- Review query and conversion data before expanding the commercial page cluster.

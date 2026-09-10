@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import type { HeroContent } from "@shared/schema";
 
 const SITE_URL = "https://malekfouda.com";
 const DEFAULT_SOCIAL_IMAGE = `${SITE_URL}/og-image.jpg`;
@@ -30,13 +28,8 @@ export default function SEO({
   imageWidth,
   imageHeight,
 }: SEOProps) {
-  const { data: heroContent } = useQuery<HeroContent>({
-    queryKey: ["/api/hero"],
-    staleTime: 1000 * 60 * 5,
-  });
-
   useEffect(() => {
-    const finalTitle = title || `${heroContent?.name || "Malek Fouda"} - ${heroContent?.title || "Full Stack Developer"}`;
+    const finalTitle = title || "Malek Fouda | Full-Stack Developer";
     document.title = finalTitle;
 
     const finalDescription = description || "Transforming ideas into digital reality through expert development and creative solutions";
@@ -87,8 +80,8 @@ export default function SEO({
       "@context": "https://schema.org",
       "@type": "Person",
       "@id": `${SITE_URL}/#person`,
-      "name": heroContent?.name || "Malek Fouda",
-      "jobTitle": heroContent?.title || "Full Stack Developer",
+      "name": "Malek Fouda",
+      "jobTitle": "Shopify, WordPress & Custom Software Developer",
       "description": "Cairo-based full-stack developer specializing in Shopify, WordPress, WooCommerce, custom business systems, and integrations.",
       "url": `${SITE_URL}/`,
       "sameAs": [
@@ -135,7 +128,7 @@ export default function SEO({
       document.head.appendChild(script);
     }
 
-  }, [title, description, keywords, image, type, canonicalPath, noIndex, imageAlt, imageWidth, imageHeight, heroContent]);
+  }, [title, description, keywords, image, type, canonicalPath, noIndex, imageAlt, imageWidth, imageHeight]);
 
   return null;
 }

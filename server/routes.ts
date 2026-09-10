@@ -30,6 +30,9 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import express from "express";
+import { commercialLandingPages } from "@shared/commercialLandingPages";
+import { containsHighConfidenceSpam, validateHumanSignals, verifyTurnstile } from "./contactProtection";
+import { notifyAboutLead } from "./leadNotifications";
 
 // Set up multer with memory storage — images are converted to base64 and stored in the DB
 // This ensures images persist across deployments and work in both dev and production
@@ -237,7 +240,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     handleValidationErrors,
     async (req: Request, res: Response) => {
       try {
-        // Double sanitization for extra security
+        const humanSignals = validateHumanSignals(req.body.companyFax, req.body.formStartedAt);
+        if (!humanSignals.valid) {
+          return res.status(400).json({
+            success: false,
+            message: "Please refresh the page and try submitting the form again.",
+          });
+        }
+
+        const turnstile = await verifyTurnstile(req.body.turnstileToken, req.ip);
+        if (!turnstile.success) {
+          return res.status(400).json({
+            success: false,
+            message: "Please complete the security check and try again.",
+          });
+        }
+
         const cleanOptional = (value: unknown, maxLength: number) =>
           typeof value === "string" && value.trim()
             ? sanitizeHtml(sanitizeInput(value)).slice(0, maxLength)
@@ -245,13 +263,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const sanitizedData = {
           name: sanitizeHtml(sanitizeInput(req.body.name)),
           email: sanitizeHtml(sanitizeInput(req.body.email)),
-          company: sanitizeHtml(sanitizeInput(req.body.company)),
+          company: cleanOptional(req.body.company, 120),
           websiteUrl: cleanOptional(req.body.websiteUrl, 300),
-          projectType: sanitizeHtml(sanitizeInput(req.body.projectType)),
+          projectType: cleanOptional(req.body.projectType, 80),
           message: sanitizeHtml(sanitizeInput(req.body.message)),
-          budgetRange: sanitizeHtml(sanitizeInput(req.body.budgetRange)),
-          timeline: sanitizeHtml(sanitizeInput(req.body.timeline)),
-          preferredContact: sanitizeHtml(sanitizeInput(req.body.preferredContact)),
+          budgetRange: cleanOptional(req.body.budgetRange, 80),
+          timeline: cleanOptional(req.body.timeline, 80),
+          preferredContact: cleanOptional(req.body.preferredContact, 20) || "email",
           landingPage: cleanOptional(req.body.landingPage, 300),
           referrer: cleanOptional(req.body.referrer, 500),
           utmSource: cleanOptional(req.body.utmSource, 120),
@@ -263,12 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (
           !sanitizedData.name ||
           !sanitizedData.email ||
-          !sanitizedData.company ||
-          !sanitizedData.projectType ||
-          !sanitizedData.message ||
-          !sanitizedData.budgetRange ||
-          !sanitizedData.timeline ||
-          !sanitizedData.preferredContact
+          !sanitizedData.message
         ) {
           return res.status(400).json({ 
             success: false, 
@@ -277,20 +290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         // Check for spam patterns
-        const spamPatterns = [
-          /viagra|cialis|pharmacy|casino|lottery|winner|bitcoin|crypto|investment|loan|debt|credit|urgent|click here|free money|get rich|make money fast/i,
-          /http[s]?:\/\//i, // URLs in message
-          /\b\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\b/i, // Credit card patterns
-          /\b\d{3}-\d{2}-\d{4}\b/i, // SSN patterns
-        ];
-        
-        const isSpam = spamPatterns.some(pattern => 
-          pattern.test(sanitizedData.name) || 
-          pattern.test(sanitizedData.email) || 
-          pattern.test(sanitizedData.message)
-        );
-        
-        if (isSpam) {
+        if (containsHighConfidenceSpam(sanitizedData.name, sanitizedData.email, sanitizedData.message)) {
           return res.status(400).json({ 
             success: false, 
             message: "Message contains prohibited content" 
@@ -309,6 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Parse with Zod for final validation
         const contactData = insertContactSchema.parse(sanitizedData);
         const contact = await storage.createContact(contactData);
+        await notifyAboutLead(contact);
         
         res.json({ 
           success: true, 
@@ -325,9 +326,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (firstError.path.includes('message') && firstError.code === 'too_small') {
             friendlyMessage = "Your message is too short. Please write at least 10 characters.";
           } else if (firstError.path.includes('message') && firstError.code === 'too_big') {
-            friendlyMessage = "Your message is too long. Please keep it under 1000 characters.";
+            friendlyMessage = "Your message is too long. Please keep it under 2000 characters.";
           } else if (firstError.path.includes('name')) {
-            friendlyMessage = "Please provide a valid name (2-50 characters, letters only).";
+            friendlyMessage = "Please provide a valid name (2-80 characters).";
           } else if (firstError.path.includes('email')) {
             friendlyMessage = "Please provide a valid email address.";
           }
@@ -690,11 +691,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { path: "/", priority: "1.0", lastModified: latestDate([...(projectDate ? [projectDate] : []), ...(serviceDate ? [serviceDate] : []), ...(caseStudyDate ? [caseStudyDate] : [])]) },
         { path: "/services", priority: "0.9", lastModified: serviceDate },
         ...services.map((service) => ({ path: `/services/${service.slug}`, priority: service.isFeatured ? "0.9" : "0.8", lastModified: service.updatedAt })),
+        { path: "/solutions", priority: "0.9", lastModified: new Date("2026-09-10T00:00:00.000Z") },
+        ...commercialLandingPages.map((page) => ({ path: `/solutions/${page.slug}`, priority: "0.8", lastModified: new Date("2026-09-10T00:00:00.000Z") })),
         { path: "/portfolio", priority: "0.8", lastModified: projectDate },
         { path: "/work", priority: "0.8", lastModified: caseStudyDate },
         ...caseStudies.map((study) => ({ path: `/work/${study.slug}`, priority: study.isFeatured ? "0.9" : "0.8", lastModified: study.updatedAt })),
         { path: "/about", priority: "0.6" },
         { path: "/contact", priority: "0.8" },
+        { path: "/privacy", priority: "0.3" },
       ];
       const urls = entries.map(({ path: url, priority, lastModified }) => `  <url><loc>https://malekfouda.com${url}</loc>${lastModified ? `<lastmod>${new Date(lastModified).toISOString()}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>${priority}</priority></url>`).join("\n");
       res.setHeader("Cache-Control", "public, max-age=3600, stale-while-revalidate=86400");

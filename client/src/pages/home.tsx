@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import MatrixBackground from "@/components/MatrixBackground";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import SEO from "@/components/SEO";
+import SolutionsPreview from "@/components/SolutionsPreview";
 
 export default function Home() {
   return (
@@ -25,6 +26,7 @@ export default function Home() {
         <Hero />
         <About />
         <Partnerships />
+        <SolutionsPreview />
         <Projects />
         <Skills />
         <Contact headingLevel="h2" />

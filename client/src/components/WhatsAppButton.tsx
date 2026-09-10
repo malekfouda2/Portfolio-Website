@@ -1,12 +1,11 @@
 import { SiWhatsapp } from "react-icons/si";
 import { trackEvent } from "@/lib/analytics";
-
-const WHATSAPP_URL = "https://wa.me/201226076000";
+import { getWhatsAppUrl } from "@/lib/leadLinks";
 
 export default function WhatsAppButton() {
   return (
     <a
-      href={WHATSAPP_URL}
+      href={getWhatsAppUrl("floating_button")}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with Malek on WhatsApp"

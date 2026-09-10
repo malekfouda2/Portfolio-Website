@@ -97,18 +97,17 @@ export const contactSlowDown = slowDown({
 // Input validation for contact form
 export const validateContactForm = [
   body('name')
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s\-'\.]+$/)
-    .withMessage('Name can only contain letters, spaces, hyphens, apostrophes, and periods')
-    .trim()
-    .escape(),
+    .isLength({ min: 2, max: 80 })
+    .withMessage('Name must be between 2 and 80 characters')
+    .custom((value: string) => !/[0-9<>]/.test(value))
+    .withMessage('Please enter a valid name')
+    .trim(),
   
   body('email')
     .isEmail()
     .withMessage('Please provide a valid email address')
-    .isLength({ max: 100 })
-    .withMessage('Email must be less than 100 characters')
+    .isLength({ max: 180 })
+    .withMessage('Email must be less than 180 characters')
     .normalizeEmail({
       gmail_remove_dots: false,
       gmail_remove_subaddress: false,
@@ -118,12 +117,9 @@ export const validateContactForm = [
     }),
   
   body('message')
-    .isLength({ min: 10, max: 1000 })
-    .withMessage('Message must be between 10 and 1000 characters')
-    .matches(/^[a-zA-Z0-9\s\-'\.,:;!?\(\)\[\]@#$%&*+=_~`"\/\\]+$/)
-    .withMessage('Message contains invalid characters')
-    .trim()
-    .escape(),
+    .isLength({ min: 10, max: 2000 })
+    .withMessage('Message must be between 10 and 2000 characters')
+    .trim(),
 ];
 
 // Input validation for dashboard login
@@ -183,10 +179,10 @@ export const setupSecurity = (app: Express) => {
         defaultSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com", "https://challenges.cloudflare.com"],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
-        connectSrc: ["'self'", "https://www.google-analytics.com"],
-        frameSrc: ["'none'"],
+        frameSrc: ["'self'", "https://challenges.cloudflare.com"],
+        connectSrc: ["'self'", "https://www.google-analytics.com", "https://challenges.cloudflare.com"],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
         childSrc: ["'none'"],

@@ -9,6 +9,7 @@ import { cleanupProjectImages } from "./imageCleanup";
 import { storage } from "./storage";
 import path from "path";
 import type { AboutContent, CaseStudy, HeroContent, Partnership, Project } from "@shared/schema";
+import { commercialLandingPageBySlug, commercialLandingPages, type CommercialLandingPage } from "@shared/commercialLandingPages";
 import { escapeHtml, sanitizeHttpUrl, serializeJsonLd } from "./htmlSafety";
 
 const SITE_URL = "https://malekfouda.com";
@@ -206,6 +207,14 @@ function buildHomepageBodyHtml({
           <p style="color:#9ca3af;line-height:1.7;max-width:800px;margin:0;">${escapeHtml(aboutDescription)}</p>
         </section>
 
+        <section id="solutions" style="margin-bottom:3rem;">
+          <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Focused Solutions</h2>
+          <p style="color:#9ca3af;line-height:1.7;margin:0 0 1.5rem;">Start with the technical problem currently blocking the business. <a href="/solutions" style="color:#10b981;">Browse all solutions →</a></p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+            ${commercialLandingPages.slice(0, 3).map((page) => `<article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;padding:1.25rem;"><h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0 0 .5rem;">${escapeHtml(page.title)}</h3><p style="color:#9ca3af;line-height:1.6;margin:0 0 .75rem;">${escapeHtml(page.intro)}</p><a href="/solutions/${escapeHtml(page.slug)}" style="color:#10b981;">View solution →</a></article>`).join("\n")}
+          </div>
+        </section>
+
         <section id="projects" style="margin-bottom:3rem;">
           <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Featured Projects</h2>
           <p style="color:#9ca3af;line-height:1.7;margin:0 0 1.5rem;">A curated selection of current web applications and client solutions. <a href="/portfolio" style="color:#10b981;">View the full portfolio →</a></p>
@@ -249,6 +258,25 @@ function buildCaseStudyIndexBodyHtml(caseStudies: CaseStudy[]): string {
   );
 }
 
+function buildCommercialLandingBodyHtml(page: CommercialLandingPage): string {
+  return buildMarketingBodyHtml({
+    eyebrow: page.eyebrow,
+    title: page.title,
+    description: page.intro,
+    items: [
+      { title: "Who this is for", description: page.audience },
+      { title: page.painHeading, description: page.painPoints.join(" ") },
+      { title: "What the work can include", description: page.deliverables.join(". ") },
+      { title: "Expected outcomes", description: page.outcomes.join(". ") },
+      ...page.process.map((step) => ({ title: step.title, description: step.description })),
+      { title: "Worldwide delivery", description: "Cairo-based remote delivery for businesses and agencies across Egypt, the GCC, Europe, and the USA, with documented decisions, written progress updates, planned timezone overlap, and clear handover notes." },
+      { title: "Relevant experience", description: page.proof, href: page.relatedCaseStudy ? `/work/${page.relatedCaseStudy.slug}` : "/portfolio" },
+      ...page.faqs.map((faq) => ({ title: faq.question, description: faq.answer })),
+      { title: "Broader service", description: `Review ${page.relatedService.title} when the scope extends beyond this focused engagement.`, href: `/services/${page.relatedService.slug}` },
+    ],
+  });
+}
+
 function buildMarketingBodyHtml({
   eyebrow,
   title,
@@ -274,7 +302,7 @@ function buildMarketingBodyHtml({
       <div style="max-width:1120px;margin:0 auto;">
         <nav style="display:flex;justify-content:space-between;gap:1rem;margin-bottom:5rem;">
           <a href="/" style="color:#fff;font-weight:700;text-decoration:none;">Malek Fouda</a>
-          <div style="display:flex;flex-wrap:wrap;gap:1rem;"><a href="/services" style="color:#d4d4d8;">Services</a><a href="/portfolio" style="color:#d4d4d8;">Projects</a><a href="/work" style="color:#d4d4d8;">Work</a><a href="/about" style="color:#d4d4d8;">About</a><a href="/contact" style="color:#d4d4d8;">Contact</a></div>
+          <div style="display:flex;flex-wrap:wrap;gap:1rem;"><a href="/services" style="color:#d4d4d8;">Services</a><a href="/solutions" style="color:#d4d4d8;">Solutions</a><a href="/portfolio" style="color:#d4d4d8;">Projects</a><a href="/work" style="color:#d4d4d8;">Work</a><a href="/about" style="color:#d4d4d8;">About</a><a href="/contact" style="color:#d4d4d8;">Contact</a><a href="/privacy" style="color:#d4d4d8;">Privacy</a></div>
         </nav>
         <p style="color:#6ee7b7;text-transform:uppercase;letter-spacing:.18em;font-size:.8rem;font-weight:700;">${escapeHtml(eyebrow)}</p>
         <h1 style="font-size:clamp(2.75rem,7vw,5.5rem);line-height:1.02;max-width:950px;margin:1rem 0 1.5rem;">${escapeHtml(title)}</h1>
@@ -674,6 +702,112 @@ async function buildRouteHtml(
     }
   });
 
+  app.get("/solutions", async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const title = "E-commerce & Business Software Solutions | Malek Fouda";
+      const description = "Focused Shopify, WooCommerce, dashboard, integration, technical audit, maintenance, and white-label development solutions.";
+      const canonical = `${SITE_URL}/solutions`;
+      const html = await buildRouteHtml(app.get("env") === "development", {
+        title,
+        description,
+        canonical,
+        ogTitle: title,
+        ogDescription: description,
+        ogImage: SOCIAL_IMAGE_URL,
+        keywords: "Shopify solutions, WooCommerce development, custom dashboard development, website technical audit",
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "CollectionPage",
+              "name": title,
+              "description": description,
+              "url": canonical,
+              "mainEntity": {
+                "@type": "ItemList",
+                "itemListElement": commercialLandingPages.map((page, index) => ({
+                  "@type": "ListItem",
+                  "position": index + 1,
+                  "name": page.title,
+                  "url": `${SITE_URL}/solutions/${page.slug}`,
+                })),
+              },
+            },
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/` },
+                { "@type": "ListItem", "position": 2, "name": "Solutions", "item": canonical },
+              ],
+            },
+          ],
+        },
+        bodyContent: buildMarketingBodyHtml({
+          eyebrow: "Focused solutions",
+          title: "Start with the problem that is blocking the business.",
+          description,
+          items: commercialLandingPages.map((page) => ({ title: page.title, description: page.intro, href: `/solutions/${page.slug}` })),
+        }),
+      });
+      if (!html) return next();
+      return res.status(200).type("html").send(html);
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.get("/solutions/:slug", async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const page = commercialLandingPageBySlug.get(req.params.slug);
+      if (!page) return sendNotFoundPage(res, next);
+      const canonical = `${SITE_URL}/solutions/${page.slug}`;
+      const html = await buildRouteHtml(app.get("env") === "development", {
+        title: page.seoTitle,
+        description: page.seoDescription,
+        canonical,
+        ogTitle: page.seoTitle,
+        ogDescription: page.seoDescription,
+        ogImage: SOCIAL_IMAGE_URL,
+        keywords: page.keywords.join(", "),
+        jsonLd: {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Service",
+              "name": page.title,
+              "description": page.seoDescription,
+              "url": canonical,
+              "provider": { "@id": `${SITE_URL}/#person` },
+              "areaServed": ["Egypt", "GCC", "United States", "Europe"],
+              "serviceType": page.keywords[0],
+            },
+            {
+              "@type": "FAQPage",
+              "mainEntity": page.faqs.map((faq) => ({
+                "@type": "Question",
+                "name": faq.question,
+                "acceptedAnswer": { "@type": "Answer", "text": faq.answer },
+              })),
+            },
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE_URL}/` },
+                { "@type": "ListItem", "position": 2, "name": "Solutions", "item": `${SITE_URL}/solutions` },
+                { "@type": "ListItem", "position": 3, "name": page.title, "item": canonical },
+              ],
+            },
+          ],
+        },
+        bodyContent: buildCommercialLandingBodyHtml(page),
+      });
+      if (!html) return next();
+      return res.status(200).type("html").send(html);
+    } catch (error) {
+      return next(error);
+    }
+  });
+
   const staticMarketingPages = {
     "/services": {
       title: "Shopify, WordPress & Custom Software Services | Malek Fouda",
@@ -693,6 +827,12 @@ async function buildRouteHtml(
       eyebrow: "Discuss your project",
       heading: "Start with the problem, the current system, and the outcome you need.",
     },
+    "/privacy": {
+      title: "Privacy Policy | Malek Fouda",
+      description: "How personal information, enquiry details, analytics preferences, and third-party services are handled on malekfouda.com.",
+      eyebrow: "Privacy",
+      heading: "Clear choices for enquiries, analytics, and personal information.",
+    },
   } as const;
 
   for (const [route, page] of Object.entries(staticMarketingPages)) {
@@ -703,11 +843,18 @@ async function buildRouteHtml(
           eyebrow: page.eyebrow,
           title: page.heading,
           description: page.description,
-          items: services.map((service) => ({
-            title: service.title,
-            description: service.shortDescription,
-            href: `/services/${service.slug}`,
-          })),
+          items: [
+            ...services.map((service) => ({
+              title: service.title,
+              description: service.shortDescription,
+              href: `/services/${service.slug}`,
+            })),
+            ...(route === "/services" ? commercialLandingPages.map((page) => ({
+              title: page.title,
+              description: page.intro,
+              href: `/solutions/${page.slug}`,
+            })) : []),
+          ],
         });
         const canonical = `${SITE_URL}${route}`;
         const html = await buildRouteHtml(app.get("env") === "development", {
@@ -724,7 +871,10 @@ async function buildRouteHtml(
             "name": page.title,
             "description": page.description,
             "url": canonical,
-            ...(route === "/services" ? { "itemListElement": services.map((service, index) => ({ "@type": "ListItem", "position": index + 1, "url": `${SITE_URL}/services/${service.slug}`, "name": service.title })) } : {}),
+            ...(route === "/services" ? { "itemListElement": [
+              ...services.map((service, index) => ({ "@type": "ListItem", "position": index + 1, "url": `${SITE_URL}/services/${service.slug}`, "name": service.title })),
+              ...commercialLandingPages.map((page, index) => ({ "@type": "ListItem", "position": services.length + index + 1, "url": `${SITE_URL}/solutions/${page.slug}`, "name": page.title })),
+            ] } : {}),
           },
           bodyContent,
           initialData: route === "/services" ? { "/api/services": services } : undefined,
@@ -737,20 +887,20 @@ async function buildRouteHtml(
     });
   }
 
-  for (const route of ["/login", "/dashboard"]) {
+  for (const route of ["/login", "/dashboard", "/thank-you"]) {
     app.get(route, async (_req: Request, res: Response, next: NextFunction) => {
       try {
-        const title = route === "/login" ? "Admin Login | Malek Fouda" : "Portfolio CMS | Malek Fouda";
+        const title = route === "/login" ? "Admin Login | Malek Fouda" : route === "/dashboard" ? "Portfolio CMS | Malek Fouda" : "Enquiry Received | Malek Fouda";
         const html = await buildRouteHtml(app.get("env") === "development", {
           title,
-          description: "Private portfolio administration.",
+          description: route === "/thank-you" ? "Your project enquiry has been received." : "Private portfolio administration.",
           canonical: `${SITE_URL}${route}`,
           ogTitle: title,
-          ogDescription: "Private portfolio administration.",
+          ogDescription: route === "/thank-you" ? "Your project enquiry has been received." : "Private portfolio administration.",
           ogImage: SOCIAL_IMAGE_URL,
           keywords: "Malek Fouda",
           jsonLd: { "@context": "https://schema.org", "@type": "WebPage", "name": title },
-          bodyContent: `<main id="__prerender__" style="min-height:100vh;background:#050808;color:#fff;display:grid;place-items:center;font-family:system-ui,sans-serif;"><p>Private administration</p></main>`,
+          bodyContent: `<main id="__prerender__" style="min-height:100vh;background:#050808;color:#fff;display:grid;place-items:center;font-family:system-ui,sans-serif;"><p>${route === "/thank-you" ? "Thank you. Your enquiry has been received." : "Private administration"}</p></main>`,
         });
         if (!html) return next();
         res.setHeader("X-Robots-Tag", "noindex, nofollow");
@@ -894,10 +1044,11 @@ async function buildRouteHtml(
 
   // Known public SPA routes — any other HTML request gets a real 404 status.
   // This prevents soft-404s where search crawlers receive HTTP 200 for invalid URLs.
-  const KNOWN_SPA_ROUTES = new Set(["/", "/services", "/portfolio", "/work", "/about", "/contact", "/login", "/dashboard"]);
+  const KNOWN_SPA_ROUTES = new Set(["/", "/services", "/solutions", "/portfolio", "/work", "/about", "/contact", "/privacy", "/thank-you", "/login", "/dashboard"]);
   const isKnownSpaRoute = (url: string) =>
     KNOWN_SPA_ROUTES.has(url) ||
     url.startsWith("/services/") ||
+    url.startsWith("/solutions/") ||
     url.startsWith("/work/");
 
   app.use(async (req, res, next) => {
