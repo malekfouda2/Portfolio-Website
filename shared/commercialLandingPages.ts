@@ -52,13 +52,14 @@ export const commercialLandingPages: CommercialLandingPage[] = [
       { title: "Build and verify", description: "Implement against test data, exercise edge cases, and validate the complete operational path." },
       { title: "Release in stages", description: "Deploy with monitoring and a controlled handover instead of switching a critical flow blindly." },
     ],
-    proof: "My work covers Shopify storefronts, custom middleware, payments, shipping, dashboards, and API-driven business systems. Relevant implementation examples can be discussed privately when client confidentiality prevents a public case study.",
+    proof: "The Tabliya middleware case study shows a Shopify order integration built around signed webhooks, product and payment mappings, idempotency, background processing, replay, reconciliation, and operator-visible failures.",
     faqs: [
       { question: "Can you replace an unreliable Shopify connector?", answer: "Yes. I first document the current data flow and failure modes, then plan a staged replacement that protects live orders and operational continuity." },
       { question: "Can you integrate a private or poorly documented API?", answer: "Often, provided the system exposes a usable interface and test access. Discovery confirms authentication, limits, data quality, and support constraints before a build is committed." },
       { question: "Do you build Shopify middleware as well as apps?", answer: "Yes. The right architecture may be a Shopify app, a standalone middleware service, serverless functions, or a combination, depending on ownership and workflow requirements." },
     ],
     relatedService: { slug: "shopify-development", title: "Shopify Development & Rescue" },
+    relatedCaseStudy: { slug: "tabliya-shopify-middleware", title: "Tabliya Shopify middleware case study" },
     keywords: ["Shopify API integration developer", "Shopify middleware developer", "custom Shopify integration", "Shopify ERP integration"],
   },
   {

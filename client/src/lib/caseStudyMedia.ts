@@ -5,6 +5,16 @@ export type CaseStudyMediaGroup = {
 };
 
 export const caseStudyMedia: Record<string, CaseStudyMediaGroup[]> = {
+  "tabliya-shopify-middleware": [
+    {
+      title: "Operations and recovery controls",
+      description: "The admin console keeps synchronization behavior visible and gives operators controlled tools for mappings, configuration, replay, and reconciliation.",
+      items: [
+        { src: "/uploads/tabliya-case-study/01-integration-settings.png", alt: "Tabliya Shopify middleware integration settings", caption: "Destination status configuration, invoice controls, product imports, payment-method imports, and reconciliation" },
+        { src: "/uploads/tabliya-case-study/02-webhook-events.png", alt: "Tabliya Shopify middleware webhook event log", caption: "Signed Shopify events with processing state, failure reasons, inspection, and replay controls" },
+      ],
+    },
+  ],
   "aiqda-learning-platform": [
     {
       title: "Public discovery",

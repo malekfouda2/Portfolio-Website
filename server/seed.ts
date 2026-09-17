@@ -1,6 +1,6 @@
 import { storage } from "./storage";
 import type { InsertPartnership } from "@shared/schema";
-import { AIQDA_CASE_STUDY } from "./caseStudyContent";
+import { AIQDA_CASE_STUDY, TABLIYA_CASE_STUDY } from "./caseStudyContent";
 
 export async function seedDatabase(scope: "all" | "marketing" = "all") {
   try {
@@ -319,10 +319,19 @@ export async function seedDatabase(scope: "all" | "marketing" = "all") {
       { slug: "tabliya-shopify-middleware", title: "Tabliya Shopify Middleware", clientName: "Tabliya", projectId: null, sortOrder: 3 },
     ];
     for (const draft of drafts) {
-      if (await storage.getCaseStudyBySlug(draft.slug)) continue;
-      const caseStudy = draft.slug === AIQDA_CASE_STUDY.slug
+      const existing = await storage.getCaseStudyBySlug(draft.slug);
+      const completeCaseStudy = draft.slug === AIQDA_CASE_STUDY.slug
         ? AIQDA_CASE_STUDY
-        : {
+        : draft.slug === TABLIYA_CASE_STUDY.slug
+          ? TABLIYA_CASE_STUDY
+          : null;
+      if (existing) {
+        if (completeCaseStudy && !existing.isPublished) {
+          await storage.updateCaseStudy(existing.id, completeCaseStudy);
+        }
+        continue;
+      }
+      const caseStudy = completeCaseStudy ?? {
             ...draft,
             industry: "",
             summary: "",

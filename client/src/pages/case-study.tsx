@@ -40,7 +40,7 @@ function fallbackMedia(study: CaseStudy): CaseStudyMediaGroup[] {
 }
 
 function ProductEvidence({ groups, coverImage }: { groups: CaseStudyMediaGroup[]; coverImage: string | null }) {
-  return <section id="product-evidence" className="border-y border-gray-800 bg-gray-950/70"><div className="marketing-shell marketing-section"><div className="mb-12 text-center"><p className="marketing-eyebrow">Product evidence</p><h2 className="mt-4 text-3xl font-bold sm:text-4xl">Inside the delivered platform</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-gray-400">Real interface states captured from the working Aiqda application.</p></div><div className="space-y-16">
+  return <section id="product-evidence" className="border-y border-gray-800 bg-gray-950/70"><div className="marketing-shell marketing-section"><div className="mb-12 text-center"><p className="marketing-eyebrow">Product evidence</p><h2 className="mt-4 text-3xl font-bold sm:text-4xl">Inside the delivered system</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-gray-400">Selected interface states captured from the working implementation.</p></div><div className="space-y-16">
     {groups.map((group, groupIndex) => {
       const items = group.items.filter((item) => !(groupIndex === 0 && item.src === coverImage));
       if (!items.length) return null;
