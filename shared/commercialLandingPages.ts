@@ -137,7 +137,7 @@ export const commercialLandingPages: CommercialLandingPage[] = [
       { title: "Repair the smallest responsible layer", description: "Fix the cause without destabilizing unrelated store functionality." },
       { title: "Test purchasing scenarios", description: "Verify relevant devices, payment outcomes, shipping rules, emails, and order states before release." },
     ],
-    proof: "My WordPress and WooCommerce work includes a custom delivery scheduling plugin that coordinates shipping zones, date capacity, cutoffs, product eligibility, pickup, order metadata, and HPOS compatibility.",
+    proof: "My WordPress and WooCommerce work includes custom delivery scheduling and gifting workflows that connect checkout behavior to order metadata, staff-facing fulfillment signals, and HPOS-compatible administration.",
     faqs: [
       { question: "Can you fix a store built by another developer?", answer: "Yes. Existing code ownership is not a problem, but I need appropriate access and enough evidence to reproduce the issue safely." },
       { question: "Will you test directly on the live store?", answer: "Only when a production-only condition makes that unavoidable and we agree on safeguards. Normal repair work should be diagnosed and verified in a controlled environment first." },

@@ -3,6 +3,7 @@ import type { InsertPartnership } from "@shared/schema";
 import {
   AIQDA_CASE_STUDY,
   DELIVERY_DATES_MANAGER_CASE_STUDY,
+  GIFTING_SYSTEM_CASE_STUDY,
   TABLIYA_CASE_STUDY,
 } from "./caseStudyContent";
 
@@ -322,11 +323,13 @@ export async function seedDatabase(scope: "all" | "marketing" = "all") {
       { slug: "aiqda-learning-platform", title: "Aiqda Learning Platform", clientName: "Aiqda", projectId: null, sortOrder: 2 },
       { slug: "tabliya-shopify-middleware", title: "Tabliya Shopify Middleware", clientName: "Tabliya", projectId: null, sortOrder: 3 },
       { slug: "woocommerce-delivery-dates-manager", title: "WooCommerce Delivery Dates Manager", clientName: "Onirik Pastry Boutique", projectId: null, sortOrder: 4 },
+      { slug: "woocommerce-gifting-system", title: "WooCommerce Gifting System", clientName: "WooCommerce Gifting System", projectId: null, sortOrder: 5 },
     ];
     const completeCaseStudies = [
       AIQDA_CASE_STUDY,
       TABLIYA_CASE_STUDY,
       DELIVERY_DATES_MANAGER_CASE_STUDY,
+      GIFTING_SYSTEM_CASE_STUDY,
     ];
     for (const draft of drafts) {
       const existing = await storage.getCaseStudyBySlug(draft.slug);

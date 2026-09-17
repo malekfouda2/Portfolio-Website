@@ -5,6 +5,23 @@ export type CaseStudyMediaGroup = {
 };
 
 export const caseStudyMedia: Record<string, CaseStudyMediaGroup[]> = {
+  "woocommerce-gifting-system": [
+    {
+      title: "Customer gift details",
+      description: "The optional gift path expands inside classic WooCommerce checkout and captures the recipient information needed by the store team.",
+      items: [
+        { src: "/uploads/gifting-system/01-gift-checkout.webp", alt: "WooCommerce checkout with expanded gift recipient fields", caption: "Conditional recipient name, phone, and message fields using neutral test data" },
+      ],
+    },
+    {
+      title: "Traceable fulfillment workflow",
+      description: "The source order keeps the generated claim code, while the later order presents an explicit alert that links staff back to the original gift purchase.",
+      items: [
+        { src: "/uploads/gifting-system/02-gift-order-admin.webp", alt: "WooCommerce admin gift order details and generated claim code", caption: "Recipient details, gift message, and generated single-use code on the source order" },
+        { src: "/uploads/gifting-system/03-gift-claim-admin.webp", alt: "WooCommerce admin alert for a redeemed gift claim code", caption: "Fulfillment alert on the later order with the redeemed code and source-order link" },
+      ],
+    },
+  ],
   "woocommerce-delivery-dates-manager": [
     {
       title: "Delivery and pickup at checkout",
