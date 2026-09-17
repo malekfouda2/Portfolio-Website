@@ -95,11 +95,242 @@ function CaseStudiesManager() {
 }
 
 function ProjectsManager() {
-  const queryClient = useQueryClient(); const { toast } = useToast();
-  const { data: projects = [] } = useQuery<Project[]>({ queryKey: ["/api/admin/projects"] });
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { data: projects = [] } = useQuery<Project[]>({
+    queryKey: ["/api/admin/projects"],
+  });
   const [draft, setDraft] = useState<Partial<Project> | null>(null);
-  const save = useMutation({ mutationFn: async (value: Partial<Project>) => { const response = await apiRequest(value.id ? "PUT" : "POST", value.id ? `/api/admin/projects/${value.id}` : "/api/admin/projects", value); return response.json(); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/admin/projects"] }); queryClient.invalidateQueries({ queryKey: ["/api/projects"] }); setDraft(null); toast({ title: "Project saved" }); } });
-  return <div className="space-y-5"><div><h2 className="text-2xl font-semibold">Projects</h2><p className="mt-1 text-sm text-zinc-500">Maintain the project archive used across the public work pages.</p></div>{draft && <form onSubmit={(event) => { event.preventDefault(); save.mutate(draft); }} className={cardClass}><div className="grid gap-5 md:grid-cols-2"><Field label="Title"><Input className={inputClass} value={draft.title || ""} onChange={(e) => setDraft({ ...draft, title: e.target.value })} /></Field><Field label="Type"><Input className={inputClass} value={draft.type || ""} onChange={(e) => setDraft({ ...draft, type: e.target.value })} /></Field><Field label="Description" wide><Textarea rows={5} className={inputClass} value={draft.description || ""} onChange={(e) => setDraft({ ...draft, description: e.target.value })} /></Field><Field label="Technologies — one per line" wide><Textarea rows={4} className={inputClass} value={(draft.technologies || []).join("\n")} onChange={(e) => setDraft({ ...draft, technologies: splitLines(e.target.value) })} /></Field><Field label="Image URL"><Input className={inputClass} value={draft.image || ""} onChange={(e) => setDraft({ ...draft, image: e.target.value })} /></Field><Field label="Live URL"><Input className={inputClass} value={draft.url || ""} onChange={(e) => setDraft({ ...draft, url: e.target.value || null })} /></Field><Field label="Company"><Input className={inputClass} value={draft.companyName || ""} onChange={(e) => setDraft({ ...draft, companyName: e.target.value || null })} /></Field><Field label="Role"><Input className={inputClass} value={draft.role || ""} onChange={(e) => setDraft({ ...draft, role: e.target.value || null })} /></Field></div><div className="mt-5 flex items-center"><Checkbox label="Visible" checked={Boolean(draft.isVisible)} onChange={(checked) => setDraft({ ...draft, isVisible: checked })} /><Button type="submit" className="ml-auto bg-emerald-300 text-black"><Save className="mr-2 h-4 w-4" />Save</Button></div></form>}<div className="grid gap-3">{projects.map((project) => <button key={project.id} onClick={() => setDraft(project)} className={`${cardClass} text-left hover:border-emerald-300/30`}><div className="flex items-center justify-between"><div><h3 className="font-semibold">{project.title}</h3><p className="mt-2 text-sm text-zinc-500">{project.companyName || project.type}</p></div><Status published={project.isVisible} /></div></button>)}</div></div>;
+  const save = useMutation({
+    mutationFn: async (value: Partial<Project>) => {
+      const response = await apiRequest(
+        value.id ? "PUT" : "POST",
+        value.id ? `/api/admin/projects/${value.id}` : "/api/admin/projects",
+        value,
+      );
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/projects"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      setDraft(null);
+      toast({ title: "Project saved" });
+    },
+    onError: (error) =>
+      toast({
+        title: "Could not save project",
+        description: error instanceof Error ? error.message : undefined,
+        variant: "destructive",
+      }),
+  });
+
+  const createDraft = () =>
+    setDraft({
+      title: "",
+      description: "",
+      technologies: [],
+      image: "",
+      type: "personal",
+      url: null,
+      screenshots: [],
+      companyName: null,
+      companyUrl: null,
+      role: null,
+      isVisible: true,
+      sortOrder: projects.length + 1,
+    });
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold">Projects</h2>
+          <p className="mt-1 text-sm text-zinc-500">
+            Maintain the project archive used across the public work pages.
+          </p>
+        </div>
+        <Button
+          onClick={createDraft}
+          className="shrink-0 bg-emerald-300 text-black hover:bg-emerald-200"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add project
+        </Button>
+      </div>
+      {draft && (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            save.mutate(draft);
+          }}
+          className={cardClass}
+        >
+          <div className="mb-6 flex items-center justify-between">
+            <h3 className="text-lg font-semibold">
+              {draft.id ? "Edit project" : "New project"}
+            </h3>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setDraft(null)}
+              aria-label="Cancel project editing"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2">
+            <Field label="Title">
+              <Input
+                required
+                className={inputClass}
+                value={draft.title || ""}
+                onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+              />
+            </Field>
+            <Field label="Type">
+              <select
+                required
+                className="flex h-10 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white"
+                value={draft.type || "personal"}
+                onChange={(e) => setDraft({ ...draft, type: e.target.value })}
+              >
+                <option value="personal">Personal</option>
+                <option value="freelance">Freelance</option>
+                <option value="company">Company</option>
+              </select>
+            </Field>
+            <Field label="Description" wide>
+              <Textarea
+                required
+                rows={5}
+                className={inputClass}
+                value={draft.description || ""}
+                onChange={(e) =>
+                  setDraft({ ...draft, description: e.target.value })
+                }
+              />
+            </Field>
+            <Field label="Technologies — one per line" wide>
+              <Textarea
+                rows={4}
+                className={inputClass}
+                value={(draft.technologies || []).join("\n")}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    technologies: splitLines(e.target.value),
+                  })
+                }
+              />
+            </Field>
+            <Field label="Image URL">
+              <Input
+                required
+                className={inputClass}
+                value={draft.image || ""}
+                onChange={(e) => setDraft({ ...draft, image: e.target.value })}
+              />
+            </Field>
+            <Field label="Live URL">
+              <Input
+                type="url"
+                className={inputClass}
+                value={draft.url || ""}
+                onChange={(e) =>
+                  setDraft({ ...draft, url: e.target.value || null })
+                }
+              />
+            </Field>
+            <Field label="Screenshot URLs — one per line" wide>
+              <Textarea
+                rows={4}
+                className={inputClass}
+                value={(draft.screenshots || []).join("\n")}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    screenshots: splitLines(e.target.value),
+                  })
+                }
+              />
+            </Field>
+            <Field label="Company">
+              <Input
+                className={inputClass}
+                value={draft.companyName || ""}
+                onChange={(e) =>
+                  setDraft({ ...draft, companyName: e.target.value || null })
+                }
+              />
+            </Field>
+            <Field label="Company URL">
+              <Input
+                type="url"
+                className={inputClass}
+                value={draft.companyUrl || ""}
+                onChange={(e) =>
+                  setDraft({ ...draft, companyUrl: e.target.value || null })
+                }
+              />
+            </Field>
+            <Field label="Role">
+              <Input
+                className={inputClass}
+                value={draft.role || ""}
+                onChange={(e) =>
+                  setDraft({ ...draft, role: e.target.value || null })
+                }
+              />
+            </Field>
+            <Field label="Sort order">
+              <Input
+                type="number"
+                className={inputClass}
+                value={draft.sortOrder ?? 0}
+                onChange={(e) =>
+                  setDraft({ ...draft, sortOrder: Number(e.target.value) })
+                }
+              />
+            </Field>
+          </div>
+          <div className="mt-5 flex items-center gap-4">
+            <Checkbox
+              label="Visible"
+              checked={Boolean(draft.isVisible)}
+              onChange={(checked) => setDraft({ ...draft, isVisible: checked })}
+            />
+            <Button
+              type="submit"
+              disabled={save.isPending}
+              className="ml-auto bg-emerald-300 text-black hover:bg-emerald-200"
+            >
+              <Save className="mr-2 h-4 w-4" />
+              {save.isPending ? "Saving…" : "Save project"}
+            </Button>
+          </div>
+        </form>
+      )}
+      <div className="grid gap-3">
+        {projects.map((project) => (
+          <button
+            key={project.id}
+            onClick={() => setDraft(project)}
+            className={`${cardClass} text-left hover:border-emerald-300/30`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold">{project.title}</h3>
+                <p className="mt-2 text-sm text-zinc-500">
+                  {project.companyName || project.type}
+                </p>
+              </div>
+              <Status published={project.isVisible} />
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function LeadsManager() {
