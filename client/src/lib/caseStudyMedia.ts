@@ -5,6 +5,16 @@ export type CaseStudyMediaGroup = {
 };
 
 export const caseStudyMedia: Record<string, CaseStudyMediaGroup[]> = {
+  "woocommerce-delivery-dates-manager": [
+    {
+      title: "Delivery and pickup at checkout",
+      description: "The customer-facing workflow makes the fulfillment choice explicit, then reveals only the zone and date controls required for that path.",
+      items: [
+        { src: "/uploads/delivery-dates-manager/01-zone-delivery-checkout.webp", alt: "WooCommerce checkout with zone-based scheduled delivery", caption: "Zone selection, delivery pricing, and an eligible delivery date in one checkout path" },
+        { src: "/uploads/delivery-dates-manager/02-pickup-checkout.webp", alt: "WooCommerce checkout with Heliopolis pickup scheduling", caption: "Heliopolis pickup with a separate date selector and no delivery fee" },
+      ],
+    },
+  ],
   "tabliya-shopify-middleware": [
     {
       title: "Operations and recovery controls",
