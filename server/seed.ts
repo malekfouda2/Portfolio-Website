@@ -6,6 +6,7 @@ import {
   GIFTING_SYSTEM_CASE_STUDY,
   TABLIYA_CASE_STUDY,
 } from "./caseStudyContent";
+import { SITE_IDENTITY } from "@shared/siteIdentity";
 
 export async function seedDatabase(scope: "all" | "marketing" = "all") {
   try {
@@ -193,13 +194,35 @@ export async function seedDatabase(scope: "all" | "marketing" = "all") {
       responseTime: "Within 24 hours",
       description: "Tell me what is not working, what you need to build, or where your team needs reliable development capacity.",
       socialLinks: {
-        github: "https://github.com/malekfouda2",
-        linkedin: "https://www.linkedin.com/in/malek-fouda-18a229244",
-        calendly: "https://calendly.com/malekfouda2000/30min",
-        whatsapp: "https://wa.me/201226076000"
+        github: SITE_IDENTITY.github,
+        linkedin: SITE_IDENTITY.linkedin,
+        calendly: SITE_IDENTITY.calendly,
+        whatsapp: SITE_IDENTITY.whatsapp,
+        website: SITE_IDENTITY.siteUrl,
       }
       });
     }
+    }
+
+    // Existing production records predate the confirmed profile URLs. Keep all
+    // editable contact copy while synchronizing identity links on every deploy.
+    const existingContactInfo = await storage.getContactInfo();
+    if (existingContactInfo) {
+      const { twitter: _obsoleteTwitter, ...existingSocialLinks } = existingContactInfo.socialLinks;
+      await storage.updateContactInfo({
+        email: existingContactInfo.email,
+        location: existingContactInfo.location,
+        responseTime: existingContactInfo.responseTime,
+        description: existingContactInfo.description,
+        socialLinks: {
+          ...existingSocialLinks,
+          github: SITE_IDENTITY.github,
+          linkedin: SITE_IDENTITY.linkedin,
+          calendly: SITE_IDENTITY.calendly,
+          whatsapp: SITE_IDENTITY.whatsapp,
+          website: SITE_IDENTITY.siteUrl,
+        },
+      });
     }
 
     const services = [

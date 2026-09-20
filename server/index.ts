@@ -11,8 +11,10 @@ import path from "path";
 import type { AboutContent, CaseStudy, HeroContent, Partnership, Project } from "@shared/schema";
 import { commercialLandingPageBySlug, commercialLandingPages, type CommercialLandingPage } from "@shared/commercialLandingPages";
 import { escapeHtml, sanitizeHttpUrl, serializeJsonLd } from "./htmlSafety";
+import { getPublicProject } from "./projectImages";
+import { SITE_IDENTITY, SITE_PROFILE_URLS } from "@shared/siteIdentity";
 
-const SITE_URL = "https://malekfouda.com";
+const SITE_URL = SITE_IDENTITY.siteUrl;
 const SOCIAL_IMAGE_URL = `${SITE_URL}/og-image.jpg`;
 
 const app = express();
@@ -34,7 +36,24 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(uploadSecurityMiddleware);
 
 // Serve uploaded files
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), {
+  maxAge: '24h',
+  etag: true,
+  lastModified: true,
+  dotfiles: 'deny',
+  index: false,
+}));
+
+app.use((req, res, next) => {
+  const privatePage = req.path === "/login" || req.path === "/dashboard" || req.path === "/thank-you";
+  const isDocumentRequest = req.method === "GET" && req.accepts("html") &&
+    !req.path.startsWith("/api") && !req.path.startsWith("/media") &&
+    !req.path.startsWith("/uploads") && !privatePage && !/\.\w+$/.test(req.path);
+  if (isDocumentRequest) {
+    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=300, stale-while-revalidate=86400");
+  }
+  next();
+});
 
 // Favicon routes are now handled in routes.ts
 
@@ -519,7 +538,7 @@ async function buildRouteHtml(
         storage.getPartnerships(),
         storage.getSkills(),
       ]);
-      const projects = allProjects.filter((project) => project.isVisible);
+      const projects = allProjects.filter((project) => project.isVisible).map(getPublicProject);
       const partnerships = allPartnerships.filter((partnership) => partnership.isVisible);
 
       const personName = hero?.name || "Malek Fouda";
@@ -546,7 +565,7 @@ async function buildRouteHtml(
             "jobTitle": personTitle,
             "description": homepageDescription,
             "url": `${SITE_URL}/`,
-            "sameAs": ["https://github.com/malekfouda", "https://linkedin.com/in/malekfouda"],
+            "sameAs": SITE_PROFILE_URLS,
             "knowsAbout": ["Shopify", "WordPress", "WooCommerce", "Custom software", "Business systems", "System integrations"],
           },
           {
@@ -592,7 +611,7 @@ async function buildRouteHtml(
   // Restore the complete, searchable project archive at its original URL.
   app.get("/portfolio", async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      const projects = (await storage.getProjects()).filter((project) => project.isVisible);
+      const projects = (await storage.getProjects()).filter((project) => project.isVisible).map(getPublicProject);
       const title = "All Development Projects | Malek Fouda";
       const description = "Explore Malek Fouda's complete portfolio of Shopify, WordPress, WooCommerce, full-stack applications, dashboards, integrations, and client projects.";
       const canonical = `${SITE_URL}/portfolio`;

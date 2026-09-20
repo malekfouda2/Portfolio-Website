@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { SITE_PROFILE_URLS } from "@shared/siteIdentity";
 
 const SITE_URL = "https://malekfouda.com";
 const DEFAULT_SOCIAL_IMAGE = `${SITE_URL}/og-image.jpg`;
@@ -84,10 +85,7 @@ export default function SEO({
       "jobTitle": "Shopify, WordPress & Custom Software Developer",
       "description": "Cairo-based full-stack developer specializing in Shopify, WordPress, WooCommerce, custom business systems, and integrations.",
       "url": `${SITE_URL}/`,
-      "sameAs": [
-        "https://github.com/malekfouda",
-        "https://linkedin.com/in/malekfouda",
-      ],
+      "sameAs": SITE_PROFILE_URLS,
       "worksFor": {
         "@type": "Organization",
         "name": "Freelance"

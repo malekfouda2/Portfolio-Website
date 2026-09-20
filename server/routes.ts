@@ -33,18 +33,24 @@ import express from "express";
 import { commercialLandingPages } from "@shared/commercialLandingPages";
 import { containsHighConfidenceSpam, validateHumanSignals, verifyTurnstile } from "./contactProtection";
 import { notifyAboutLead } from "./leadNotifications";
+import {
+  getProjectMediaSource,
+  getPublicProject,
+  optimizeDataImageUrl,
+  optimizeProjectImage,
+} from "./projectImages";
 
-// Set up multer with memory storage — images are converted to base64 and stored in the DB
-// This ensures images persist across deployments and work in both dev and production
+// Keep the source in memory long enough to validate and optimize it. The optimized
+// WebP remains database-backed, while public responses expose a cacheable media URL.
 const upload = multer({
   storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.mimetype)) {
       return cb(new Error('Only image files are allowed'));
     }
     const ext = path.extname(file.originalname).toLowerCase();
-    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
     if (!allowedExtensions.includes(ext)) {
       return cb(new Error('Invalid file extension'));
     }
@@ -98,20 +104,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  // File upload endpoint — converts to base64 data URL stored in DB (works in all environments)
-  app.post("/api/upload", requireAuth, upload.single('image'), (req, res) => {
+  // File upload endpoint — strips metadata, bounds dimensions, and stores a compact
+  // WebP data URL so assets survive deployment without bloating public documents.
+  app.post("/api/upload", requireAuth, upload.single('image'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
-      // Convert buffer to base64 data URL — stored directly in DB, no filesystem needed
-      const base64 = req.file.buffer.toString('base64');
-      const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
-      console.log(`File uploaded and converted to base64: ${req.file.originalname} (${req.file.size} bytes)`);
+      const optimized = await optimizeProjectImage(req.file.buffer);
+      const dataUrl = `data:image/webp;base64,${optimized.toString('base64')}`;
+      console.log(`Optimized image upload: ${req.file.originalname} (${req.file.size} -> ${optimized.length} bytes)`);
       res.json({ url: dataUrl });
     } catch (error) {
       console.error("Upload error:", error);
       res.status(500).json({ error: "Failed to upload file" });
+    }
+  });
+
+  app.get("/media/projects/:id/:asset", async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      if (!Number.isSafeInteger(id) || id <= 0) return res.status(404).end();
+
+      const project = await storage.getProject(id);
+      if (!project || !project.isVisible) return res.status(404).end();
+      const source = getProjectMediaSource(project, req.params.asset);
+      if (!source) return res.status(404).end();
+
+      const optimized = await optimizeDataImageUrl(
+        source,
+        `${project.id}:${new Date(project.updatedAt).getTime()}:${req.params.asset}`,
+      );
+      if (!optimized) return res.status(404).end();
+
+      res.set({
+        "Cache-Control": "public, max-age=31536000, immutable",
+        "Content-Type": "image/webp",
+        "X-Content-Type-Options": "nosniff",
+      });
+      return res.send(optimized);
+    } catch (error) {
+      console.error("Project media error:", error);
+      return res.status(500).end();
     }
   });
 
@@ -156,16 +190,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/projects", async (req, res) => {
     try {
       const projects = (await storage.getProjects()).filter((project) => project.isVisible);
-      
-      // Validate and clean image URLs
-      const cleanedProjects = projects.map(project => ({
-        ...project,
-        image: project.image && project.image.startsWith('/uploads/') 
-          ? project.image 
-          : project.image
-      }));
-      
-      res.json(cleanedProjects);
+      res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
+      res.json(projects.map(getPublicProject));
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch projects" });
     }

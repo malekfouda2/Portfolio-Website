@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BriefcaseBusiness, FileText, FolderOpen, LogOut, MessageSquare, Plus, Save, Settings2, Trash2, X } from "lucide-react";
+import { BriefcaseBusiness, FileText, FolderOpen, Image as ImageIcon, LogOut, MessageSquare, Plus, Save, Settings2, Trash2, Upload, X } from "lucide-react";
 import { useLocation } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CaseStudy, Contact, Project, Service, ServiceFaq } from "@shared/schema";
@@ -94,6 +94,116 @@ function CaseStudiesManager() {
   </div>;
 }
 
+function ProjectThumbnailField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const uploadImage = async (file: File) => {
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      const token = localStorage.getItem("auth_token");
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        headers: token ? { Authorization: "Bearer " + token } : undefined,
+        body: formData,
+        credentials: "include",
+      });
+      const result = await response.json() as {
+        url?: string;
+        error?: string;
+        message?: string;
+      };
+
+      if (response.status === 401) {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+        return;
+      }
+      if (!response.ok || !result.url) {
+        throw new Error(result.error || result.message || "Image upload failed");
+      }
+
+      onChange(result.url);
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "Image upload failed");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <div className="md:col-span-2">
+      <span className="mb-2 block text-sm font-medium text-zinc-300">
+        Project thumbnail screenshot
+      </span>
+      <div className="grid gap-4 rounded-xl border border-zinc-700 bg-black/20 p-4 md:grid-cols-[15rem_1fr]">
+        <div className="flex aspect-video items-center justify-center overflow-hidden rounded-lg border border-zinc-700 bg-zinc-950">
+          {value ? (
+            <img
+              src={value}
+              alt="Project thumbnail preview"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="text-center text-zinc-600">
+              <ImageIcon className="mx-auto h-8 w-8" />
+              <p className="mt-2 text-xs">No thumbnail selected</p>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col justify-center gap-3">
+          <label className="inline-flex w-fit cursor-pointer items-center rounded-md bg-emerald-300 px-4 py-2 text-sm font-semibold text-black transition hover:bg-emerald-200">
+            <Upload className="mr-2 h-4 w-4" />
+            {isUploading ? "Uploading…" : value ? "Replace screenshot" : "Upload screenshot"}
+            <input
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+              className="sr-only"
+              disabled={isUploading}
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void uploadImage(file);
+                event.target.value = "";
+              }}
+            />
+          </label>
+          <p className="text-xs leading-5 text-zinc-500">
+            JPG, PNG, or WebP up to 5 MB. Images are resized and converted to WebP automatically.
+          </p>
+          <Input
+            className={inputClass}
+            value={value.startsWith("data:image/") ? "" : value}
+            placeholder={value.startsWith("data:image/") ? "Uploaded screenshot selected" : "Or paste an image URL"}
+            onChange={(event) => onChange(event.target.value)}
+          />
+          {value && (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-fit px-0 text-zinc-400 hover:bg-transparent hover:text-red-300"
+              onClick={() => onChange("")}
+            >
+              Remove thumbnail
+            </Button>
+          )}
+          {uploadError && <p role="alert" className="text-sm text-red-300">{uploadError}</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProjectsManager() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -103,10 +213,15 @@ function ProjectsManager() {
   const [draft, setDraft] = useState<Partial<Project> | null>(null);
   const save = useMutation({
     mutationFn: async (value: Partial<Project>) => {
+      const normalizedValue = {
+        ...value,
+        technologies: splitLines((value.technologies || []).join("\n")),
+        screenshots: splitLines((value.screenshots || []).join("\n")),
+      };
       const response = await apiRequest(
         value.id ? "PUT" : "POST",
         value.id ? `/api/admin/projects/${value.id}` : "/api/admin/projects",
-        value,
+        normalizedValue,
       );
       return response.json();
     },
@@ -161,6 +276,14 @@ function ProjectsManager() {
         <form
           onSubmit={(event) => {
             event.preventDefault();
+            if (!draft.image) {
+              toast({
+                title: "Project thumbnail required",
+                description: "Upload a screenshot or provide an image URL before saving.",
+                variant: "destructive",
+              });
+              return;
+            }
             save.mutate(draft);
           }}
           className={cardClass}
@@ -218,19 +341,15 @@ function ProjectsManager() {
                 onChange={(e) =>
                   setDraft({
                     ...draft,
-                    technologies: splitLines(e.target.value),
+                    technologies: e.target.value.split("\n"),
                   })
                 }
               />
             </Field>
-            <Field label="Image URL">
-              <Input
-                required
-                className={inputClass}
-                value={draft.image || ""}
-                onChange={(e) => setDraft({ ...draft, image: e.target.value })}
-              />
-            </Field>
+            <ProjectThumbnailField
+              value={draft.image || ""}
+              onChange={(image) => setDraft({ ...draft, image })}
+            />
             <Field label="Live URL">
               <Input
                 type="url"
@@ -249,7 +368,7 @@ function ProjectsManager() {
                 onChange={(e) =>
                   setDraft({
                     ...draft,
-                    screenshots: splitLines(e.target.value),
+                    screenshots: e.target.value.split("\n"),
                   })
                 }
               />
