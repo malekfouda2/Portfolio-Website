@@ -3,7 +3,7 @@ import { BriefcaseBusiness, FileText, FolderOpen, Image as ImageIcon, LogOut, Me
 import { useLocation } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CaseStudy, Contact, Project, Service, ServiceFaq } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, getQueryFn } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,9 +29,13 @@ function splitLines(value: string) {
 
 function useProtectedDashboard() {
   const [, setLocation] = useLocation();
-  const token = localStorage.getItem("auth_token");
-  useEffect(() => { if (!token) setLocation("/login"); }, [setLocation, token]);
-  return Boolean(token);
+  const { data: session, isLoading } = useQuery<{ user: { id: number; username: string } } | null>({
+    queryKey: ["/api/admin/session"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+    staleTime: 0,
+  });
+  useEffect(() => { if (!isLoading && !session) setLocation("/login"); }, [isLoading, session, setLocation]);
+  return Boolean(session);
 }
 
 function ServicesManager() {
@@ -111,10 +115,8 @@ function ProjectThumbnailField({
     try {
       const formData = new FormData();
       formData.append("image", file);
-      const token = localStorage.getItem("auth_token");
       const response = await fetch("/api/upload", {
         method: "POST",
-        headers: token ? { Authorization: "Bearer " + token } : undefined,
         body: formData,
         credentials: "include",
       });
@@ -125,8 +127,6 @@ function ProjectThumbnailField({
       };
 
       if (response.status === 401) {
-        localStorage.removeItem("auth_token");
-        localStorage.removeItem("user");
         window.location.href = "/login";
         return;
       }
@@ -468,11 +468,12 @@ export default function Dashboard() {
   const authenticated = useProtectedDashboard();
   const [, setLocation] = useLocation();
   const [tab, setTab] = useState<Tab>("overview");
+  const queryClient = useQueryClient();
   const { data: services = [] } = useQuery<Service[]>({ queryKey: ["/api/admin/services"], enabled: authenticated });
   const { data: studies = [] } = useQuery<CaseStudy[]>({ queryKey: ["/api/admin/case-studies"], enabled: authenticated });
   const { data: projects = [] } = useQuery<Project[]>({ queryKey: ["/api/admin/projects"], enabled: authenticated });
   const { data: leads = [] } = useQuery<Contact[]>({ queryKey: ["/api/admin/contacts"], enabled: authenticated });
   if (!authenticated) return <div className="min-h-screen bg-black p-8 text-white">Redirecting…</div>;
-  const logout = () => { localStorage.removeItem("auth_token"); localStorage.removeItem("user"); setLocation("/login"); };
+  const logout = async () => { await fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => undefined); queryClient.clear(); setLocation("/login"); };
   return <><SEO title="Portfolio CMS | Malek Fouda" description="Private portfolio administration." canonicalPath="/dashboard" noIndex /><div className="min-h-screen bg-[#070909] text-white"><header className="border-b border-white/10"><div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8"><div><h1 className="text-xl font-semibold">Portfolio CMS</h1><p className="mt-1 text-xs text-zinc-500">Content, proof, and qualified inquiries</p></div><Button variant="outline" onClick={logout}><LogOut className="mr-2 h-4 w-4" />Log out</Button></div></header><div className="mx-auto grid max-w-7xl gap-8 px-5 py-8 sm:px-8 lg:grid-cols-[14rem_1fr]"><nav className="flex gap-2 overflow-x-auto lg:flex-col" aria-label="Dashboard sections">{tabs.map(({ id, label, icon: Icon }) => <button key={id} onClick={() => setTab(id)} className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium ${tab === id ? "bg-emerald-300 text-black" : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"}`}><Icon className="h-4 w-4" />{label}</button>)}</nav><main>{tab === "overview" && <div><h2 className="text-3xl font-semibold">Overview</h2><div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{[["Published services", services.filter((item) => item.isPublished).length], ["Case-study drafts", studies.filter((item) => !item.isPublished).length], ["Visible projects", projects.filter((item) => item.isVisible).length], ["New leads", leads.filter((item) => item.status === "new").length]].map(([label, value]) => <div key={String(label)} className={cardClass}><p className="text-sm text-zinc-500">{label}</p><p className="mt-3 text-3xl font-semibold">{value}</p></div>)}</div><div className={`${cardClass} mt-6`}><h3 className="font-semibold">Publishing controls</h3><p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">Case studies remain private until their Published control is enabled. Verify every result, client detail, screenshot, URL, SEO description, and confidentiality boundary before publishing.</p></div></div>}{tab === "services" && <ServicesManager />}{tab === "case-studies" && <CaseStudiesManager />}{tab === "projects" && <ProjectsManager />}{tab === "leads" && <LeadsManager />}</main></div></div></>;
 }

@@ -32,11 +32,9 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Add auth token to requests
-  const token = localStorage.getItem("auth_token");
+  // The admin session travels in an httpOnly cookie sent via credentials.
   const headers: Record<string, string> = {};
   if (data !== undefined) headers["Content-Type"] = "application/json";
-  if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(url, {
     method,
@@ -47,8 +45,6 @@ export async function apiRequest(
 
   // Handle 401 errors by redirecting to login
   if (res.status === 401) {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user");
     window.location.href = "/login";
     throw new Error("401: Unauthorized");
   }
@@ -63,13 +59,7 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const token = localStorage.getItem("auth_token");
-    const headers: Record<string, string> = {
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-
     const res = await fetch(queryKey.join("/") as string, {
-      headers,
       credentials: "include",
     });
 
@@ -79,8 +69,6 @@ export const getQueryFn: <T>(options: {
 
     // Handle 401 errors by redirecting to login
     if (res.status === 401) {
-      localStorage.removeItem("auth_token");
-      localStorage.removeItem("user");
       window.location.href = "/login";
       throw new Error("401: Unauthorized");
     }

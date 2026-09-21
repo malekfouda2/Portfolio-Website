@@ -122,21 +122,21 @@ export const validateContactForm = [
     .trim(),
 ];
 
-// Input validation for dashboard login
+// Input validation for dashboard login. Password strength is enforced when the
+// credential is chosen, not here, so any configured password can sign in.
 export const validateLogin = [
   body('username')
+    .isString()
+    .trim()
     .isLength({ min: 3, max: 30 })
     .withMessage('Username must be between 3 and 30 characters')
     .matches(/^[a-zA-Z0-9_]+$/)
-    .withMessage('Username can only contain letters, numbers, and underscores')
-    .trim()
-    .escape(),
-  
+    .withMessage('Username can only contain letters, numbers, and underscores'),
+
   body('password')
-    .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]*/)
-    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+    .isString()
+    .isLength({ min: 8, max: 200 })
+    .withMessage('Password must be between 8 and 200 characters'),
 ];
 
 // Validation result handler
@@ -233,120 +233,23 @@ export const setupSecurity = (app: Express) => {
   // Apply API rate limiting to API routes (exclude public portfolio APIs)
   app.use('/api', apiRateLimit);
   
-  // Security headers middleware
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    // Additional security headers
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  // Helmet already sets nosniff, frame, referrer, and XSS headers; add only the
+  // permissions policy it does not cover.
+  app.use((_req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
-    
-    // Prevent clickjacking
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-    
-    // Prevent MIME type sniffing
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    
     next();
   });
 };
 
-// SQL injection prevention helper
-export const sanitizeInput = (input: string): string => {
+// Free-text fields are stored as plain text, bound as query parameters by Drizzle,
+// and escaped wherever they are rendered. Only strip control characters here so
+// legitimate words such as "update" or "delete" survive intact.
+export const cleanText = (input: unknown, maxLength: number): string => {
   if (typeof input !== 'string') return '';
-  
-  // Remove potential SQL injection patterns
-  const sqlPatterns = [
-    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|SCRIPT)\b)/gi,
-    /(\b(OR|AND)\s+\d+\s*=\s*\d+)/gi,
-    /(\b(OR|AND)\s+\w+\s*=\s*\w+)/gi,
-    /(--|\/\*|\*\/|;)/g,
-    /(\b(SCRIPT|JAVASCRIPT|VBSCRIPT|ONLOAD|ONERROR|ONCLICK)\b)/gi,
-    /(<|>|&lt;|&gt;)/g
-  ];
-  
-  let sanitized = input;
-  sqlPatterns.forEach(pattern => {
-    sanitized = sanitized.replace(pattern, '');
-  });
-  
-  return sanitized.trim();
-};
-
-// XSS prevention helper
-export const sanitizeHtml = (input: string): string => {
-  if (typeof input !== 'string') return '';
-  
-  const xssPatterns = [
-    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-    /<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi,
-    /<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi,
-    /<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi,
-    /<link\b[^<]*(?:(?!<\/link>)<[^<]*)*<\/link>/gi,
-    /<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi,
-    /javascript:/gi,
-    /vbscript:/gi,
-    /on\w+\s*=/gi,
-    /expression\s*\(/gi,
-    /eval\s*\(/gi,
-    /document\./gi,
-    /window\./gi
-  ];
-  
-  let sanitized = input;
-  xssPatterns.forEach(pattern => {
-    sanitized = sanitized.replace(pattern, '');
-  });
-  
-  return sanitized;
-};
-
-// IP blocking middleware (for malicious IPs)
-const blockedIPs = new Set<string>();
-const suspiciousActivity = new Map<string, number>();
-
-export const ipSecurityMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const clientIP = req.ip || req.socket.remoteAddress || 'unknown';
-  
-  // Check if IP is blocked
-  if (blockedIPs.has(clientIP)) {
-    return res.status(403).json({ error: 'Access denied' });
-  }
-  
-  // Track suspicious activity - only block clearly malicious tools
-  const userAgent = req.get('User-Agent') || '';
-  const suspiciousPatterns = [
-    /^python/i,           // Only at start of user agent
-    /^curl\//i,           // Only at start of user agent
-    /^wget\//i,           // Only at start of user agent
-    /sqlmap/i,
-    /nikto/i,
-    /nmap/i,
-    /masscan/i,
-    /metasploit/i,
-    /burpsuite/i,
-    /w3af/i,
-    /acunetix/i,
-    /nessus/i,
-    /openvas/i,
-    /exploit/i
-  ];
-  
-  const isSuspicious = suspiciousPatterns.some(pattern => pattern.test(userAgent));
-  
-  if (isSuspicious) {
-    const count = suspiciousActivity.get(clientIP) || 0;
-    suspiciousActivity.set(clientIP, count + 1);
-    
-    // Block IP after 10 suspicious requests
-    if (count >= 10) {
-      blockedIPs.add(clientIP);
-      return res.status(403).json({ error: 'Access denied due to suspicious activity' });
-    }
-  }
-  
-  next();
+  return input
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+    .trim()
+    .slice(0, maxLength);
 };
 
 // File upload security
@@ -389,4 +292,3 @@ export const uploadSecurityMiddleware = (req: Request, res: Response, next: Next
   next();
 };
 
-export { blockedIPs, suspiciousActivity };

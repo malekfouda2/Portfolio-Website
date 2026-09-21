@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, NextFunction, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { 
@@ -18,13 +18,13 @@ import {
   validateContactForm, 
   validateLogin, 
   handleValidationErrors, 
-  sanitizeInput, 
-  sanitizeHtml,
+  cleanText,
   contactFormRateLimit,
   contactSlowDown
 } from "./security";
 import { z } from "zod";
-import { requireAuth, login } from "./auth";
+import { requireAuth, login, type AuthenticatedRequest } from "./auth";
+import { clearSessionCookie, setSessionCookie } from "./sessionCookie";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -67,6 +67,23 @@ const upload = multer({
   }
 });
 
+const acceptProjectImage = (req: Request, res: Response, next: NextFunction) => {
+  upload.single('image')(req, res, (error: unknown) => {
+    if (!error) return next();
+    const message = error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE'
+      ? 'Image must be 5MB or smaller'
+      : error instanceof Error ? error.message : 'Invalid upload';
+    return res.status(400).json({ error: message });
+  });
+};
+
+function parseId(value: string): number | null {
+  const id = Number(value);
+  return Number.isSafeInteger(id) && id > 0 ? id : null;
+}
+
+const contactStatusSchema = z.object({ status: z.enum(["new", "contacted", "resolved"]) });
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication
   app.post("/api/auth/login", 
@@ -74,26 +91,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     handleValidationErrors,
     async (req: Request, res: Response) => {
       try {
-        // Sanitize inputs
-        const sanitizedUsername = sanitizeInput(req.body.username);
-        const sanitizedPassword = sanitizeInput(req.body.password);
-        
-        if (!sanitizedUsername || !sanitizedPassword) {
-          return res.status(400).json({ error: "Username and password are required" });
-        }
-        
-        // Additional security checks
-        if (sanitizedUsername.length < 3 || sanitizedUsername.length > 30) {
-          return res.status(400).json({ error: "Invalid username length" });
-        }
-        
-        if (sanitizedPassword.length < 8) {
-          return res.status(400).json({ error: "Password too short" });
-        }
-        
-        const result = await login(sanitizedUsername, sanitizedPassword);
+        // validateLogin has already checked shape and length. The password is
+        // compared exactly as typed so no characters are silently dropped.
+        const username = cleanText(req.body.username, 30);
+        const password: string = req.body.password;
+
+        const result = await login(username, password);
         if (result.success) {
-          res.json({ success: true, token: result.token });
+          setSessionCookie(res, result.token);
+          res.json({ success: true, user: result.user });
         } else {
           res.status(401).json({ error: result.error });
         }
@@ -104,9 +110,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+  app.post("/api/auth/logout", (_req, res) => {
+    clearSessionCookie(res);
+    res.json({ success: true });
+  });
+
+  app.get("/api/admin/session", requireAuth, (req: AuthenticatedRequest, res) => {
+    res.set("Cache-Control", "no-store");
+    res.json({ user: req.user });
+  });
+
   // File upload endpoint — strips metadata, bounds dimensions, and stores a compact
   // WebP data URL so assets survive deployment without bloating public documents.
-  app.post("/api/upload", requireAuth, upload.single('image'), async (req, res) => {
+  app.post("/api/upload", requireAuth, acceptProjectImage, async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
@@ -283,16 +299,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         const cleanOptional = (value: unknown, maxLength: number) =>
-          typeof value === "string" && value.trim()
-            ? sanitizeHtml(sanitizeInput(value)).slice(0, maxLength)
-            : null;
+          cleanText(value, maxLength) || null;
         const sanitizedData = {
-          name: sanitizeHtml(sanitizeInput(req.body.name)),
-          email: sanitizeHtml(sanitizeInput(req.body.email)),
+          name: cleanText(req.body.name, 80),
+          email: cleanText(req.body.email, 180),
           company: cleanOptional(req.body.company, 120),
           websiteUrl: cleanOptional(req.body.websiteUrl, 300),
           projectType: cleanOptional(req.body.projectType, 80),
-          message: sanitizeHtml(sanitizeInput(req.body.message)),
+          message: cleanText(req.body.message, 2000),
           budgetRange: cleanOptional(req.body.budgetRange, 80),
           timeline: cleanOptional(req.body.timeline, 80),
           preferredContact: cleanOptional(req.body.preferredContact, 20) || "email",
@@ -387,9 +401,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/contacts/:id", requireAuth, async (req, res) => {
     try {
-      const { id } = req.params;
-      const { status } = req.body;
-      const contact = await storage.updateContactStatus(parseInt(id), status);
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
+      const parsed = contactStatusSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid status" });
+      const contact = await storage.updateContactStatus(id, parsed.data.status);
+      if (!contact) return res.status(404).json({ error: "Contact not found" });
       res.json(contact);
     } catch (error) {
       console.error("Error updating contact:", error);
@@ -399,8 +416,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admin/contacts/:id", requireAuth, async (req, res) => {
     try {
-      const { id } = req.params;
-      await storage.deleteContact(parseInt(id));
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
+      if (!(await storage.deleteContact(id))) return res.status(404).json({ error: "Contact not found" });
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting contact:", error);
@@ -460,7 +478,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/projects/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
       const project = await storage.getProject(id);
       if (!project) {
         return res.status(404).json({ error: "Project not found" });
@@ -491,9 +510,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/projects/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
       const project = insertProjectSchema.parse(req.body);
       const result = await storage.updateProject(id, project);
+      if (!result) return res.status(404).json({ error: "Project not found" });
       res.json(result);
     } catch (error) {
       console.error("Project update error:", error);
@@ -510,8 +531,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admin/projects/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      await storage.deleteProject(id);
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
+      if (!(await storage.deleteProject(id))) return res.status(404).json({ error: "Project not found" });
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete project" });
@@ -540,9 +562,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/skills/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
       const skill = insertSkillSchema.parse(req.body);
       const result = await storage.updateSkill(id, skill);
+      if (!result) return res.status(404).json({ error: "Skill not found" });
       res.json(result);
     } catch (error) {
       res.status(400).json({ error: "Invalid skill data" });
@@ -551,8 +575,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admin/skills/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      await storage.deleteSkill(id);
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
+      if (!(await storage.deleteSkill(id))) return res.status(404).json({ error: "Skill not found" });
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete skill" });
@@ -581,9 +606,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/partnerships/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
       const partnership = insertPartnershipSchema.parse(req.body);
       const result = await storage.updatePartnership(id, partnership);
+      if (!result) return res.status(404).json({ error: "Partnership not found" });
       res.json(result);
     } catch (error) {
       res.status(400).json({ error: "Invalid partnership data" });
@@ -592,8 +619,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admin/partnerships/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      await storage.deletePartnership(id);
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
+      if (!(await storage.deletePartnership(id))) return res.status(404).json({ error: "Partnership not found" });
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete partnership" });
@@ -639,7 +667,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/services/:id", requireAuth, async (req, res) => {
     try {
-      res.json(await storage.updateService(Number(req.params.id), updateServiceSchema.parse(req.body)));
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
+      const result = await storage.updateService(id, updateServiceSchema.parse(req.body));
+      if (!result) return res.status(404).json({ error: "Service not found" });
+      res.json(result);
     } catch (error) {
       res.status(400).json({ error: "Invalid service data", details: error instanceof z.ZodError ? error.flatten() : undefined });
     }
@@ -647,7 +679,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admin/services/:id", requireAuth, async (req, res) => {
     try {
-      await storage.deleteService(Number(req.params.id));
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
+      if (!(await storage.deleteService(id))) return res.status(404).json({ error: "Service not found" });
       res.json({ success: true });
     } catch {
       res.status(500).json({ error: "Failed to delete service" });
@@ -673,7 +707,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/admin/case-studies/:id", requireAuth, async (req, res) => {
     try {
-      res.json(await storage.updateCaseStudy(Number(req.params.id), updateCaseStudySchema.parse(req.body)));
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
+      const result = await storage.updateCaseStudy(id, updateCaseStudySchema.parse(req.body));
+      if (!result) return res.status(404).json({ error: "Case study not found" });
+      res.json(result);
     } catch (error) {
       res.status(400).json({ error: "Invalid case study data", details: error instanceof z.ZodError ? error.flatten() : undefined });
     }
@@ -681,7 +719,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/admin/case-studies/:id", requireAuth, async (req, res) => {
     try {
-      await storage.deleteCaseStudy(Number(req.params.id));
+      const id = parseId(req.params.id);
+      if (!id) return res.status(400).json({ error: "Invalid id" });
+      if (!(await storage.deleteCaseStudy(id))) return res.status(404).json({ error: "Case study not found" });
       res.json({ success: true });
     } catch {
       res.status(500).json({ error: "Failed to delete case study" });

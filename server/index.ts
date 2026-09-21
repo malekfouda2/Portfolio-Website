@@ -493,12 +493,13 @@ async function buildRouteHtml(
     await seedDatabase("marketing");
   }
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+  app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
+    if (res.headersSent) return next(err);
 
-    res.status(status).json({ message });
-    throw err;
+    const status = err.status || err.statusCode || 500;
+    if (status >= 500) console.error(err);
+
+    res.status(status).json({ message: status >= 500 ? "Internal Server Error" : err.message });
   });
 
   const sendNotFoundPage = async (res: Response, next: NextFunction) => {

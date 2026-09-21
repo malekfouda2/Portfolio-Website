@@ -43,8 +43,8 @@ export interface IStorage {
   createContact(contact: InsertContact): Promise<Contact>;
   getContacts(): Promise<Contact[]>;
   getAllContacts(): Promise<Contact[]>;
-  updateContactStatus(id: number, status: string): Promise<Contact>;
-  deleteContact(id: number): Promise<void>;
+  updateContactStatus(id: number, status: string): Promise<Contact | undefined>;
+  deleteContact(id: number): Promise<boolean>;
   
   // Hero Content
   getHeroContent(): Promise<HeroContent | undefined>;
@@ -58,22 +58,22 @@ export interface IStorage {
   getProjects(): Promise<Project[]>;
   getProject(id: number): Promise<Project | undefined>;
   createProject(project: InsertProject): Promise<Project>;
-  updateProject(id: number, project: Partial<InsertProject>): Promise<Project>;
-  deleteProject(id: number): Promise<void>;
+  updateProject(id: number, project: Partial<InsertProject>): Promise<Project | undefined>;
+  deleteProject(id: number): Promise<boolean>;
   
   // Skills
   getSkills(): Promise<Skill[]>;
   getSkill(id: number): Promise<Skill | undefined>;
   createSkill(skill: InsertSkill): Promise<Skill>;
-  updateSkill(id: number, skill: Partial<InsertSkill>): Promise<Skill>;
-  deleteSkill(id: number): Promise<void>;
+  updateSkill(id: number, skill: Partial<InsertSkill>): Promise<Skill | undefined>;
+  deleteSkill(id: number): Promise<boolean>;
   
   // Partnerships
   getPartnerships(): Promise<Partnership[]>;
   getPartnership(id: number): Promise<Partnership | undefined>;
   createPartnership(partnership: InsertPartnership): Promise<Partnership>;
-  updatePartnership(id: number, partnership: Partial<InsertPartnership>): Promise<Partnership>;
-  deletePartnership(id: number): Promise<void>;
+  updatePartnership(id: number, partnership: Partial<InsertPartnership>): Promise<Partnership | undefined>;
+  deletePartnership(id: number): Promise<boolean>;
   
   // Contact Info
   getContactInfo(): Promise<ContactInfo | undefined>;
@@ -84,16 +84,16 @@ export interface IStorage {
   getService(id: number): Promise<Service | undefined>;
   getServiceBySlug(slug: string, publishedOnly?: boolean): Promise<Service | undefined>;
   createService(service: InsertService): Promise<Service>;
-  updateService(id: number, service: Partial<InsertService>): Promise<Service>;
-  deleteService(id: number): Promise<void>;
+  updateService(id: number, service: Partial<InsertService>): Promise<Service | undefined>;
+  deleteService(id: number): Promise<boolean>;
 
   // Case studies
   getCaseStudies(publishedOnly?: boolean): Promise<CaseStudy[]>;
   getCaseStudy(id: number): Promise<CaseStudy | undefined>;
   getCaseStudyBySlug(slug: string, publishedOnly?: boolean): Promise<CaseStudy | undefined>;
   createCaseStudy(caseStudy: InsertCaseStudy): Promise<CaseStudy>;
-  updateCaseStudy(id: number, caseStudy: Partial<InsertCaseStudy>): Promise<CaseStudy>;
-  deleteCaseStudy(id: number): Promise<void>;
+  updateCaseStudy(id: number, caseStudy: Partial<InsertCaseStudy>): Promise<CaseStudy | undefined>;
+  deleteCaseStudy(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -127,7 +127,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(contacts).orderBy(desc(contacts.createdAt));
   }
 
-  async updateContactStatus(id: number, status: string): Promise<Contact> {
+  async updateContactStatus(id: number, status: string): Promise<Contact | undefined> {
     const [contact] = await db
       .update(contacts)
       .set({ status, updatedAt: new Date() })
@@ -136,8 +136,9 @@ export class DatabaseStorage implements IStorage {
     return contact;
   }
 
-  async deleteContact(id: number): Promise<void> {
-    await db.delete(contacts).where(eq(contacts.id, id));
+  async deleteContact(id: number): Promise<boolean> {
+    const deleted = await db.delete(contacts).where(eq(contacts.id, id)).returning({ id: contacts.id });
+    return deleted.length > 0;
   }
 
   // Hero Content
@@ -200,7 +201,7 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async updateProject(id: number, project: Partial<InsertProject>): Promise<Project> {
+  async updateProject(id: number, project: Partial<InsertProject>): Promise<Project | undefined> {
     const [updated] = await db
       .update(projects)
       .set({ ...project, updatedAt: new Date() })
@@ -209,8 +210,9 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  async deleteProject(id: number): Promise<void> {
-    await db.delete(projects).where(eq(projects.id, id));
+  async deleteProject(id: number): Promise<boolean> {
+    const deleted = await db.delete(projects).where(eq(projects.id, id)).returning({ id: projects.id });
+    return deleted.length > 0;
   }
 
   // Skills
@@ -231,7 +233,7 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async updateSkill(id: number, skill: Partial<InsertSkill>): Promise<Skill> {
+  async updateSkill(id: number, skill: Partial<InsertSkill>): Promise<Skill | undefined> {
     const [updated] = await db
       .update(skills)
       .set(skill)
@@ -240,8 +242,9 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  async deleteSkill(id: number): Promise<void> {
-    await db.delete(skills).where(eq(skills.id, id));
+  async deleteSkill(id: number): Promise<boolean> {
+    const deleted = await db.delete(skills).where(eq(skills.id, id)).returning({ id: skills.id });
+    return deleted.length > 0;
   }
 
   // Partnerships
@@ -262,7 +265,7 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async updatePartnership(id: number, partnership: Partial<InsertPartnership>): Promise<Partnership> {
+  async updatePartnership(id: number, partnership: Partial<InsertPartnership>): Promise<Partnership | undefined> {
     const [updated] = await db
       .update(partnerships)
       .set({ ...partnership, updatedAt: new Date() })
@@ -271,8 +274,9 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  async deletePartnership(id: number): Promise<void> {
-    await db.delete(partnerships).where(eq(partnerships.id, id));
+  async deletePartnership(id: number): Promise<boolean> {
+    const deleted = await db.delete(partnerships).where(eq(partnerships.id, id)).returning({ id: partnerships.id });
+    return deleted.length > 0;
   }
 
   // Contact Info
@@ -320,7 +324,7 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async updateService(id: number, service: Partial<InsertService>): Promise<Service> {
+  async updateService(id: number, service: Partial<InsertService>): Promise<Service | undefined> {
     const [updated] = await db
       .update(services)
       .set({ ...service, updatedAt: new Date() })
@@ -329,8 +333,9 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  async deleteService(id: number): Promise<void> {
-    await db.delete(services).where(eq(services.id, id));
+  async deleteService(id: number): Promise<boolean> {
+    const deleted = await db.delete(services).where(eq(services.id, id)).returning({ id: services.id });
+    return deleted.length > 0;
   }
 
   // Case studies
@@ -357,7 +362,7 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  async updateCaseStudy(id: number, caseStudy: Partial<InsertCaseStudy>): Promise<CaseStudy> {
+  async updateCaseStudy(id: number, caseStudy: Partial<InsertCaseStudy>): Promise<CaseStudy | undefined> {
     const [updated] = await db
       .update(caseStudies)
       .set({ ...caseStudy, updatedAt: new Date() })
@@ -366,8 +371,9 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  async deleteCaseStudy(id: number): Promise<void> {
-    await db.delete(caseStudies).where(eq(caseStudies.id, id));
+  async deleteCaseStudy(id: number): Promise<boolean> {
+    const deleted = await db.delete(caseStudies).where(eq(caseStudies.id, id)).returning({ id: caseStudies.id });
+    return deleted.length > 0;
   }
 }
 

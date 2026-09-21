@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import { storage } from "./storage";
+import { AUTH_COOKIE, readCookie } from "./sessionCookie";
 
 type AuthenticatedUser = {
   id: number;
@@ -28,13 +29,13 @@ export const requireAuth = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith("Bearer ")) {
+  const token = readCookie(req.headers.cookie, AUTH_COOKIE);
+  if (!token) {
     return res.status(401).json({ error: "Authentication required" });
   }
 
   try {
-    const payload = jwt.verify(authHeader.slice(7), getJwtSecret(), {
+    const payload = jwt.verify(token, getJwtSecret(), {
       issuer: "malekfouda.com",
       audience: "portfolio-admin",
     }) as JwtPayload;
@@ -90,13 +91,4 @@ export const login = async (username: string, password: string) => {
     token,
     user: { id: user.id, username: user.username },
   };
-};
-
-export const loginHandler = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
-  const result = await login(username, password);
-  if (!result.success) {
-    return res.status(401).json(result);
-  }
-  return res.json(result);
 };

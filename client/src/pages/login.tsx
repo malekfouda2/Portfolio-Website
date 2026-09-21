@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock, User } from "lucide-react";
 import SEO from "@/components/SEO";
+import { queryClient } from "@/lib/queryClient";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -29,16 +30,14 @@ export default function Login() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
+        credentials: "include",
       });
 
       const data = await response.json();
 
       if (data.success) {
-        // Store token in localStorage
-        localStorage.setItem("auth_token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        
-        // Redirect to dashboard
+        // The server set an httpOnly session cookie; drop any cached 401 state.
+        await queryClient.invalidateQueries({ queryKey: ["/api/admin/session"] });
         setLocation("/dashboard");
       } else {
         setError(data.error || "Login failed");

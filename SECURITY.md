@@ -8,15 +8,17 @@ This document outlines the comprehensive security measures implemented in the Ma
 ### 1. Input Validation & Sanitization
 - **Express-validator**: Server-side validation for all user inputs
 - **Zod schemas**: Type-safe validation for API endpoints
-- **XSS Protection**: HTML sanitization to prevent cross-site scripting
-- **SQL Injection Prevention**: Input sanitization to prevent database attacks
+- **XSS Protection**: Stored text is escaped on output (React rendering, `server/htmlSafety.ts` for prerendered HTML, escaped lead emails); free text is never rewritten on input
+- **SQL Injection Prevention**: All queries go through Drizzle with bound parameters
 - **NoSQL Injection Prevention**: MongoDB sanitization middleware
 
 ### 2. Rate Limiting
-- **General Rate Limiting**: 100 requests per 15 minutes per IP
-- **API Rate Limiting**: 200 API requests per 15 minutes per IP
+Limits live in `server/security.ts` (production values; development differs):
+- **General Rate Limiting**: 1000 requests per 15 minutes per IP (500 in development)
+- **API Rate Limiting**: 2000 API requests per 15 minutes per IP (200 in development)
+- **Public Content APIs**: 5000 requests per 15 minutes per IP
 - **Contact Form Rate Limiting**: 3 submissions per 10 minutes per IP
-- **Authentication Rate Limiting**: 5 login attempts per 15 minutes per IP
+- **Authentication Rate Limiting**: 30 login attempts per 15 minutes per IP
 - **Slow Down Middleware**: Progressive delay for contact form submissions
 
 ### 3. Security Headers
@@ -29,10 +31,10 @@ This document outlines the comprehensive security measures implemented in the Ma
 - **Referrer Policy**: Controls referrer information
 
 ### 4. Authentication Security
-- **JWT Tokens**: Secure token-based authentication
-- **Password Validation**: Strong password requirements
+- **JWT Sessions**: 8-hour signed JWT stored in an `httpOnly`, `SameSite=Strict` cookie (`Secure` in production), so page scripts cannot read it; see `server/sessionCookie.ts`
+- **Password Handling**: Passwords are compared exactly as typed (8–200 characters); strength is the responsibility of whoever sets `ADMIN_PASSWORD`
 - **Bcrypt Hashing**: Secure password hashing
-- **Session Management**: Secure session handling
+- **Logout**: `POST /api/auth/logout` clears the session cookie
 - **Login Attempt Limiting**: Prevents brute force attacks
 
 ### 5. File Upload Security
@@ -43,17 +45,15 @@ This document outlines the comprehensive security measures implemented in the Ma
 - **Malicious Pattern Detection**: Checks for dangerous file patterns
 
 ### 6. Contact Form Security
-- **Input Sanitization**: Double sanitization of all form fields
+- **Input Cleaning**: `cleanText` trims, strips control characters, and caps length; message wording is preserved
 - **Spam Detection**: Pattern matching for spam content
 - **Email Validation**: RFC-compliant email validation
 - **Content Filtering**: Blocks URLs, credit cards, and suspicious patterns
 - **Rate Limiting**: Prevents form spam and abuse
 
 ### 7. IP Security
-- **IP Blocking**: Automatic blocking of malicious IPs
-- **Suspicious Activity Tracking**: Monitors for bot-like behavior
-- **User Agent Analysis**: Detects and blocks suspicious user agents
-- **Geographic Restrictions**: Can be configured for geo-blocking
+- **IP Blocking**: None; abuse is handled by rate limits, Turnstile, and honeypot/timing checks
+- **Trusted Proxy**: `trust proxy` is set to one hop so rate limits key on the real client IP
 
 ### 8. Static File Security
 - **File Extension Validation**: Only serves allowed file types
@@ -79,7 +79,7 @@ The contact form has multiple layers of protection:
 
 1. **Client-side validation**: Basic validation before submission
 2. **Rate limiting**: 3 submissions per 10 minutes per IP
-3. **Input sanitization**: Double sanitization of all inputs
+3. **Input cleaning**: Validation plus control-character stripping; escaping happens at output
 4. **Spam detection**: Pattern matching for common spam content
 5. **Content filtering**: Blocks URLs, credit cards, and suspicious patterns
 6. **Email validation**: RFC-compliant email format checking
