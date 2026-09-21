@@ -19,12 +19,12 @@ export default function CookieConsent() {
 
   if (!open) return null;
 
-  return <aside aria-label="Cookie preferences" className="fixed inset-x-4 bottom-4 z-[80] mx-auto max-w-3xl rounded-2xl border border-gray-700 bg-gray-950/95 p-5 text-white shadow-2xl backdrop-blur sm:p-6">
-    <h2 className="text-lg font-bold">Your privacy choices</h2>
-    <p className="mt-2 text-sm leading-6 text-gray-300">This site uses essential storage for form attribution. Optional Google Analytics helps improve the site and loads only if you accept. Read the <Link href="/privacy" className="text-green-400 underline underline-offset-4">privacy policy</Link>.</p>
+  return <aside aria-label="Cookie preferences" className="fixed inset-x-4 bottom-4 z-[80] mx-auto max-w-3xl rounded-[1.75rem] border border-white/15 bg-black/95 p-5 text-bone shadow-[0_30px_80px_rgba(0,0,0,0.7)] backdrop-blur-xl sm:p-7">
+    <h2 className="display-s">Your privacy choices</h2>
+    <p className="mt-2 text-sm leading-6 text-fog">This site uses essential storage for form attribution. Optional Google Analytics helps improve the site and loads only if you accept. Read the <Link href="/privacy" className="text-bone underline underline-offset-4">privacy policy</Link>.</p>
     <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-      <button type="button" onClick={() => choose("denied")} className="rounded-full border border-gray-600 px-5 py-2.5 text-sm font-semibold hover:border-green-400">Necessary only</button>
-      <button type="button" onClick={() => choose("granted")} className="rounded-full bg-gradient-to-r from-green-400 to-blue-500 px-5 py-2.5 text-sm font-semibold text-black">Accept analytics</button>
+      <button type="button" onClick={() => choose("denied")} className="btn btn-line min-h-0 px-5 py-2.5 text-sm">Necessary only</button>
+      <button type="button" onClick={() => choose("granted")} className="btn btn-signal min-h-0 px-5 py-2.5 text-sm">Accept analytics</button>
     </div>
   </aside>;
 }

@@ -93,35 +93,35 @@ function buildPortfolioBodyHtml(projects: Project[]): string {
     type === "personal" ? "Personal" : type === "company" ? "Company" : "Freelance";
 
   const typeBadgeColor = (type: string) =>
-    type === "personal" ? "#10b981" : type === "company" ? "#a78bfa" : "#60a5fa";
+    type === "personal" ? "#1aff6e" : type === "company" ? "#c084fc" : "#2196f3";
 
   const projectCards = projects
     .slice(0, 30) // limit to first 30 for HTML size
     .map((p) => {
       const techs = (p.technologies ?? [])
-        .map((t) => `<span style="background:#1f2937;color:#10b981;padding:.2rem .5rem;border-radius:.25rem;font-size:.75rem;">${escapeHtml(t)}</span>`)
+        .map((t) => `<span style="background:#1c1f1e;color:#1aff6e;padding:.2rem .5rem;border-radius:.25rem;font-size:.75rem;">${escapeHtml(t)}</span>`)
         .join(" ");
 
       const liveUrl = sanitizeHttpUrl(p.url);
       const liveLink = liveUrl
-        ? `<a href="${escapeHtml(liveUrl)}" rel="noopener noreferrer" style="color:#10b981;font-size:.875rem;">View Live →</a>`
+        ? `<a href="${escapeHtml(liveUrl)}" rel="noopener noreferrer" style="color:#1aff6e;font-size:.875rem;">View Live →</a>`
         : "";
 
       const companyCredit = p.companyName
-        ? `<p style="color:#9ca3af;font-size:.8rem;margin:.25rem 0 0;">Built at <strong style="color:#60a5fa;">${escapeHtml(p.companyName)}</strong>${p.role ? ` · ${escapeHtml(p.role)}` : ""}</p>`
+        ? `<p style="color:#9aa39f;font-size:.8rem;margin:.25rem 0 0;">Built at <strong style="color:#2196f3;">${escapeHtml(p.companyName)}</strong>${p.role ? ` · ${escapeHtml(p.role)}` : ""}</p>`
         : "";
 
       return `
-        <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;overflow:hidden;display:flex;flex-direction:column;">
+        <article style="background:#111;border:1px solid #1c1f1e;border-radius:.75rem;overflow:hidden;display:flex;flex-direction:column;">
           <div style="padding:1.25rem 1.25rem .75rem;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem;">
               <h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0;">${escapeHtml(p.title)}</h3>
               <span style="background:${typeBadgeColor(p.type)};color:#000;padding:.2rem .6rem;border-radius:9999px;font-size:.75rem;font-weight:600;white-space:nowrap;">${typeLabel(p.type)}</span>
             </div>
-            <p style="color:#9ca3af;font-size:.9rem;line-height:1.6;margin:0 0 .75rem;">${escapeHtml(p.description)}</p>
+            <p style="color:#9aa39f;font-size:.9rem;line-height:1.6;margin:0 0 .75rem;">${escapeHtml(p.description)}</p>
             ${companyCredit}
           </div>
-          <div style="padding:.75rem 1.25rem;display:flex;flex-wrap:wrap;gap:.375rem;border-top:1px solid #1f2937;">${techs}</div>
+          <div style="padding:.75rem 1.25rem;display:flex;flex-wrap:wrap;gap:.375rem;border-top:1px solid #1c1f1e;">${techs}</div>
           ${liveLink ? `<div style="padding:.75rem 1.25rem;">${liveLink}</div>` : ""}
         </article>`;
     })
@@ -131,12 +131,12 @@ function buildPortfolioBodyHtml(projects: Project[]): string {
     <main id="__prerender__" style="font-family:system-ui,sans-serif;background:#000;color:#fff;min-height:100vh;padding:2rem;">
       <div style="max-width:1100px;margin:0 auto;">
         <nav style="margin-bottom:2rem;">
-          <a href="/" style="color:#9ca3af;text-decoration:none;font-size:.875rem;">← Back to home</a>
+          <a href="/" style="color:#9aa39f;text-decoration:none;font-size:.875rem;">← Back to home</a>
         </nav>
         <h1 style="font-size:clamp(1.75rem,4vw,2.75rem);font-weight:800;margin:0 0 .75rem;">
-          Client <span style="background:linear-gradient(135deg,#10b981,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">work</span>
+          Client <span style="background:linear-gradient(135deg,#1aff6e,#2196f3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">work</span>
         </h1>
-        <p style="color:#9ca3af;margin:0 0 2rem;font-size:1rem;">
+        <p style="color:#9aa39f;margin:0 0 2rem;font-size:1rem;">
           Selected commercial software, stores, portals, dashboards, and integrations delivered across freelance and agency roles.
         </p>
         <h2 style="font-size:1.5rem;font-weight:700;margin:0 0 1.5rem;">Selected delivery</h2>
@@ -179,10 +179,10 @@ function buildHomepageBodyHtml({
         const projectUrl = sanitizeHttpUrl(project.url);
 
         return `
-        <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;padding:1.25rem;">
+        <article style="background:#111;border:1px solid #1c1f1e;border-radius:.75rem;padding:1.25rem;">
           <h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0 0 .5rem;">${escapeHtml(project.title)}</h3>
-          <p style="color:#9ca3af;line-height:1.6;margin:0 0 .75rem;">${escapeHtml(project.description)}</p>
-          ${projectUrl ? `<a href="${escapeHtml(projectUrl)}" rel="noopener noreferrer" style="color:#10b981;font-size:.875rem;">View project →</a>` : ""}
+          <p style="color:#9aa39f;line-height:1.6;margin:0 0 .75rem;">${escapeHtml(project.description)}</p>
+          ${projectUrl ? `<a href="${escapeHtml(projectUrl)}" rel="noopener noreferrer" style="color:#1aff6e;font-size:.875rem;">View project →</a>` : ""}
         </article>`;
       }
     )
@@ -191,9 +191,9 @@ function buildHomepageBodyHtml({
   const partnershipItems = partnerships
     .map(
       (partnership) => `
-        <article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;padding:1.25rem;">
+        <article style="background:#111;border:1px solid #1c1f1e;border-radius:.75rem;padding:1.25rem;">
           <h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0 0 .5rem;">${escapeHtml(partnership.title)}</h3>
-          <p style="color:#9ca3af;line-height:1.6;margin:0;">${escapeHtml(partnership.description)}</p>
+          <p style="color:#9aa39f;line-height:1.6;margin:0;">${escapeHtml(partnership.description)}</p>
         </article>`
     )
     .join("\n");
@@ -203,44 +203,44 @@ function buildHomepageBodyHtml({
       <div style="max-width:1100px;margin:0 auto;">
         <header id="home" style="margin-bottom:3rem;">
           <nav style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:2rem;">
-            <span style="color:#10b981;font-weight:700;font-size:1.25rem;">${escapeHtml(heroName)}</span>
+            <span style="color:#1aff6e;font-weight:700;font-size:1.25rem;">${escapeHtml(heroName)}</span>
             <div style="display:flex;flex-wrap:wrap;gap:1rem;">
-              <a href="#about" style="color:#9ca3af;text-decoration:none;">About</a>
-              <a href="#projects" style="color:#9ca3af;text-decoration:none;">Projects</a>
-              <a href="#partnerships" style="color:#9ca3af;text-decoration:none;">Partnerships</a>
-              <a href="#contact" style="color:#9ca3af;text-decoration:none;">Contact</a>
+              <a href="#about" style="color:#9aa39f;text-decoration:none;">About</a>
+              <a href="#projects" style="color:#9aa39f;text-decoration:none;">Projects</a>
+              <a href="#partnerships" style="color:#9aa39f;text-decoration:none;">Partnerships</a>
+              <a href="#contact" style="color:#9aa39f;text-decoration:none;">Contact</a>
             </div>
           </nav>
           <h1 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;margin:0 0 1rem;">${escapeHtml(heroName)}</h1>
           <p style="color:#d1d5db;font-size:1.35rem;margin:0 0 1rem;">${escapeHtml(heroHeadlines[0] || heroTitle)}</p>
-          <p style="color:#9ca3af;font-size:1.125rem;max-width:720px;line-height:1.7;margin:0 0 1.5rem;">${escapeHtml(heroDescription)}</p>
+          <p style="color:#9aa39f;font-size:1.125rem;max-width:720px;line-height:1.7;margin:0 0 1.5rem;">${escapeHtml(heroDescription)}</p>
           <div style="display:flex;flex-wrap:wrap;gap:1.5rem;color:#d1d5db;">
-            <span><strong style="color:#10b981;">${hero?.yearsExperience ?? 3}+</strong> Years Experience</span>
-            <span><strong style="color:#3b82f6;">${hero?.projectsDelivered ?? 30}+</strong> Projects Delivered</span>
-            <span><strong style="color:#a78bfa;">${hero?.clientSatisfaction ?? 98}%</strong> Client Satisfaction</span>
+            <span><strong style="color:#1aff6e;">${hero?.yearsExperience ?? 3}+</strong> Years Experience</span>
+            <span><strong style="color:#2196f3;">${hero?.projectsDelivered ?? 30}+</strong> Projects Delivered</span>
+            <span><strong style="color:#c084fc;">${hero?.clientSatisfaction ?? 98}%</strong> Client Satisfaction</span>
           </div>
         </header>
 
         <section id="about" style="margin-bottom:3rem;">
           <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">${escapeHtml(aboutTitle)}</h2>
-          <p style="color:#9ca3af;line-height:1.7;max-width:800px;margin:0;">${escapeHtml(aboutDescription)}</p>
+          <p style="color:#9aa39f;line-height:1.7;max-width:800px;margin:0;">${escapeHtml(aboutDescription)}</p>
         </section>
 
         <section id="solutions" style="margin-bottom:3rem;">
           <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Focused Solutions</h2>
-          <p style="color:#9ca3af;line-height:1.7;margin:0 0 1.5rem;">Start with the technical problem currently blocking the business. <a href="/solutions" style="color:#10b981;">Browse all solutions →</a></p>
+          <p style="color:#9aa39f;line-height:1.7;margin:0 0 1.5rem;">Start with the technical problem currently blocking the business. <a href="/solutions" style="color:#1aff6e;">Browse all solutions →</a></p>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
-            ${commercialLandingPages.slice(0, 3).map((page) => `<article style="background:#111;border:1px solid #1f2937;border-radius:.75rem;padding:1.25rem;"><h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0 0 .5rem;">${escapeHtml(page.title)}</h3><p style="color:#9ca3af;line-height:1.6;margin:0 0 .75rem;">${escapeHtml(page.intro)}</p><a href="/solutions/${escapeHtml(page.slug)}" style="color:#10b981;">View solution →</a></article>`).join("\n")}
+            ${commercialLandingPages.slice(0, 3).map((page) => `<article style="background:#111;border:1px solid #1c1f1e;border-radius:.75rem;padding:1.25rem;"><h3 style="font-size:1.125rem;font-weight:700;color:#fff;margin:0 0 .5rem;">${escapeHtml(page.title)}</h3><p style="color:#9aa39f;line-height:1.6;margin:0 0 .75rem;">${escapeHtml(page.intro)}</p><a href="/solutions/${escapeHtml(page.slug)}" style="color:#1aff6e;">View solution →</a></article>`).join("\n")}
           </div>
         </section>
 
         <section id="projects" style="margin-bottom:3rem;">
           <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Featured Projects</h2>
-          <p style="color:#9ca3af;line-height:1.7;margin:0 0 1.5rem;">A curated selection of current web applications and client solutions. <a href="/portfolio" style="color:#10b981;">View the full portfolio →</a></p>
+          <p style="color:#9aa39f;line-height:1.7;margin:0 0 1.5rem;">A curated selection of current web applications and client solutions. <a href="/portfolio" style="color:#1aff6e;">View the full portfolio →</a></p>
           ${
             projectCards
               ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">${projectCards}</div>`
-              : `<p style="color:#9ca3af;margin:0;">Projects are being updated. Visit the <a href="/portfolio" style="color:#10b981;">full portfolio</a> for more work.</p>`
+              : `<p style="color:#9aa39f;margin:0;">Projects are being updated. Visit the <a href="/portfolio" style="color:#1aff6e;">full portfolio</a> for more work.</p>`
           }
         </section>
 
@@ -252,7 +252,7 @@ function buildHomepageBodyHtml({
 
         <section id="contact" style="margin-bottom:3rem;">
           <h2 style="font-size:1.875rem;font-weight:700;color:#fff;margin:0 0 1rem;">Get In Touch</h2>
-          <p style="color:#9ca3af;line-height:1.7;max-width:720px;margin:0;">Available for freelance projects, consulting, and full-time opportunities. Let’s build something great together.</p>
+          <p style="color:#9aa39f;line-height:1.7;max-width:720px;margin:0;">Available for freelance projects, consulting, and full-time opportunities. Let’s build something great together.</p>
         </section>
       </div>
     </main>`;
@@ -260,11 +260,11 @@ function buildHomepageBodyHtml({
 
 function buildCaseStudyIndexBodyHtml(caseStudies: CaseStudy[]): string {
   const cards = caseStudies.map((study) => `
-    <article style="background:#101414;border:1px solid #25302d;border-radius:1rem;padding:1.5rem;">
-      <p style="color:#6ee7b7;font-size:.8rem;margin:0 0 .75rem;">${escapeHtml(study.industry)}</p>
+    <article style="background:#0a0a0a;border:1px solid #1c1f1e;border-radius:1rem;padding:1.5rem;">
+      <p style="color:#1aff6e;font-size:.8rem;margin:0 0 .75rem;">${escapeHtml(study.industry)}</p>
       <h2 style="font-size:1.35rem;color:#fff;margin:0 0 .75rem;">${escapeHtml(study.title)}</h2>
-      <p style="color:#a1a1aa;line-height:1.7;margin:0;">${escapeHtml(study.summary)}</p>
-      <a href="/work/${escapeHtml(study.slug)}" style="display:inline-block;color:#6ee7b7;margin-top:1rem;">Read case study →</a>
+      <p style="color:#9aa39f;line-height:1.7;margin:0;">${escapeHtml(study.summary)}</p>
+      <a href="/work/${escapeHtml(study.slug)}" style="display:inline-block;color:#1aff6e;margin-top:1rem;">Read case study →</a>
     </article>`).join("\n");
 
   return buildMarketingBodyHtml({
@@ -309,25 +309,25 @@ function buildMarketingBodyHtml({
 }): string {
   const cards = items
     .map((item) => `
-      <article style="background:#101414;border:1px solid #25302d;border-radius:1rem;padding:1.5rem;">
+      <article style="background:#0a0a0a;border:1px solid #1c1f1e;border-radius:1rem;padding:1.5rem;">
         <h2 style="font-size:1.25rem;color:#fff;margin:0 0 .75rem;">${escapeHtml(item.title)}</h2>
-        <p style="color:#a1a1aa;line-height:1.7;margin:0;">${escapeHtml(item.description)}</p>
-        ${item.href ? `<a href="${escapeHtml(item.href)}" style="display:inline-block;color:#6ee7b7;margin-top:1rem;">Learn more →</a>` : ""}
+        <p style="color:#9aa39f;line-height:1.7;margin:0;">${escapeHtml(item.description)}</p>
+        ${item.href ? `<a href="${escapeHtml(item.href)}" style="display:inline-block;color:#1aff6e;margin-top:1rem;">Learn more →</a>` : ""}
       </article>`)
     .join("\n");
 
   return `
-    <main id="__prerender__" style="font-family:system-ui,sans-serif;background:#050808;color:#fff;min-height:100vh;padding:3rem 1.25rem;">
+    <main id="__prerender__" style="font-family:system-ui,sans-serif;background:#000000;color:#fff;min-height:100vh;padding:3rem 1.25rem;">
       <div style="max-width:1120px;margin:0 auto;">
         <nav style="display:flex;justify-content:space-between;gap:1rem;margin-bottom:5rem;">
           <a href="/" style="color:#fff;font-weight:700;text-decoration:none;">Malek Fouda</a>
           <div style="display:flex;flex-wrap:wrap;gap:1rem;"><a href="/services" style="color:#d4d4d8;">Services</a><a href="/solutions" style="color:#d4d4d8;">Solutions</a><a href="/portfolio" style="color:#d4d4d8;">Projects</a><a href="/work" style="color:#d4d4d8;">Work</a><a href="/about" style="color:#d4d4d8;">About</a><a href="/contact" style="color:#d4d4d8;">Contact</a><a href="/privacy" style="color:#d4d4d8;">Privacy</a></div>
         </nav>
-        <p style="color:#6ee7b7;text-transform:uppercase;letter-spacing:.18em;font-size:.8rem;font-weight:700;">${escapeHtml(eyebrow)}</p>
+        <p style="color:#1aff6e;text-transform:uppercase;letter-spacing:.18em;font-size:.8rem;font-weight:700;">${escapeHtml(eyebrow)}</p>
         <h1 style="font-size:clamp(2.75rem,7vw,5.5rem);line-height:1.02;max-width:950px;margin:1rem 0 1.5rem;">${escapeHtml(title)}</h1>
         <p style="color:#d4d4d8;font-size:1.15rem;line-height:1.75;max-width:760px;margin:0;">${escapeHtml(description)}</p>
         ${cards ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-top:4rem;">${cards}</div>` : ""}
-        <div style="margin-top:3rem;"><a href="https://calendly.com/malekfouda2000/30min" style="display:inline-block;background:#6ee7b7;color:#050808;border-radius:999px;padding:.9rem 1.4rem;font-weight:700;text-decoration:none;">Book a Call</a></div>
+        <div style="margin-top:3rem;"><a href="https://calendly.com/malekfouda2000/30min" style="display:inline-block;background:#1aff6e;color:#000000;border-radius:999px;padding:.9rem 1.4rem;font-weight:700;text-decoration:none;">Book a Call</a></div>
       </div>
     </main>`;
 }
@@ -920,7 +920,7 @@ async function buildRouteHtml(
           ogImage: SOCIAL_IMAGE_URL,
           keywords: "Malek Fouda",
           jsonLd: { "@context": "https://schema.org", "@type": "WebPage", "name": title },
-          bodyContent: `<main id="__prerender__" style="min-height:100vh;background:#050808;color:#fff;display:grid;place-items:center;font-family:system-ui,sans-serif;"><p>${route === "/thank-you" ? "Thank you. Your enquiry has been received." : "Private administration"}</p></main>`,
+          bodyContent: `<main id="__prerender__" style="min-height:100vh;background:#000000;color:#fff;display:grid;place-items:center;font-family:system-ui,sans-serif;"><p>${route === "/thank-you" ? "Thank you. Your enquiry has been received." : "Private administration"}</p></main>`,
         });
         if (!html) return next();
         res.setHeader("X-Robots-Tag", "noindex, nofollow");

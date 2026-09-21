@@ -1,7 +1,24 @@
-import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { AboutContent } from "@shared/schema";
-import { useScrollReveal, useStaggeredReveal } from "@/hooks/useScrollReveal";
+import RevealText from "./design/RevealText";
+import CountUp from "./design/CountUp";
+import WaveText from "./design/WaveText";
+import { Code, ShoppingCart, Smartphone } from "lucide-react";
+import ArtPanel from "./art/ArtPanel";
+import { StackScene } from "./art/Scenes";
+
+const expertise = [
+  { Icon: Code, fill: "bg-signal", title: "Full-Stack Development", desc: "End-to-end web applications with modern frameworks" },
+  { Icon: Smartphone, fill: "bg-flow", title: "Mobile Applications", desc: "Cross-platform mobile apps for iOS and Android" },
+  { Icon: ShoppingCart, fill: "bg-violet", title: "E-commerce Solutions", desc: "Custom online stores and payment integrations" },
+];
+
+const stats = [
+  { value: "3+", label: "Years Experience", color: "text-signal" },
+  { value: "50+", label: "Projects Delivered", color: "text-flow" },
+  { value: "15+", label: "Technologies", color: "text-violet" },
+  { value: "98%", label: "Client Satisfaction", color: "text-bone" },
+];
 
 export default function About() {
   const { data: aboutContent } = useQuery<AboutContent>({
@@ -9,104 +26,47 @@ export default function About() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const headingRef = useScrollReveal<HTMLHeadingElement>();
-  const lineRef = useScrollReveal<HTMLDivElement>({ threshold: 0.4 });
-  const subtitleRef = useScrollReveal<HTMLParagraphElement>({ rootMargin: "0px 0px -30px 0px" });
-  const leftRef = useScrollReveal<HTMLDivElement>({ rootMargin: "0px 0px -50px 0px" });
-  const rightRef = useScrollReveal<HTMLDivElement>({ rootMargin: "0px 0px -50px 0px" });
-  const statsRef = useStaggeredReveal<HTMLDivElement>(4);
-
   return (
-    <section id="about" className="py-12 sm:py-16 lg:py-20 bg-gray-900">
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-
-          {/* Heading */}
-          <div className="text-center mb-12 sm:mb-16">
-            <h2
-              ref={headingRef}
-              className="reveal text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6"
-            >
-              <span className="text-white">About</span>
-              <span className="gradient-text"> Me</span>
-            </h2>
-            <div
-              ref={lineRef}
-              className="reveal-line h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-6 sm:mb-8"
-            />
-            <p
-              ref={subtitleRef}
-              className="reveal text-base sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
-            >
+    <section id="about" className="section relative border-t border-white/10" aria-labelledby="about-heading">
+      <div className="shell">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
+          <div>
+            <RevealText id="about-heading" text="About Me" gradientFrom={1} className="display-l" />
+            <p className="mt-6 max-w-[40ch] text-lg leading-8 text-fog">
               Transforming ideas into dependable digital products through expert development and practical problem-solving
             </p>
+          <p className="display-s mt-10 font-semibold leading-[1.3] text-bone/90" style={{ fontStretch: "100%", fontWeight: 500 }}>
+            {aboutContent?.description ||
+              "With over 3 years of dedicated experience in software development, I specialize in creating high-quality digital solutions that drive business growth and enhance user experiences. My approach combines technical expertise with creative problem-solving to deliver projects that not only meet requirements but exceed expectations."}
+          </p>
           </div>
+          <ArtPanel className="mx-auto w-full max-w-md"><StackScene className="w-full" /></ArtPanel>
+        </div>
 
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-start">
-
-            {/* Left — expertise list */}
-            <div
-              ref={leftRef}
-              className="reveal-left space-y-6 sm:space-y-8"
-            >
-              <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-gray-600 transition-colors duration-300">
-                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-4 sm:mb-6">
-                  My Expertise
-                </h3>
-                <div className="space-y-4 sm:space-y-6">
-                  {[
-                    { color: "bg-green-400", title: "Full-Stack Development", desc: "End-to-end web applications with modern frameworks" },
-                    { color: "bg-blue-400", title: "Mobile Applications", desc: "Cross-platform mobile apps for iOS and Android" },
-                    { color: "bg-purple-400", title: "E-commerce Solutions", desc: "Custom online stores and payment integrations" },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start space-x-3 sm:space-x-4 group">
-                      <div className={`w-2 h-2 ${item.color} rounded-full mt-3 flex-shrink-0 transition-transform duration-300 group-hover:scale-150`} />
-                      <div>
-                        <h4 className="text-base sm:text-lg font-semibold text-white group-hover:text-green-400 transition-colors duration-300">
-                          {item.title}
-                        </h4>
-                        <p className="text-sm sm:text-base text-gray-300">{item.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Right — bio + stats */}
-            <div
-              ref={rightRef}
-              className="reveal-right space-y-6 sm:space-y-8"
-            >
-              <div className="text-sm sm:text-base lg:text-lg text-gray-300 leading-relaxed">
-                {aboutContent?.description ||
-                  "With over 3 years of dedicated experience in software development, I specialize in creating high-quality digital solutions that drive business growth and enhance user experiences. My approach combines technical expertise with creative problem-solving to deliver projects that not only meet requirements but exceed expectations."}
-              </div>
-
-              <div
-                ref={statsRef}
-                className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 stagger-children"
-              >
-                {[
-                  { value: "3+", label: "Years Experience", color: "text-green-400", border: "hover:border-green-400/40" },
-                  { value: "50+", label: "Projects Delivered", color: "text-blue-400", border: "hover:border-blue-400/40" },
-                  { value: "15+", label: "Technologies", color: "text-purple-400", border: "hover:border-purple-400/40" },
-                  { value: "98%", label: "Client Satisfaction", color: "text-yellow-400", border: "hover:border-yellow-400/40" },
-                ].map((stat, i) => (
-                  <div
-                    key={i}
-                    className={`reveal bg-gray-800/50 backdrop-blur-sm border border-gray-700 ${stat.border} rounded-xl p-4 sm:p-6 text-center card-lift group`}
-                  >
-                    <div className={`text-2xl sm:text-3xl font-bold ${stat.color} mb-2 transition-transform duration-300 group-hover:scale-110 inline-block`}>
-                      {stat.value}
-                    </div>
-                    <div className="text-xs sm:text-sm text-gray-300">{stat.label}</div>
+        <div className="mt-20 grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+          <div>
+            <h3 className="text-sm font-semibold text-bone">My Expertise</h3>
+            <ul className="mt-5">
+              {expertise.map((item) => (
+                <li key={item.title} className="group flex items-start gap-4 border-t border-white/10 py-5 last:border-b">
+                  <span aria-hidden="true" className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-black transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-6 group-hover:scale-110 ${item.fill}`}><item.Icon className="h-6 w-6" /></span>
+                  <div>
+                    <WaveText as="h4" text={item.title} className="display-s transition-colors duration-300 group-hover:text-signal" />
+                    <p className="mt-1.5 text-fog">{item.desc}</p>
                   </div>
-                ))}
-              </div>
-            </div>
-
+                </li>
+              ))}
+            </ul>
           </div>
+
+          <dl className="grid grid-cols-2 self-end border-l border-t border-white/10">
+            {stats.map((stat) => (
+              <div key={stat.label} className="flex flex-col-reverse border-b border-r border-white/10 p-6 sm:p-8">
+                <dt className="mt-2 text-sm text-fog sm:text-base">{stat.label}</dt>
+                <dd className={`display text-[clamp(2.6rem,6vw,4.75rem)] leading-none ${stat.color}`}><CountUp value={stat.value} /></dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
     </section>

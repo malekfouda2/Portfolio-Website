@@ -1,10 +1,4 @@
 import {
-  Code,
-  Server,
-  Database,
-  Cloud,
-} from "lucide-react";
-import {
   SiReact,
   SiVuedotjs,
   SiAngular,
@@ -33,174 +27,112 @@ import {
   SiVercel,
   SiNetlify,
 } from "react-icons/si";
-import { useScrollReveal, useStaggeredReveal } from "@/hooks/useScrollReveal";
+import type { ReactNode } from "react";
+import SectionHead from "./design/SectionHead";
+import Marquee from "./design/Marquee";
 
-const skillCategories = [
+type Skill = { name: string; icon: ReactNode };
+
+const icon = "h-7 w-7 sm:h-8 sm:w-8";
+
+const skillCategories: Array<{ title: string; skills: Skill[] }> = [
   {
     title: "Frontend",
-    color: "text-green-400",
-    borderHover: "hover:border-green-400/40",
-    icon: <Code className="w-6 h-6" />,
     skills: [
-      { name: "React", icon: <SiReact className="w-5 h-5 text-blue-400" /> },
-      { name: "Next.js", icon: <SiNextdotjs className="w-5 h-5 text-white" /> },
-      { name: "Vue.js", icon: <SiVuedotjs className="w-5 h-5 text-green-500" /> },
-      { name: "Angular", icon: <SiAngular className="w-5 h-5 text-red-500" /> },
-      { name: "JavaScript", icon: <SiJavascript className="w-5 h-5 text-yellow-400" /> },
-      { name: "TypeScript", icon: <SiTypescript className="w-5 h-5 text-blue-500" /> },
-      { name: "Tailwind CSS", icon: <SiTailwindcss className="w-5 h-5 text-cyan-400" /> },
+      { name: "React", icon: <SiReact className={`${icon} text-[#61DAFB]`} /> },
+      { name: "Next.js", icon: <SiNextdotjs className={`${icon} text-white`} /> },
+      { name: "Vue.js", icon: <SiVuedotjs className={`${icon} text-[#42B883]`} /> },
+      { name: "Angular", icon: <SiAngular className={`${icon} text-[#DD0031]`} /> },
+      { name: "JavaScript", icon: <SiJavascript className={`${icon} text-[#F7DF1E]`} /> },
+      { name: "TypeScript", icon: <SiTypescript className={`${icon} text-[#3178C6]`} /> },
+      { name: "Tailwind CSS", icon: <SiTailwindcss className={`${icon} text-[#38BDF8]`} /> },
     ],
   },
   {
     title: "Backend",
-    color: "text-blue-400",
-    borderHover: "hover:border-blue-400/40",
-    icon: <Server className="w-6 h-6" />,
     skills: [
-      { name: "Node.js", icon: <SiNodedotjs className="w-5 h-5 text-green-500" /> },
-      { name: "Express.js", icon: <SiExpress className="w-5 h-5 text-gray-400" /> },
-      { name: "Python", icon: <SiPython className="w-5 h-5 text-yellow-500" /> },
-      { name: "PHP", icon: <SiPhp className="w-5 h-5 text-purple-500" /> },
-      { name: "Laravel", icon: <SiLaravel className="w-5 h-5 text-red-500" /> },
-      { name: ".NET", icon: <SiDotnet className="w-5 h-5 text-purple-600" /> },
+      { name: "Node.js", icon: <SiNodedotjs className={`${icon} text-[#5FA04E]`} /> },
+      { name: "Express.js", icon: <SiExpress className={`${icon} text-gray-300`} /> },
+      { name: "Python", icon: <SiPython className={`${icon} text-[#FFD43B]`} /> },
+      { name: "PHP", icon: <SiPhp className={`${icon} text-[#8892BF]`} /> },
+      { name: "Laravel", icon: <SiLaravel className={`${icon} text-[#FF2D20]`} /> },
+      { name: ".NET", icon: <SiDotnet className={`${icon} text-[#9B6BDF]`} /> },
     ],
   },
   {
     title: "Database",
-    color: "text-purple-400",
-    borderHover: "hover:border-purple-400/40",
-    icon: <Database className="w-6 h-6" />,
     skills: [
-      { name: "MySQL", icon: <SiMysql className="w-5 h-5 text-orange-500" /> },
-      { name: "MongoDB", icon: <SiMongodb className="w-5 h-5 text-green-500" /> },
-      { name: "PostgreSQL", icon: <SiPostgresql className="w-5 h-5 text-blue-600" /> },
-      { name: "Firebase", icon: <SiFirebase className="w-5 h-5 text-orange-400" /> },
+      { name: "MySQL", icon: <SiMysql className={`${icon} text-[#F29111]`} /> },
+      { name: "MongoDB", icon: <SiMongodb className={`${icon} text-[#47A248]`} /> },
+      { name: "PostgreSQL", icon: <SiPostgresql className={`${icon} text-[#4169E1]`} /> },
+      { name: "Firebase", icon: <SiFirebase className={`${icon} text-[#FFCA28]`} /> },
     ],
   },
   {
     title: "Tools & Platforms",
-    color: "text-yellow-400",
-    borderHover: "hover:border-yellow-400/40",
-    icon: <Cloud className="w-6 h-6" />,
     skills: [
-      { name: "Git", icon: <SiGit className="w-5 h-5 text-orange-500" /> },
-      { name: "Docker", icon: <SiDocker className="w-5 h-5 text-blue-500" /> },
-      { name: "AWS", icon: <SiAmazonwebservices className="w-5 h-5 text-orange-400" /> },
-      { name: "React Native", icon: <SiReactNative className="w-5 h-5 text-blue-400" /> },
+      { name: "Git", icon: <SiGit className={`${icon} text-[#F05032]`} /> },
+      { name: "Docker", icon: <SiDocker className={`${icon} text-[#2496ED]`} /> },
+      { name: "AWS", icon: <SiAmazonwebservices className={`${icon} text-[#FF9900]`} /> },
+      { name: "React Native", icon: <SiReactNative className={`${icon} text-[#61DAFB]`} /> },
     ],
   },
 ];
 
-const extraSkills = [
-  { name: "Shopify", icon: <SiShopify className="w-4 h-4 text-green-500" /> },
-  { name: "WordPress", icon: <SiWordpress className="w-4 h-4 text-blue-500" /> },
-  { name: "Django", icon: <SiDjango className="w-4 h-4 text-green-600" /> },
-  { name: "FastAPI", icon: <SiFastapi className="w-4 h-4 text-teal-500" /> },
-  { name: "Vercel", icon: <SiVercel className="w-4 h-4 text-white" /> },
-  { name: "Netlify", icon: <SiNetlify className="w-4 h-4 text-cyan-400" /> },
+const extraSkills: Skill[] = [
+  { name: "Shopify", icon: <SiShopify className={`${icon} text-[#95BF47]`} /> },
+  { name: "WordPress", icon: <SiWordpress className={`${icon} text-[#21759B]`} /> },
+  { name: "Django", icon: <SiDjango className={`${icon} text-[#44B78B]`} /> },
+  { name: "FastAPI", icon: <SiFastapi className={`${icon} text-[#009688]`} /> },
+  { name: "Vercel", icon: <SiVercel className={`${icon} text-white`} /> },
+  { name: "Netlify", icon: <SiNetlify className={`${icon} text-[#32E6E2]`} /> },
 ];
 
-export default function Skills() {
-  const headingRef = useScrollReveal<HTMLHeadingElement>();
-  const lineRef = useScrollReveal<HTMLDivElement>({ threshold: 0.4 });
-  const subtitleRef = useScrollReveal<HTMLParagraphElement>();
-  const categoriesRef = useStaggeredReveal<HTMLDivElement>(skillCategories.length);
-  const extraTitleRef = useScrollReveal<HTMLDivElement>();
-  const extraRef = useStaggeredReveal<HTMLDivElement>(extraSkills.length);
-
+function SkillItem({ skill }: { skill: Skill }) {
   return (
-    <section id="skills" className="py-12 sm:py-16 lg:py-20 bg-gray-900">
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
+    <span className="group/skill mr-10 inline-flex items-center gap-3 sm:mr-14">
+      <span aria-hidden="true" className="transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover/skill:-rotate-6 group-hover/skill:scale-125">{skill.icon}</span>
+      <span className="display whitespace-nowrap [font-stretch:100%] text-[clamp(1.4rem,2.8vw,2.3rem)] transition-colors duration-300 group-hover/skill:text-signal">{skill.name}</span>
+    </span>
+  );
+}
 
-          {/* Heading */}
-          <div className="text-center mb-12 sm:mb-16">
-            <h2
-              ref={headingRef}
-              className="reveal text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6"
-            >
-              <span className="text-white">Tech</span>
-              <span className="gradient-text"> Stack</span>
-            </h2>
-            <div
-              ref={lineRef}
-              className="reveal-line h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-6 sm:mb-8"
-            />
-            <p
-              ref={subtitleRef}
-              className="reveal text-base sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
-            >
-              Technologies and tools I use to bring ideas to life
-            </p>
-          </div>
+/** Repeats short lists so each marquee row is wide enough to loop without gaps. */
+function fill(skills: Skill[]) {
+  return skills.length >= 6 ? skills : [...skills, ...skills];
+}
 
-          {/* Category cards — staggered */}
-          <div
-            ref={categoriesRef}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 stagger-children"
-          >
-            {skillCategories.map((category, index) => (
-              <div
-                key={index}
-                className={`reveal bg-gray-800/50 backdrop-blur-sm border border-gray-700 ${category.borderHover} rounded-2xl p-4 sm:p-6 card-lift`}
-              >
-                <div className="flex items-center mb-4">
-                  <div aria-hidden="true" className={`${category.color} mr-2 sm:mr-3`}>{category.icon}</div>
-                  <h3 className={`text-base sm:text-lg lg:text-xl font-bold ${category.color}`}>
-                    {category.title}
-                  </h3>
-                </div>
-                <div className="space-y-2 sm:space-y-3">
-                  {category.skills.map((skill, skillIndex) => (
-                    <div
-                      key={skillIndex}
-                      className="skill-pill flex items-center space-x-2 sm:space-x-3 group cursor-pointer px-2 py-1 rounded-lg hover:bg-gray-700/50"
-                    >
-                      <div aria-hidden="true" className="flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-200 group-hover:scale-110">
-                        {skill.icon}
-                      </div>
-                      <span className="text-xs sm:text-sm lg:text-base text-gray-300 group-hover:text-white transition-colors duration-200">
-                        {skill.name}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+export default function Skills() {
+  return (
+    <section id="skills" className="section overflow-hidden border-t border-white/10" aria-labelledby="skills-heading">
+      <div className="shell">
+        <SectionHead id="skills-heading" title="Tech Stack" gradientFrom={1} intro="Technologies and tools I use to bring ideas to life" />
+      </div>
 
-          {/* More technologies — staggered */}
-          <div className="mt-12 sm:mt-16">
-            <div ref={extraTitleRef} className="reveal text-center mb-6 sm:mb-8">
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2">
-                More Technologies
-              </h3>
-              <p className="text-sm sm:text-base text-gray-400">Complete technology stack I work with</p>
-            </div>
-
-            <div
-              ref={extraRef}
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 stagger-children"
-            >
-              {extraSkills.map((skill, index) => (
-                <div
-                  key={index}
-                  className="reveal skill-pill bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-3 sm:p-4 text-center hover:border-green-400 hover:bg-gray-700/50 cursor-pointer group"
-                >
-                  <div className="flex flex-col items-center space-y-1 sm:space-y-2">
-                    <div aria-hidden="true" className="transition-transform duration-300 group-hover:scale-125">
-                      {skill.icon}
-                    </div>
-                    <span className="text-xs sm:text-sm text-gray-300 font-medium group-hover:text-white transition-colors duration-200">
-                      {skill.name}
-                    </span>
-                  </div>
-                </div>
-              ))}
+      <div className="mt-14 border-b border-white/10">
+        {skillCategories.map((category, index) => (
+          <div key={category.title} className="grid border-t border-white/10 lg:grid-cols-[17rem_1fr]">
+            <h3 className="flex items-center px-5 pt-5 sm:px-8 lg:border-r lg:border-white/10 lg:px-12 lg:py-0">
+              <span className="tag whitespace-nowrap">{category.title}</span>
+            </h3>
+            <ul className="sr-only">{category.skills.map((skill) => <li key={skill.name}>{skill.name}</li>)}</ul>
+            <div aria-hidden="true" className="py-6 sm:py-8">
+              <Marquee reverse={index % 2 === 1} duration={34 + index * 6}>
+                {fill(category.skills).map((skill, skillIndex) => <SkillItem key={`${skill.name}-${skillIndex}`} skill={skill} />)}
+              </Marquee>
             </div>
           </div>
+        ))}
+      </div>
 
-        </div>
+      <div className="shell mt-20">
+        <SectionHead title="More Technologies" size="m" intro="Complete technology stack I work with" />
+      </div>
+      <ul className="sr-only">{extraSkills.map((skill) => <li key={skill.name}>{skill.name}</li>)}</ul>
+      <div aria-hidden="true" className="mt-10 border-y border-white/10 py-8">
+        <Marquee duration={30}>
+          {extraSkills.map((skill) => <SkillItem key={skill.name} skill={skill} />)}
+        </Marquee>
       </div>
     </section>
   );

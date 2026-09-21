@@ -5,12 +5,23 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"Hanken Grotesk Variable"', "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ['"Anybody Variable"', '"Hanken Grotesk Variable"', "sans-serif"],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        // Mirrors the tokens in index.css; channel form so opacity modifiers (e.g. text-bone/80) work.
+        void: "rgb(0 0 0 / <alpha-value>)",
+        bone: "rgb(244 247 245 / <alpha-value>)",
+        fog: "rgb(154 163 159 / <alpha-value>)",
+        signal: "hsl(142 100% 55% / <alpha-value>)",
+        flow: "hsl(207 90% 54% / <alpha-value>)",
+        violet: "hsl(270 95% 75% / <alpha-value>)",
         background: "var(--background)",
         foreground: "var(--foreground)",
         card: {

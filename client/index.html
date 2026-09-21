@@ -34,8 +34,21 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#050808" />
+    <meta name="theme-color" content="#000000" />
     <meta name="google-site-verification" content="nQ_IA49yXG9t7cQghRngRA2KGhzmq5aHN46JVwgsU_Y" />
+    <!--
+      The server injects crawler-readable HTML (#__prerender__) into #root. With
+      JavaScript running, hide it so visitors never see that plain version flash
+      before the app mounts; if the app has not mounted after 8s, show it again
+      as a fallback. Search engines and no-JS visitors always receive it.
+    -->
+    <style>html,body{background:#000;color:#f4f7f5}.js #__prerender__{display:none}</style>
+    <script>
+      document.documentElement.classList.add("js");
+      setTimeout(function () {
+        if (!window.__appMounted) document.documentElement.classList.remove("js");
+      }, 8000);
+    </script>
   </head>
   <body>
     <div id="root"></div>

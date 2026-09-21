@@ -1,199 +1,80 @@
 import shopifyLogo from "@assets/shopify-logo-160.webp";
 import wordpressLogo from "@assets/wordpress-logo-160.webp";
-import { useQuery } from "@tanstack/react-query";
-import type { Partnership } from "@shared/schema";
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import SectionHead from "./design/SectionHead";
+import Tilt from "./design/Tilt";
+
+type PartnerPanel = {
+  logo: string;
+  logoAlt: string;
+  title: string;
+  badge: string;
+  description: string;
+  stats: Array<{ value: string; label: string }>;
+  specializations: string[];
+  field: string;
+};
+
+const panels: PartnerPanel[] = [
+  {
+    logo: shopifyLogo,
+    logoAlt: "Shopify Logo",
+    title: "Shopify Partner",
+    badge: "Official Partner",
+    description: "Certified Shopify developer and expert specializing in building online stores and custom e-commerce solutions that drive sales and enhance customer experience.",
+    stats: [{ value: "15+", label: "Stores Built" }, { value: "3+", label: "Years Experience" }],
+    specializations: ["Building Online Stores", "Custom Themes", "App Development", "Store Setup", "Migration"],
+    field: "bg-signal",
+  },
+  {
+    logo: wordpressLogo,
+    logoAlt: "WordPress Logo",
+    title: "WordPress Developer & Expert",
+    badge: "Certified Developer",
+    description: "Expert WordPress developer creating custom themes, plugins, and scalable solutions for businesses of all sizes.",
+    stats: [{ value: "20+", label: "Sites Created" }, { value: "3+", label: "Years Experience" }],
+    specializations: ["Building Any Type Of Websites", "Custom Themes", "Plugin Development", "WooCommerce", "Optimization"],
+    field: "bg-flow",
+  },
+];
 
 export default function Partnerships() {
-  const { data: partnerships = [] } = useQuery<Partnership[]>({
-    queryKey: ["/api/partnerships"],
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const headingRef = useScrollReveal<HTMLHeadingElement>();
-  const lineRef = useScrollReveal<HTMLDivElement>({ threshold: 0.4 });
-  const subtitleRef = useScrollReveal<HTMLParagraphElement>();
-  const shopifyRef = useScrollReveal<HTMLDivElement>({ rootMargin: "0px 0px -60px 0px" });
-  const wpRef = useScrollReveal<HTMLDivElement>({ rootMargin: "0px 0px -60px 0px" });
-
-  const hasPartnerships = partnerships.length > 0;
   return (
-    <section id="partnerships" className="py-12 sm:py-16 lg:py-20 bg-black">
-      <div className="container mx-auto px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2
-              ref={headingRef}
-              className="reveal text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6"
-            >
-              <span className="text-white">Trusted</span>
-              <span className="gradient-text"> Partnerships</span>
-            </h2>
-            <div
-              ref={lineRef}
-              className="reveal-line h-1 bg-gradient-to-r from-green-400 to-blue-500 mx-auto mb-6 sm:mb-8"
-            />
-            <p
-              ref={subtitleRef}
-              className="reveal text-base sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
-            >
-              Official partnerships with leading platforms to deliver
-              exceptional results
-            </p>
-          </div>
+    <section id="partnerships" className="section border-t border-white/10" aria-labelledby="partnerships-heading">
+      <div className="shell">
+        <SectionHead id="partnerships-heading" title="Trusted Partnerships" gradientFrom={1} intro="Official partnerships with leading platforms to deliver exceptional results" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
-            {/* Shopify Partner Section */}
-            <div
-              ref={shopifyRef}
-              className="reveal-left bg-gradient-to-br from-green-900/20 to-green-800/10 backdrop-blur-sm border border-green-800/50 rounded-3xl p-6 sm:p-8 lg:p-10 hover:border-green-600/50 card-lift group"
-            >
-              <div className="text-center mb-6 sm:mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl mb-4 sm:mb-6 group-hover:scale-105 transition-transform duration-300 p-2">
-                  <img
-                    src={shopifyLogo}
-                    alt="Shopify Logo"
-                    className="w-full h-full object-contain"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-3 sm:mb-4">
-                  Shopify Partner
-                </h3>
-                <div className="inline-flex items-center space-x-2 bg-green-600/20 border border-green-600/30 rounded-full px-3 py-1 sm:px-4 sm:py-2 mb-4 sm:mb-6">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span className="text-green-400 font-semibold text-xs sm:text-sm">
-                    Official Partner
+        <div className="mt-14 grid gap-5 lg:grid-cols-2">
+          {panels.map((panel) => (
+            <Tilt key={panel.title} max={8} className="h-full">
+              <article className={`relative flex h-full flex-col rounded-[2rem] p-7 text-black [transform-style:preserve-3d] sm:p-10 ${panel.field}`}>
+                <div aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-[2rem] opacity-60 [background:radial-gradient(circle_at_var(--glare-x,50%)_var(--glare-y,0%),rgba(255,255,255,0.45),transparent_45%)]" />
+                <div className="depth relative flex items-start justify-between gap-6" style={{ ["--depth" as string]: "60px" }}>
+                  <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-white p-2.5 sm:h-20 sm:w-20">
+                    <img src={panel.logo} alt={panel.logoAlt} className="h-full w-full object-contain" loading="lazy" decoding="async" />
+                  </div>
+                  <span className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-black/70 px-3.5 py-1.5 text-sm font-bold">
+                    <span aria-hidden="true" className="h-2 w-2 rounded-full bg-black" />{panel.badge}
                   </span>
                 </div>
-              </div>
-
-              <div className="space-y-4 text-center">
-                <p className="text-gray-300 text-sm sm:text-base lg:text-lg leading-relaxed">
-                  Certified Shopify developer and expert specializing in
-                  building online stores and custom e-commerce solutions that
-                  drive sales and enhance customer experience.
-                </p>
-
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-6 sm:mt-8">
-                  <div className="bg-green-900/20 border border-green-800/30 rounded-xl p-3 sm:p-4">
-                    <div className="text-xl sm:text-2xl font-bold text-green-400 mb-1">
-                      15+
+                <h3 className="display depth relative mt-10 text-[clamp(1.8rem,3.4vw,2.8rem)]" style={{ ["--depth" as string]: "36px" }}>{panel.title}</h3>
+                <p className="relative mt-5 max-w-[48ch] text-[1.05rem] leading-7 text-black/80">{panel.description}</p>
+                <dl className="depth relative mt-8 grid grid-cols-2 gap-6 border-t border-black/20 pt-6" style={{ ["--depth" as string]: "28px" }}>
+                  {panel.stats.map((stat) => (
+                    <div key={stat.label} className="flex flex-col-reverse">
+                      <dt className="mt-1 text-sm font-medium text-black/70">{stat.label}</dt>
+                      <dd className="display text-5xl leading-none">{stat.value}</dd>
                     </div>
-                    <div className="text-xs sm:text-sm text-gray-400">
-                      Stores Built
-                    </div>
-                  </div>
-                  <div className="bg-green-900/20 border border-green-800/30 rounded-xl p-3 sm:p-4">
-                    <div className="text-xl sm:text-2xl font-bold text-green-400 mb-1">
-                      3+
-                    </div>
-                    <div className="text-xs sm:text-sm text-gray-400">
-                      Years Experience
-                    </div>
-                  </div>
+                  ))}
+                </dl>
+                <div className="relative mt-auto pt-8">
+                  <p className="text-sm font-semibold text-black/70">Specializations:</p>
+                  <ul className="mt-3 flex flex-wrap gap-2">
+                    {panel.specializations.map((item) => <li key={item} className="rounded-full bg-black px-3.5 py-1.5 text-sm font-medium text-bone">{item}</li>)}
+                  </ul>
                 </div>
-
-                <div className="pt-6">
-                  <div className="text-sm text-gray-400 mb-3">
-                    Specializations:
-                  </div>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    <span className="bg-green-900/30 text-green-300 px-3 py-1 rounded-full text-sm">
-                      Building Online Stores
-                    </span>
-                    <span className="bg-green-900/30 text-green-300 px-3 py-1 rounded-full text-sm">
-                      Custom Themes
-                    </span>
-                    <span className="bg-green-900/30 text-green-300 px-3 py-1 rounded-full text-sm">
-                      App Development
-                    </span>
-                    <span className="bg-green-900/30 text-green-300 px-3 py-1 rounded-full text-sm">
-                      Store Setup
-                    </span>
-                    <span className="bg-green-900/30 text-green-300 px-3 py-1 rounded-full text-sm">
-                      Migration
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* WordPress Expert Section */}
-            <div
-              ref={wpRef}
-              className="reveal-right bg-gradient-to-br from-blue-900/20 to-blue-800/10 backdrop-blur-sm border border-blue-800/50 rounded-3xl p-8 lg:p-10 hover:border-blue-600/50 card-lift group"
-            >
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-300 p-2">
-                  <img
-                    src={wordpressLogo}
-                    alt="WordPress Logo"
-                    className="w-full h-full object-contain"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4">
-                  WordPress Developer & Expert
-                </h3>
-                <div className="inline-flex items-center space-x-2 bg-blue-600/20 border border-blue-600/30 rounded-full px-4 py-2 mb-6">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <span className="text-blue-400 font-semibold text-sm">
-                    Certified Developer
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-4 text-center">
-                <p className="text-gray-300 text-lg leading-relaxed">
-                  Expert WordPress developer creating custom themes, plugins,
-                  and scalable solutions for businesses of all sizes.
-                </p>
-
-                <div className="grid grid-cols-2 gap-4 mt-8">
-                  <div className="bg-blue-900/20 border border-blue-800/30 rounded-xl p-4">
-                    <div className="text-2xl font-bold text-blue-400 mb-1">
-                      20+
-                    </div>
-                    <div className="text-sm text-gray-400">Sites Created</div>
-                  </div>
-                  <div className="bg-blue-900/20 border border-blue-800/30 rounded-xl p-4">
-                    <div className="text-2xl font-bold text-blue-400 mb-1">
-                      3+
-                    </div>
-                    <div className="text-sm text-gray-400">
-                      Years Experience
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-6">
-                  <div className="text-sm text-gray-400 mb-3">
-                    Specializations:
-                  </div>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    <span className="bg-blue-900/30 text-blue-300 px-3 py-1 rounded-full text-sm">
-                      Building Any Type Of Websites
-                    </span>
-                    <span className="bg-blue-900/30 text-blue-300 px-3 py-1 rounded-full text-sm">
-                      Custom Themes
-                    </span>
-                    <span className="bg-blue-900/30 text-blue-300 px-3 py-1 rounded-full text-sm">
-                      Plugin Development
-                    </span>
-                    <span className="bg-blue-900/30 text-blue-300 px-3 py-1 rounded-full text-sm">
-                      WooCommerce
-                    </span>
-                    <span className="bg-blue-900/30 text-blue-300 px-3 py-1 rounded-full text-sm">
-                      Optimization
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+              </article>
+            </Tilt>
+          ))}
         </div>
       </div>
     </section>

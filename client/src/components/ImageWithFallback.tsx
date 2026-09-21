@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface ImageWithFallbackProps {
   src: string | null | undefined;
@@ -21,8 +21,11 @@ function fallbackDataUrl(text: string) {
 
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
     <svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100%" height="100%" fill="#111827"/>
-      <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" fill="#6ee7b7" text-anchor="middle" dy=".3em">${escaped}</text>
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1aff6e"/><stop offset="1" stop-color="#2196f3"/></linearGradient></defs>
+      <rect width="100%" height="100%" fill="#000"/>
+      <polyline points="92,120 42,200 92,280" fill="none" stroke="url(#g)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="508,120 558,200 508,280" fill="none" stroke="url(#g)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="50%" y="50%" font-family="Arial, sans-serif" font-weight="700" font-size="28" fill="#f4f7f5" text-anchor="middle" dy=".35em">${escaped}</text>
     </svg>
   `)}`;
 }
@@ -46,19 +49,24 @@ export default function ImageWithFallback({
   const fallbackSource = useMemo(() => fallbackDataUrl(fallbackText), [fallbackText]);
   const [currentSource, setCurrentSource] = useState(originalSource || fallbackSource);
   const [isLoading, setIsLoading] = useState(true);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     setCurrentSource(originalSource || fallbackSource);
-    setIsLoading(true);
+    // A cached image can finish loading before this effect runs, and its load
+    // event will not fire again, so check the element instead of assuming.
+    const image = imageRef.current;
+    setIsLoading(!(image?.complete && image.naturalWidth > 0));
   }, [originalSource, fallbackSource]);
 
   return (
     <div className={`relative ${className}`}>
       {isLoading && (
-        <div className="absolute inset-0 animate-pulse bg-gray-800" aria-hidden="true" />
+        <div className="absolute inset-0 animate-pulse bg-white/[0.06]" aria-hidden="true" />
       )}
       
       <img
+        ref={imageRef}
         src={currentSource}
         alt={alt}
         className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500`}
@@ -71,7 +79,7 @@ export default function ImageWithFallback({
           else setIsLoading(false);
         }}
         loading={loading}
-        fetchPriority={fetchPriority}
+        {...{ fetchpriority: fetchPriority }}
         decoding="async"
       />
     </div>

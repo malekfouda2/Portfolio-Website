@@ -8,6 +8,7 @@ import { initGA } from "./lib/analytics";
 import { useAnalytics } from "./hooks/use-analytics";
 import { captureLeadAttribution } from "./lib/attribution";
 import CookieConsent from "@/components/CookieConsent";
+import BracketCursor from "@/components/design/BracketCursor";
 
 const Services = lazy(() => import("@/pages/services"));
 const Service = lazy(() => import("@/pages/service"));
@@ -29,7 +30,7 @@ function Router() {
   useAnalytics();
   
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#050808]" aria-busy="true" />}>
+    <Suspense fallback={<main className="min-h-screen bg-black" aria-busy="true" />}>
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/services" component={Services} />
@@ -65,6 +66,7 @@ function App() {
       <Toaster />
       <Router />
       <CookieConsent />
+      <BracketCursor />
     </QueryClientProvider>
   );
 }

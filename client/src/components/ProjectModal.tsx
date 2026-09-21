@@ -1,7 +1,9 @@
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import ImageWithFallback from "./ImageWithFallback";
 import type { Project } from "@shared/schema";
+import { useReducedMotionPreference } from "@/hooks/useMotionPrefs";
 
 interface ProjectModalProps {
   project: Project;
@@ -15,6 +17,7 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   const openerRef = useRef<HTMLElement | null>(null);
   const onCloseRef = useRef(onClose);
   const titleId = useId();
+  const reducedMotion = useReducedMotionPreference();
   const images = project.screenshots?.length ? project.screenshots : [project.image];
 
   useEffect(() => {
@@ -24,6 +27,8 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
   useEffect(() => {
     openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     closeButtonRef.current?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -31,6 +36,8 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
         onCloseRef.current();
         return;
       }
+      if (event.key === "ArrowRight" && images.length > 1) setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      if (event.key === "ArrowLeft" && images.length > 1) setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
 
       if (event.key !== "Tab" || !dialogRef.current) return;
 
@@ -59,152 +66,146 @@ export default function ProjectModal({ project, onClose }: ProjectModalProps) {
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
       openerRef.current?.focus();
     };
-  }, []);
+  }, [images.length]);
 
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
-  };
+  const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  const typeLabel = project.type === "personal" ? "Personal" : project.type === "company" ? "Company" : "Freelance";
+  const typeStyle = project.type === "personal" ? "bg-signal" : project.type === "company" ? "bg-violet" : "bg-flow";
 
   return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[70] p-2 sm:p-4"
+    <motion.div
+      className="fixed inset-0 z-[70] flex items-end justify-center bg-black/85 backdrop-blur-sm sm:items-center sm:p-6"
       onClick={onClose}
+      initial={reducedMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
     >
-      <div 
+      <motion.div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="bg-gray-900 rounded-lg max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-t-[2rem] border border-white/15 bg-black sm:rounded-[2rem]"
         onClick={(e) => e.stopPropagation()}
+        initial={reducedMotion ? false : { y: 60, scale: 0.97 }}
+        animate={{ y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="sticky top-0 bg-gray-900 z-20 flex items-center justify-between p-4 sm:p-6 border-b border-gray-800 shadow-lg">
-          <h3 id={titleId} className="text-lg sm:text-2xl font-bold text-white pr-4 line-clamp-1">{project.title}</h3>
+        <div className="sticky top-0 z-20 flex items-start justify-between gap-4 border-b border-white/10 bg-black/90 p-5 backdrop-blur-xl sm:p-7">
+          <div className="min-w-0">
+            <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold text-black ${typeStyle}`}>{typeLabel}</span>
+            <h3 id={titleId} className="display mt-3 text-[clamp(1.6rem,3.6vw,2.6rem)]" style={{ fontStretch: "112%" }}>{project.title}</h3>
+          </div>
           <button
             ref={closeButtonRef}
             onClick={onClose}
             aria-label="Close project details"
-            className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-red-500/20 hover:bg-red-500/40 text-red-400 hover:text-red-300 rounded-full transition-all duration-300"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/20 text-bone transition-transform duration-300 hover:rotate-90 hover:border-bone"
             data-testid="modal-close-button"
           >
-            <X aria-hidden="true" size={24} className="sm:w-6 sm:h-6" />
+            <X aria-hidden="true" size={20} />
           </button>
         </div>
-        
-        <div className="p-4 sm:p-6">
-          <div className="relative mb-4 sm:mb-6">
+
+        <div className="p-5 sm:p-7">
+          <div className="relative overflow-hidden rounded-[1.5rem] border border-white/10">
             <ImageWithFallback
               src={images[currentImageIndex]}
               alt={`${project.title} screenshot ${currentImageIndex + 1}`}
-              className="w-full h-48 sm:h-64 md:h-96 object-cover rounded-lg"
+              className="aspect-[16/10] w-full object-cover object-top"
               fallbackText={`${project.title} Screenshot`}
             />
-            
+
             {images.length > 1 && (
               <>
                 <button
                   onClick={prevImage}
                   aria-label={`Show previous image (image ${((currentImageIndex - 1 + images.length) % images.length) + 1} of ${images.length})`}
-                  className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-70 transition-all"
+                  className="absolute left-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-black/70 text-bone backdrop-blur transition hover:bg-bone hover:text-black"
                   data-testid="modal-prev-image"
                 >
-                  <ChevronLeft aria-hidden="true" size={20} className="sm:w-6 sm:h-6" />
+                  <ChevronLeft aria-hidden="true" size={22} />
                 </button>
                 <button
                   onClick={nextImage}
                   aria-label={`Show next image (image ${((currentImageIndex + 1) % images.length) + 1} of ${images.length})`}
-                  className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-1.5 sm:p-2 rounded-full hover:bg-opacity-70 transition-all"
+                  className="absolute right-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-black/70 text-bone backdrop-blur transition hover:bg-bone hover:text-black"
                   data-testid="modal-next-image"
                 >
-                  <ChevronRight aria-hidden="true" size={20} className="sm:w-6 sm:h-6" />
+                  <ChevronRight aria-hidden="true" size={22} />
                 </button>
-                
-                <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-1.5 sm:space-x-2">
+
+                <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/70 px-3 py-2 backdrop-blur">
                   {images.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
                       aria-label={`Show image ${index + 1} of ${images.length}`}
                       aria-current={index === currentImageIndex ? "true" : undefined}
-                      className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all ${
-                        index === currentImageIndex ? 'bg-green-400' : 'bg-gray-600'
-                      }`}
+                      className={`h-2 rounded-full transition-all duration-300 ${index === currentImageIndex ? "w-6 bg-signal" : "w-2 bg-white/40 hover:bg-white/70"}`}
                     />
                   ))}
                 </div>
               </>
             )}
           </div>
-          
-          <div className="space-y-3 sm:space-y-4">
-            <p className="text-gray-300 text-sm sm:text-base lg:text-lg leading-relaxed">
-              {project.description}
-            </p>
-            
-            {/* Company Credit Section */}
-            {project.companyName && (
-              <div className="p-3 sm:p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-                <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Project Attribution</h4>
-                <div className="space-y-2">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
-                    <span className="text-gray-400 text-sm">Company:</span>
-                    <a 
-                      href={project.companyUrl || undefined}
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 transition-colors font-medium text-sm sm:text-base"
-                    >
-                      {project.companyName}
-                    </a>
-                  </div>
-                  {project.role && (
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
-                      <span className="text-gray-400 text-sm">My Role:</span>
-                      <span className="text-green-400 font-medium text-sm sm:text-base">{project.role}</span>
+
+          <div className="mt-7 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+            <p className="text-lg leading-8 text-bone/85">{project.description}</p>
+
+            <div className="space-y-6">
+              {project.companyName && (
+                <div className="rounded-[1.25rem] border border-white/10 p-5">
+                  <h4 className="text-sm font-semibold text-bone">Project Attribution</h4>
+                  <dl className="mt-3 space-y-2 text-sm">
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-fog">Company:</dt>
+                      <dd>
+                        <a href={project.companyUrl || undefined} target="_blank" rel="noopener noreferrer" className="font-semibold text-flow hover:underline">{project.companyName}</a>
+                      </dd>
                     </div>
-                  )}
-                  <div className="text-xs sm:text-sm text-gray-500 mt-2">
-                    Built from scratch as part of my professional work
-                  </div>
+                    {project.role && (
+                      <div className="flex justify-between gap-4">
+                        <dt className="text-fog">My Role:</dt>
+                        <dd className="font-semibold text-signal">{project.role}</dd>
+                      </div>
+                    )}
+                  </dl>
+                  <p className="mt-3 text-xs text-fog">Built from scratch as part of my professional work</p>
                 </div>
+              )}
+
+              <div>
+                <h4 className="text-sm font-semibold text-bone">Technologies Used:</h4>
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {project.technologies.map((tech) => <li key={tech} className="chip">{tech}</li>)}
+                </ul>
               </div>
-            )}
-            
-            <div>
-              <h4 className="text-base sm:text-lg font-semibold text-white mb-2">Technologies Used:</h4>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {project.technologies.map((tech, index) => (
-                  <span
-                    key={index}
-                    className="px-2 sm:px-3 py-0.5 sm:py-1 bg-gray-800 text-green-400 rounded-full text-xs sm:text-sm"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-            
-            {/* Close button at bottom for mobile */}
-            <div className="pt-4 sm:hidden">
-              <button
-                onClick={onClose}
-                className="w-full bg-red-500/20 hover:bg-red-500/40 text-red-400 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2"
-                data-testid="modal-close-button-bottom"
-              >
-                  <X aria-hidden="true" size={20} />
-                Close
-              </button>
+
+              {project.url && (
+                <a href={project.url} target="_blank" rel="noopener noreferrer" className="btn btn-signal w-full">
+                  <ExternalLink aria-hidden="true" className="h-4 w-4" />View Live
+                </a>
+              )}
             </div>
           </div>
+
+          <div className="pt-6 sm:hidden">
+            <button
+              onClick={onClose}
+              className="btn btn-line w-full"
+              data-testid="modal-close-button-bottom"
+            >
+              <X aria-hidden="true" size={18} />
+              Close
+            </button>
+          </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
