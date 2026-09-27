@@ -34,7 +34,7 @@ function useProtectedDashboard() {
     queryFn: getQueryFn({ on401: "returnNull" }),
     staleTime: 0,
   });
-  useEffect(() => { if (!isLoading && !session) setLocation("/login"); }, [isLoading, session, setLocation]);
+  useEffect(() => { if (!isLoading && !session) setLocation("/login?session=expired"); }, [isLoading, session, setLocation]);
   return Boolean(session);
 }
 

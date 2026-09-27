@@ -11,11 +11,13 @@ import { queryClient } from "@/lib/queryClient";
 
 export default function Login() {
   const [, setLocation] = useLocation();
+  // The dashboard sends people back here when their session is missing.
+  const signedOut = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("session") === "expired";
   const [formData, setFormData] = useState({
     username: "",
     password: ""
   });
-  const [error, setError] = useState("");
+  const [error, setError] = useState(signedOut ? "Your session has ended. Please sign in again." : "");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,17 +35,25 @@ export default function Login() {
         credentials: "include",
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
-      if (data.success) {
-        // The server set an httpOnly session cookie; drop any cached 401 state.
-        await queryClient.invalidateQueries({ queryKey: ["/api/admin/session"] });
-        setLocation("/dashboard");
-      } else {
-        setError(data.error || "Login failed");
+      if (!response.ok || !data.success) {
+        setError(data.error || data.message || `Login failed (${response.status})`);
+        return;
       }
+
+      // Sign-in only counts once the session cookie comes back on the next
+      // request; otherwise the dashboard would bounce straight back here.
+      await queryClient.invalidateQueries({ queryKey: ["/api/admin/session"] });
+      const session = await fetch("/api/admin/session", { credentials: "include" });
+      if (!session.ok) {
+        setError("Signed in, but your browser did not keep the session cookie. Check that cookies are allowed for this site, then try again.");
+        return;
+      }
+
+      setLocation("/dashboard");
     } catch (err) {
-      setError("Login failed. Please try again.");
+      setError("Could not reach the server. Check your connection and try again.");
     } finally {
       setIsLoading(false);
     }

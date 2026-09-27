@@ -98,7 +98,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const result = await login(username, password);
         if (result.success) {
-          setSessionCookie(res, result.token);
+          setSessionCookie(req, res, result.token);
           res.json({ success: true, user: result.user });
         } else {
           res.status(401).json({ error: result.error });
@@ -110,8 +110,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  app.post("/api/auth/logout", (_req, res) => {
-    clearSessionCookie(res);
+  app.post("/api/auth/logout", (req, res) => {
+    clearSessionCookie(req, res);
     res.json({ success: true });
   });
 
