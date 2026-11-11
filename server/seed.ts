@@ -4,6 +4,7 @@ import {
   AIQDA_CASE_STUDY,
   DELIVERY_DATES_MANAGER_CASE_STUDY,
   GIFTING_SYSTEM_CASE_STUDY,
+  LOGISTICS_PLATFORM_CASE_STUDY,
   TABLIYA_CASE_STUDY,
 } from "./caseStudyContent";
 import { SITE_IDENTITY } from "@shared/siteIdentity";
@@ -342,13 +343,14 @@ export async function seedDatabase(scope: "all" | "marketing" = "all") {
     }
 
     const drafts = [
-      { slug: "ezhalha-logistics-platform", title: "Ezhalha Logistics Platform", clientName: "Ezhalha", projectId: null, sortOrder: 1 },
+      { slug: "white-label-logistics-platform", title: "White-Label Logistics Platform", clientName: "White-label product", projectId: null, sortOrder: 1 },
       { slug: "aiqda-learning-platform", title: "Aiqda Learning Platform", clientName: "Aiqda", projectId: null, sortOrder: 2 },
       { slug: "tabliya-shopify-middleware", title: "Tabliya Shopify Middleware", clientName: "Tabliya", projectId: null, sortOrder: 3 },
       { slug: "woocommerce-delivery-dates-manager", title: "WooCommerce Delivery Dates Manager", clientName: "Onirik Pastry Boutique", projectId: null, sortOrder: 4 },
       { slug: "woocommerce-gifting-system", title: "WooCommerce Gifting System", clientName: "WooCommerce Gifting System", projectId: null, sortOrder: 5 },
     ];
     const completeCaseStudies = [
+      LOGISTICS_PLATFORM_CASE_STUDY,
       AIQDA_CASE_STUDY,
       TABLIYA_CASE_STUDY,
       DELIVERY_DATES_MANAGER_CASE_STUDY,
